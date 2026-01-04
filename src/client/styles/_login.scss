@@ -32,17 +32,6 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  
-  &::after {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    content: '';
-    z-index: 1000;
-    background: rgba(0, 0, 0, 0.5);
-  }
 }
 
 .osjs-login {
@@ -60,22 +49,21 @@
 
 #osjs-login {
   font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  width: 350px;
-  background: #2b2b2b;
-  padding: 30px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  border: 1px solid #444;
+  width: 360px;
+  background: #353535;
+  padding: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  border: 1px solid #555;
+  border-radius: 4px;
   color: #eee;
 
   .osjs-login-header {
     text-align: center;
     margin-bottom: 20px;
-    
+
     span {
-      font-size: 20px;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 2px;
+      font-size: 18px;
+      font-weight: normal;
       color: #fff;
     }
   }
@@ -103,49 +91,51 @@
   input[type=password],
   select {
     width: 100%;
-    padding: 10px;
-    background: #1a1a1a;
-    border: 1px solid #333;
+    padding: 6px 8px;
+    background: #252525;
+    border: 1px solid #555;
+    border-radius: 2px;
     color: #fff;
-    font-size: 14px;
+    font-size: 13px;
     box-sizing: border-box;
 
     &:focus {
       outline: none;
-      border-color: #0078d4;
-      background: #000;
+      border-color: #3daee9;
+      background: #252525;
     }
 
     &::placeholder {
-      color: #666;
+      color: #888;
     }
   }
 
   input[type=submit],
   button {
     width: 100%;
-    padding: 10px;
+    padding: 6px 12px;
     margin-top: 15px;
-    background: #333;
+    background: linear-gradient(to bottom, #505050, #3c3c3c);
     color: #fff;
-    border: 1px solid #555;
-    font-size: 14px;
-    font-weight: bold;
+    border: 1px solid #222;
+    border-radius: 2px;
+    font-size: 13px;
+    font-weight: normal;
     cursor: pointer;
-    text-transform: uppercase;
+    text-transform: none;
 
     &:hover {
-      background: #444;
+      background: linear-gradient(to bottom, #606060, #4c4c4c);
       border-color: #666;
     }
 
     &:active {
-      background: #222;
+      background: #333;
     }
-    
+
     &:disabled {
-      background: #222;
-      color: #555;
+      background: #333;
+      color: #777;
       cursor: not-allowed;
     }
   }
@@ -158,12 +148,13 @@
     text-align: center;
     font-size: 13px;
     margin-bottom: 15px;
+    border-radius: 2px;
   }
 
   .osjs-login-stamp {
     margin-top: 20px;
     text-align: center;
     font-size: 11px;
-    color: #666;
+    color: #888;
   }
 }

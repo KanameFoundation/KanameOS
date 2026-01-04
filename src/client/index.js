@@ -30,7 +30,6 @@ import SettingsServiceProvider from './provider/settings.js';
 import DesktopServiceProvider from './provider/desktop.js';
 import NotificationServiceProvider  from './provider/notifications.js';
 
-
 import {PanelServiceProvider} from '@osjs/panels';
 import {GUIServiceProvider} from '@osjs/gui';
 import {DialogServiceProvider} from '@osjs/dialogs';

@@ -94,7 +94,6 @@ export default class Login extends EventEmitter {
    */
   init(startHidden) {
     this.$container = document.createElement('div');
-    this.$container.id = this.options.id;
     this.$container.className = 'osjs-login-base';
     this.core.$root.classList.add('login');
     this.core.$root.appendChild(this.$container);
