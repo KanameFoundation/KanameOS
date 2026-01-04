@@ -69,12 +69,33 @@ class PackageServiceProvider extends ServiceProvider {
       
       if (pkg) {
         const filename = req.params[0];
-        const dist = path.join(path.dirname(pkg.filename), 'dist');
-        res.sendFile(filename, {root: dist}, (err) => {
-          if (err) {
-            res.status(404).send('Not found');
-          }
-        });
+        const type = pkg.metadata.type || 'application';
+        const typeMap = {
+          application: 'apps',
+          theme: 'themes',
+          icons: 'icons',
+          sounds: 'sounds'
+        };
+        const targetDir = typeMap[type] || 'apps';
+        
+        // Try serving from global dist first
+        const globalDist = path.resolve(this.core.configuration.public, targetDir, name);
+        const localDist = path.join(path.dirname(pkg.filename), 'dist');
+
+        const tryServe = (root) => {
+          res.sendFile(filename, {root}, (err) => {
+            if (err) {
+              if (root === globalDist) {
+                // Fallback to local dist
+                tryServe(localDist);
+              } else {
+                res.status(404).send('Not found');
+              }
+            }
+          });
+        };
+
+        tryServe(globalDist);
       } else {
         res.status(404).send('Not found');
       }

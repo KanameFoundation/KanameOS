@@ -62,6 +62,33 @@ module.exports = (core, proc) => {
       if (packageRoot !== tempExtractPath) {
          await fs.remove(tempExtractPath);
       }
+
+      // Copy to global dist for serving
+      try {
+        const type = metadata.type || 'application';
+        const typeMap = {
+          application: 'apps',
+          theme: 'themes',
+          icons: 'icons',
+          sounds: 'sounds'
+        };
+        const targetDir = typeMap[type] || 'apps';
+        const globalDist = path.resolve(core.configuration.public, targetDir, packageName);
+        const localDist = path.join(finalPath, 'dist');
+        
+        // If dist folder exists, link it. Otherwise link the root folder.
+        const linkSource = (await fs.pathExists(localDist)) ? localDist : finalPath;
+
+        if (await fs.pathExists(linkSource)) {
+          await fs.remove(globalDist);
+          await fs.ensureDir(path.dirname(globalDist));
+          await fs.ensureSymlink(linkSource, globalDist);
+          console.log(`AppManager: Linked ${packageName} to ${globalDist} (from ${linkSource})`);
+        }
+      } catch (e) {
+        console.warn('AppManager: Failed to copy to dist', e);
+      }
+
       if (cleanupCallback) await cleanupCallback();
 
       // Reload packages on server
@@ -188,8 +215,67 @@ module.exports = (core, proc) => {
     }
   };
 
+  const inspectPackage = async (req, res) => {
+    const { vfsPath } = req.body;
+    if (!vfsPath) {
+      return res.status(400).json({error: 'Missing vfsPath'});
+    }
+
+    const username = req.session.user.username;
+    let realPath;
+    
+    if (vfsPath.startsWith('home:/')) {
+      realPath = path.resolve(process.cwd(), 'vfs', username, vfsPath.replace('home:/', ''));
+    } else if (vfsPath.startsWith('system:/')) {
+      realPath = path.resolve(process.cwd(), 'dist', vfsPath.replace('system:/', ''));
+    } else {
+       return res.status(400).json({error: 'Unsupported VFS mountpoint'});
+    }
+
+    if (!await fs.pathExists(realPath)) {
+      return res.status(404).json({error: 'File not found'});
+    }
+
+    try {
+      const zip = new AdmZip(realPath);
+      const tempExtractPath = path.join(path.resolve(process.cwd(), 'vfs/tmp'), 'inspect-' + Date.now());
+      
+      await fs.ensureDir(tempExtractPath);
+      zip.extractAllTo(tempExtractPath, true);
+
+      let metadataPath = path.join(tempExtractPath, 'metadata.json');
+
+      if (!await fs.pathExists(metadataPath)) {
+        const entries = await fs.readdir(tempExtractPath);
+        if (entries.length === 1) {
+          const subDir = path.join(tempExtractPath, entries[0]);
+          if ((await fs.stat(subDir)).isDirectory()) {
+            const subMetadataPath = path.join(subDir, 'metadata.json');
+            if (await fs.pathExists(subMetadataPath)) {
+              metadataPath = subMetadataPath;
+            }
+          }
+        }
+      }
+
+      if (!await fs.pathExists(metadataPath)) {
+         await fs.remove(tempExtractPath);
+         return res.status(400).json({error: 'Invalid package: missing metadata.json'});
+      }
+
+      const metadata = await fs.readJson(metadataPath);
+      await fs.remove(tempExtractPath);
+
+      res.json(metadata);
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({error: e.message});
+    }
+  };
+
   route('POST', '/apps/AppManager/install', installPackage);
   route('POST', '/apps/AppManager/uninstall', uninstallPackage);
+  route('POST', '/apps/AppManager/inspect', inspectPackage);
 
   return {
     init: async () => {}

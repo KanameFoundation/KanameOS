@@ -46,6 +46,21 @@ const getPackagePaths = async () => {
      }
   }
 
+  // 3. Scan userland packages
+  const userPackagesDir = path.resolve(root, 'vfs/apps');
+  if (await fs.pathExists(userPackagesDir)) {
+     const entries = await fs.readdir(userPackagesDir);
+     for (const entry of entries) {
+       const entryPath = path.join(userPackagesDir, entry);
+       const stat = await fs.stat(entryPath);
+       if (stat.isDirectory()) {
+         if (await fs.pathExists(path.join(entryPath, 'metadata.json'))) {
+            paths.push(entryPath);
+         }
+       }
+     }
+  }
+
   return paths;
 };
 
@@ -64,6 +79,33 @@ const run = async () => {
       try {
         const meta = await fs.readJson(metaPath);
         metadata.push(meta);
+
+        const type = meta.type || 'application';
+        const typeMap = {
+          application: 'apps',
+          theme: 'themes',
+          icons: 'icons',
+          sounds: 'sounds'
+        };
+
+        const targetDir = typeMap[type] || 'apps';
+        const sourceDist = path.join(pkgPath, 'dist');
+        const targetDist = path.resolve(root, 'dist', targetDir, meta.name);
+
+        // Check if 'dist' exists, if not, check if files are in root (common for simple userland apps)
+        let linkSource = sourceDist;
+        if (!await fs.pathExists(sourceDist)) {
+           // If no dist folder, assume the package root is the dist (for simple apps)
+           // But we should verify if the main file exists there
+           linkSource = pkgPath;
+        }
+
+        if (await fs.pathExists(linkSource)) {
+          await fs.remove(targetDist);
+          await fs.ensureDir(path.dirname(targetDist));
+          await fs.ensureSymlink(linkSource, targetDist);
+          console.log(`Linked ${meta.name} to ${targetDist} (from ${linkSource})`);
+        }
       } catch (e) {
         console.warn(`Failed to read metadata for ${pkgPath}`, e);
       }
