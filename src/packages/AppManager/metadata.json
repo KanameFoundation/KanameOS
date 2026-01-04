@@ -1,0 +1,16 @@
+{
+  "name": "AppManager",
+  "title": {
+    "en_EN": "App Manager"
+  },
+  "description": {
+    "en_EN": "Install and manage applications"
+  },
+  "category": "system",
+  "mimes": ["application/webpackage"],
+  "server": "server.js",
+  "files": [
+    "main.js",
+    "main.css"
+  ]
+}

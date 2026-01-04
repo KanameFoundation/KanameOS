@@ -1,0 +1,12 @@
+{
+  "name": "app-manager",
+  "version": "1.0.0",
+  "description": "Application Manager for WebOS",
+  "main": "index.js",
+  "osjs": {
+    "type": "application"
+  },
+  "scripts": {
+    "build": "rspack"
+  }
+}

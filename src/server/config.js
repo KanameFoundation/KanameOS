@@ -1,44 +1,108 @@
 /*
- * OS.js - JavaScript Cloud/Web Desktop Platform
+ * WebOS - Web Based Operating System
  *
- * Copyright (c) 2011-2020, Anders Evenrud <andersevenrud@gmail.com>
+ * Copyright (c) 2026 Abdul Vaiz Vahry Iskandar <cyberaioff@gmail.com>
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * @author  Anders Evenrud <andersevenrud@gmail.com>
- * @licence Simplified BSD License
+ * ---------------------------------------------------------
+ * Based on OS.js - JavaScript Cloud/Web Desktop Platform
+ * Copyright (c) Anders Evenrud <andersevenrud@gmail.com>
+ * ---------------------------------------------------------
  */
-
-//
-// This is the server configuration tree.
-// Guide: https://manual.os-js.org/config/#server
-// Complete config tree: https://github.com/os-js/osjs-server/blob/master/src/config.js
-//
 
 const path = require('path');
 const root = path.resolve(__dirname, '../../');
+const maxAge = 60 * 60 * 12;
+const mb = m => m * 1024 * 1024;
 
 module.exports = {
   root,
+  development: !(process.env.NODE_ENV || '').match(/^prod/i),
+  logging: true,
+  index: 'index.html',
+  bind: '0.0.0.0',
   port: 8000,
-  public: path.resolve(root, 'dist')
+  public: path.resolve(root, 'dist'),
+  morgan: 'tiny',
+  express: {
+    maxFieldsSize: mb(20),
+    maxFileSize: mb(200),
+    maxBodySize: '100kb'
+  },
+  https: {
+    enabled: false,
+    options: {
+      key: null,
+      cert: null
+    }
+  },
+  ws: {
+    port: null,
+    ping: 30 * 1000
+  },
+  proxy: [],
+  auth: {
+    vfsGroups: [],
+    defaultGroups: [],
+    requiredGroups: [],
+    requireAllGroups: false,
+    denyUsers: []
+  },
+  mime: {
+    filenames: {
+      'Makefile': 'text/x-makefile',
+      '.gitignore': 'text/plain'
+    },
+    define: {
+      'text/x-lilypond': ['ly', 'ily'],
+      'text/x-python': ['py'],
+      'application/tar+gzip': ['tgz'],
+      'application/webpackage': ['wpk']
+    }
+  },
+  session: {
+    store: {
+      module: require.resolve('connect-loki'),
+      options: {
+        autosave: true
+      }
+    },
+    options: {
+      name: 'osjs.sid',
+      secret: 'osjs',
+      rolling: true,
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        secure: 'auto',
+        maxAge: 1000 * maxAge
+      }
+    }
+  },
+  packages: {
+    discovery: 'packages.json',
+    metadata: 'metadata.json'
+  },
+  vfs: {
+    watch: false,
+    root: path.join(process.cwd(), 'vfs'),
+    mountpoints: [{
+      name: 'system',
+      attributes: {
+        root: '{root}/dist',
+        readOnly: true
+      }
+    }, {
+      name: 'home',
+      attributes: {
+        root: '{vfs}/{username}'
+      }
+    }],
+    home: {
+      template: [{
+        path: '.desktop/.shortcuts.json',
+        contents: JSON.stringify([])
+      }]
+    }
+  }
 };

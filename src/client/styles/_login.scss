@@ -1,0 +1,169 @@
+/*
+ * OS.js - JavaScript Cloud/Web Desktop Platform
+ *
+ * Copyright (c) Anders Evenrud <andersevenrud@gmail.com>
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author  Anders Evenrud <andersevenrud@gmail.com>
+ * @license Simplified BSD License
+ */
+
+.osjs-root.login {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  
+  &::after {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    content: '';
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.5);
+  }
+}
+
+.osjs-login {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 99999;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+#osjs-login {
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  width: 350px;
+  background: #2b2b2b;
+  padding: 30px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  border: 1px solid #444;
+  color: #eee;
+
+  .osjs-login-header {
+    text-align: center;
+    margin-bottom: 20px;
+    
+    span {
+      font-size: 20px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #fff;
+    }
+  }
+
+  .osjs-login-logo {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  .osjs-login-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .osjs-login-field {
+    width: 100%;
+  }
+
+  input[type=text],
+  input[type=password],
+  select {
+    width: 100%;
+    padding: 10px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    color: #fff;
+    font-size: 14px;
+    box-sizing: border-box;
+
+    &:focus {
+      outline: none;
+      border-color: #0078d4;
+      background: #000;
+    }
+
+    &::placeholder {
+      color: #666;
+    }
+  }
+
+  input[type=submit],
+  button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 15px;
+    background: #333;
+    color: #fff;
+    border: 1px solid #555;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+
+    &:hover {
+      background: #444;
+      border-color: #666;
+    }
+
+    &:active {
+      background: #222;
+    }
+    
+    &:disabled {
+      background: #222;
+      color: #555;
+      cursor: not-allowed;
+    }
+  }
+
+  .osjs-login-error {
+    background: #500;
+    border: 1px solid #800;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+    font-size: 13px;
+    margin-bottom: 15px;
+  }
+
+  .osjs-login-stamp {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 11px;
+    color: #666;
+  }
+}

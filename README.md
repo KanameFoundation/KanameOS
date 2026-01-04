@@ -4,7 +4,7 @@
 
 # OS.js
 
-[OS.js](https://www.os-js.org/) is an [open-source](https://raw.githubusercontent.com/os-js/OS.js/master/LICENSE) web desktop platform with a window manager, application APIs, GUI toolkit, filesystem abstractions and much more.
+[WebOS](https://www.os-js.org/) is an [open-source](https://raw.githubusercontent.com/os-js/OS.js/master/LICENSE) web desktop platform with a window manager, application APIs, GUI toolkit, filesystem abstractions and much more.
 
 **Backing/Donations:**
 [Github sponsorship](https://github.com/sponsors/andersevenrud),

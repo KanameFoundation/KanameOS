@@ -1,24 +1,9 @@
 const path = require('path');
+const rspack = require('@rspack/core');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const mode = process.env.NODE_ENV || 'development';
 const minimize = mode === 'production';
-const webpack = require('webpack');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const {DefinePlugin} = webpack;
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const npm = require('./package.json');
-const plugins = [];
-
-if (mode === 'production') {
-  plugins.push(new OptimizeCSSAssetsPlugin({
-    cssProcessorOptions: {
-      discardComments: true,
-      map: {
-        inline: false
-      }
-    },
-  }));
-}
 
 module.exports = {
   mode,
@@ -27,8 +12,8 @@ module.exports = {
     osjs: path.resolve(__dirname, 'src/client/index.js')
   },
   performance: {
-    maxEntrypointSize: 500 * 1024,
-    maxAssetSize: 500 * 1024
+    maxEntrypointSize: 1024 * 1024,
+    maxAssetSize: 1024 * 1024
   },
   optimization: {
     minimize,
@@ -37,43 +22,41 @@ module.exports = {
     }
   },
   plugins: [
-    new DefinePlugin({
-      OSJS_VERSION: npm.version
+    new rspack.DefinePlugin({
+      OSJS_VERSION: JSON.stringify(npm.version)
     }),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'src/client/index.ejs'),
       favicon: path.resolve(__dirname, 'src/client/favicon.png'),
       title: 'OS.js'
     }),
-    new MiniCssExtractPlugin({
-      filename: '[name].css'
+    new rspack.CopyRspackPlugin({
+      patterns: [
+        {from: path.resolve(__dirname, 'node_modules/@osjs/panels/dist/*.png'), to: '[name][ext]'},
+      ]
     }),
-    ...plugins
+    new rspack.CssExtractRspackPlugin({
+      filename: '[name].css'
+    })
   ],
   module: {
     rules: [
       {
         test: /\.(svg|png|jpe?g|gif|webp)$/,
-        use: [
-          {
-            loader: 'file-loader'
-          }
-        ]
+        type: 'asset/resource'
       },
       {
         test: /\.(eot|svg|ttf|woff|woff2)$/,
         include: /typeface/,
-        use: {
-          loader: 'file-loader',
-          options: {
-            name: 'fonts/[name].[ext]'
-          }
+        type: 'asset/resource',
+        generator: {
+          filename: 'fonts/[name][ext]'
         }
       },
       {
         test: /\.(sa|sc|c)ss$/,
         use: [
-          MiniCssExtractPlugin.loader,
+          rspack.CssExtractRspackPlugin.loader,
           {
             loader: 'css-loader',
             options: {
@@ -92,12 +75,21 @@ module.exports = {
         test: /\.js$/,
         exclude: /node_modules/,
         use: {
-          loader: 'babel-loader'
+          loader: 'builtin:swc-loader',
+          options: {
+            sourceMaps: true,
+            jsc: {
+              parser: {
+                syntax: 'ecmascript'
+              }
+            }
+          }
         }
       },
       {
         test: /\.js$/,
         enforce: 'pre',
+        exclude: /node_modules/,
         use: {
           loader: 'source-map-loader'
         }

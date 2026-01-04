@@ -1,0 +1,17 @@
+{
+  "name": "settings-application",
+  "version": "1.0.0",
+  "description": "Settings Application for WebOS",
+  "main": "index.js",
+  "osjs": {
+    "type": "application"
+  },
+  "dependencies": {
+    "@osjs/gui": "^4.0.30",
+    "deepmerge": "^4.2.2",
+    "hyperapp": "^1.2.10"
+  },
+  "scripts": {
+    "build": "rspack"
+  }
+}
