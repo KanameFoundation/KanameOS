@@ -69,38 +69,69 @@ const register = (core, args, options, metadata) => {
 
       const author = metadata.author || 'Unknown';
       const description = (metadata.description && metadata.description.en_EN) || metadata.description || 'No description';
-      
-      core.make('osjs/dialog', 'confirm', {
-        title: 'Install Package',
-        message: `Do you want to install ${metadata.name}?\n\nDescription: ${description}\nAuthor: ${author}`
-      }, (btn) => {
-        if (btn === 'yes') {
-          const dialog = core.make('osjs/dialog', 'alert', {
-            title: 'Installing...',
-            message: 'Please wait while the package is being installed.',
-            buttons: [] // Hide buttons
-          }, () => {});
+      const version = metadata.version || '0.0.0';
 
-          fetch(proc.resource('/install'), {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({vfsPath})
-          })
-          .then(res => res.json())
-          .then(result => {
-            dialog.destroy(); // Close installing dialog
-            if (result.success) {
-              core.make('osjs/dialog', 'alert', {title: 'Success', message: `Installed ${result.name}`}, () => {});
-              if (reloadCallback) reloadCallback();
-            } else {
-              core.make('osjs/dialog', 'alert', {title: 'Error', message: result.error}, () => {});
-            }
-          })
-          .catch(err => {
-             dialog.destroy(); // Close installing dialog
-             core.make('osjs/dialog', 'alert', {title: 'Error', message: err.message}, () => {});
-          });
+      proc.createWindow({
+        id: 'AppInstallDialog',
+        title: 'Install Package',
+        dimension: {width: 400, height: 300},
+        attributes: {
+          modal: true,
+          resizable: false
         }
+      })
+      .render(($content, win) => {
+        app({}, {
+          install: () => {
+            win.destroy();
+            const dialog = core.make('osjs/dialog', 'alert', {
+              title: 'Installing...',
+              message: 'Please wait while the package is being installed.',
+              buttons: [] // Hide buttons
+            }, () => {});
+
+            fetch(proc.resource('/install'), {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({vfsPath})
+            })
+            .then(res => res.json())
+            .then(result => {
+              dialog.destroy(); // Close installing dialog
+              if (result.success) {
+                core.make('osjs/dialog', 'alert', {title: 'Success', message: `Installed ${result.name}`}, () => {});
+                if (reloadCallback) reloadCallback();
+              } else {
+                core.make('osjs/dialog', 'alert', {title: 'Error', message: result.error}, () => {});
+              }
+            })
+            .catch(err => {
+               dialog.destroy(); // Close installing dialog
+               core.make('osjs/dialog', 'alert', {title: 'Error', message: err.message}, () => {});
+            });
+          },
+          close: () => win.destroy()
+        }, (state, actions) => {
+          return h(Box, {grow: 1, padding: true}, [
+            h('div', {style: {textAlign: 'center', marginBottom: '1em'}}, [
+              h('div', {style: {fontWeight: 'bold', fontSize: '1.2em'}}, metadata.name),
+              h('div', {}, `v${version}`)
+            ]),
+            h('div', {style: {marginBottom: '1em'}}, [
+              h('div', {style: {fontWeight: 'bold'}}, 'Description:'),
+              h('div', {}, description)
+            ]),
+            h('div', {style: {marginBottom: '1em'}}, [
+              h('div', {style: {fontWeight: 'bold'}}, 'Author:'),
+              h('div', {}, author)
+            ]),
+            h(Box, {grow: 1}), // Spacer
+            h('div', {style: {display: 'flex', justifyContent: 'flex-end'}}, [
+              h(Button, {onclick: () => actions.close()}, 'Cancel'),
+              h(Button, {onclick: () => actions.install(), type: 'primary'}, 'Install')
+            ])
+          ]);
+        }, $content);
       });
     })
     .catch(err => {

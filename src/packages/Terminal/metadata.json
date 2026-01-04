@@ -1,0 +1,15 @@
+{
+  "name": "Terminal",
+  "title": {
+    "en_EN": "Terminal"
+  },
+  "description": {
+    "en_EN": "JavaScript Terminal"
+  },
+  "category": "utilities",
+  "icon": "logo.svg",
+  "files": [
+    "main.js",
+    "main.css"
+  ]
+}

@@ -1,0 +1,48 @@
+.osjs-terminal-window {
+    background-color: #000;
+    color: #fff;
+    font-family: monospace;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    .terminal-output {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0.5em;
+        white-space: pre-wrap;
+
+        .command {
+            color: #0f0;
+            font-weight: bold;
+        }
+
+        .result {
+            color: #ccc;
+        }
+
+        .error {
+            color: #f00;
+        }
+    }
+
+    .terminal-input-area {
+        display: flex;
+        padding: 0.5em;
+        background: #222;
+
+        span {
+            margin-right: 0.5em;
+            color: #0f0;
+        }
+
+        input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-family: monospace;
+            outline: none;
+        }
+    }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "terminal-application",
+  "version": "1.0.0",
+  "description": "Terminal Application for WebOS",
+  "main": "index.js",
+  "osjs": {
+    "type": "application"
+  },
+  "scripts": {
+    "build": "rspack"
+  }
+}

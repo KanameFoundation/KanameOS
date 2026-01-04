@@ -10,8 +10,9 @@
     "serve": "node src/server/index.js",
     "build:manifest": "node src/scripts/discover.js",
     "package:discover": "node src/scripts/discover.js",
-    "build": "NODE_ENV=production rspack build && cd src/packages/AppManager && npm run build",
-    "watch": "rspack build --watch"
+    "build": "NODE_ENV=production rspack build && cd src/packages/AppManager && npm run build && cd ../Terminal && npm run build ",
+    "watch": "rspack build --watch",
+    "prepare": "npm run build && npm run build:manifest"
   },
   "keywords": [
     "osjs"
