@@ -28,25 +28,30 @@
  * @license Simplified BSD License
  */
 
-import Application from '../application';
-import Window from '../window';
-import WindowBehavior from '../window-behavior';
-import Session from '../session';
-import Packages from '../packages';
-import Tray from '../tray';
-import Websocket from '../websocket';
-import Clipboard from '../clipboard';
-import Middleware from '../middleware';
-import * as translations from '../../locale';
-import {format, translatable, translatableFlat, getLocale} from '../utils/locale';
-import {style, script, playSound} from '../utils/dom';
-import {resourceResolver} from '../utils/desktop';
-import * as dnd from '../utils/dnd';
-import {BasicApplication} from '../basic-application.js';
-import {ServiceProvider} from '../../common/service-provider.js';
-import {EventEmitter} from '../../event/emitter.js';
-import logger from '../logger';
-import merge from 'deepmerge';
+import Application from "../application";
+import Window from "../window";
+import WindowBehavior from "../window-behavior";
+import Session from "../session";
+import Packages from "../packages";
+import Tray from "../tray";
+import Websocket from "../websocket";
+import Clipboard from "../clipboard";
+import Middleware from "../middleware";
+import * as translations from "../../locale";
+import {
+  format,
+  translatable,
+  translatableFlat,
+  getLocale,
+} from "../utils/locale";
+import { style, script, playSound } from "../utils/dom";
+import { resourceResolver } from "../utils/desktop";
+import * as dnd from "../utils/dnd";
+import { BasicApplication } from "../basic-application.js";
+import { ServiceProvider } from "../../common/service-provider.js";
+import { EventEmitter } from "../../event/emitter.js";
+import logger from "../logger";
+import merge from "deepmerge";
 
 /**
  * Core Provider Locale Contract
@@ -160,7 +165,6 @@ import merge from 'deepmerge';
  * OS.js Core Service Provider
  */
 export default class CoreServiceProvider extends ServiceProvider {
-
   /**
    * @param {Core} core OS.js Core
    * @param {CoreProviderOptions} [options={}] Arguments
@@ -207,23 +211,23 @@ export default class CoreServiceProvider extends ServiceProvider {
    */
   provides() {
     return [
-      'osjs/application',
-      'osjs/basic-application',
-      'osjs/window',
-      'osjs/windows',
-      'osjs/event-handler',
-      'osjs/window-behaviour',
-      'osjs/dnd',
-      'osjs/dom',
-      'osjs/clipboard',
-      'osjs/middleware',
-      'osjs/tray',
-      'osjs/locale',
-      'osjs/packages',
-      'osjs/websocket',
-      'osjs/session',
-      'osjs/theme',
-      'osjs/sounds'
+      "osjs/application",
+      "osjs/basic-application",
+      "osjs/window",
+      "osjs/windows",
+      "osjs/event-handler",
+      "osjs/window-behaviour",
+      "osjs/dnd",
+      "osjs/dom",
+      "osjs/clipboard",
+      "osjs/middleware",
+      "osjs/tray",
+      "osjs/locale",
+      "osjs/packages",
+      "osjs/websocket",
+      "osjs/session",
+      "osjs/theme",
+      "osjs/sounds",
     ];
   }
 
@@ -247,7 +251,7 @@ export default class CoreServiceProvider extends ServiceProvider {
   init() {
     this.registerContracts();
 
-    this.core.on('osjs/core:started', () => {
+    this.core.on("osjs/core:started", () => {
       this.session.load();
     });
 
@@ -259,17 +263,17 @@ export default class CoreServiceProvider extends ServiceProvider {
    * @return {Promise<undefined>}
    */
   start() {
-    if (this.core.config('development')) {
-      this.core.on('osjs/dist:changed', filename => {
+    if (this.core.config("development")) {
+      this.core.on("osjs/dist:changed", (filename) => {
         this._onDistChanged(filename);
       });
 
-      this.core.on('osjs/packages:package:changed', name => {
+      this.core.on("osjs/packages:package:changed", (name) => {
         this._onPackageChanged(name);
       });
     }
 
-    this.core.on('osjs/packages:metadata:changed', () => {
+    this.core.on("osjs/packages:metadata:changed", () => {
       this.pm.init();
     });
   }
@@ -278,27 +282,42 @@ export default class CoreServiceProvider extends ServiceProvider {
    * Registers contracts
    */
   registerContracts() {
-    this.core.instance('osjs/window', (options = {}) => new Window(this.core, options));
-    this.core.instance('osjs/application', (data = {}) => new Application(this.core, data));
-    this.core.instance('osjs/basic-application', (proc, win, options = {}) => new BasicApplication(this.core, proc, win, options));
-    this.core.instance('osjs/websocket', (name, uri, options = {}) => new Websocket(name, uri, options));
-    this.core.instance('osjs/event-emitter', name => new EventEmitter(name));
+    this.core.instance(
+      "osjs/window",
+      (options = {}) => new Window(this.core, options)
+    );
+    this.core.instance(
+      "osjs/application",
+      (data = {}) => new Application(this.core, data)
+    );
+    this.core.instance(
+      "osjs/basic-application",
+      (proc, win, options = {}) =>
+        new BasicApplication(this.core, proc, win, options)
+    );
+    this.core.instance(
+      "osjs/websocket",
+      (name, uri, options = {}) => new Websocket(name, uri, options)
+    );
+    this.core.instance("osjs/event-emitter", (name) => new EventEmitter(name));
 
-    this.core.singleton('osjs/windows', () => this.createWindowContract());
-    this.core.singleton('osjs/locale', () => this.createLocaleContract());
-    this.core.singleton('osjs/dnd', () => this.createDnDContract());
-    this.core.singleton('osjs/dom', () => this.createDOMContract());
-    this.core.singleton('osjs/theme', () => this.createThemeContract());
-    this.core.singleton('osjs/sounds', () => this.createSoundsContract());
-    this.core.singleton('osjs/session', () => this.createSessionContract());
-    this.core.singleton('osjs/packages', () => this.createPackagesContract());
-    this.core.singleton('osjs/clipboard', () => this.createClipboardContract());
-    this.core.singleton('osjs/middleware', () => this.createMiddlewareContract());
+    this.core.singleton("osjs/windows", () => this.createWindowContract());
+    this.core.singleton("osjs/locale", () => this.createLocaleContract());
+    this.core.singleton("osjs/dnd", () => this.createDnDContract());
+    this.core.singleton("osjs/dom", () => this.createDOMContract());
+    this.core.singleton("osjs/theme", () => this.createThemeContract());
+    this.core.singleton("osjs/sounds", () => this.createSoundsContract());
+    this.core.singleton("osjs/session", () => this.createSessionContract());
+    this.core.singleton("osjs/packages", () => this.createPackagesContract());
+    this.core.singleton("osjs/clipboard", () => this.createClipboardContract());
+    this.core.singleton("osjs/middleware", () =>
+      this.createMiddlewareContract()
+    );
 
-    this.core.instance('osjs/tray', (options, handler) => {
-      if (typeof options !== 'undefined') {
+    this.core.instance("osjs/tray", (options, handler) => {
+      if (typeof options !== "undefined") {
         // FIXME: Use contract instead
-        logger.warn('osjs/tray usage without .create() is deprecated');
+        logger.warn("osjs/tray usage without .create() is deprecated");
         return this.tray.create(options, handler);
       }
 
@@ -306,31 +325,37 @@ export default class CoreServiceProvider extends ServiceProvider {
     });
 
     // FIXME: Remove this from public usage
-    this.core.singleton('osjs/window-behavior', () => typeof this.options.windowBehavior === 'function'
-      ? this.options.windowBehavior(this.core)
-      : new WindowBehavior(this.core));
+    this.core.singleton("osjs/window-behavior", () =>
+      typeof this.options.windowBehavior === "function"
+        ? this.options.windowBehavior(this.core)
+        : new WindowBehavior(this.core)
+    );
 
     // FIXME: deprecated
-    this.core.instance('osjs/event-handler', (...args) => {
-      logger.warn('osjs/event-handler is deprecated, use osjs/event-emitter');
-      return new EventEmitter(...args);
-    });
+    // this.core.instance('osjs/event-handler', (...args) => {
+    //   logger.warn('osjs/event-handler is deprecated, use osjs/event-emitter');
+    //   return new EventEmitter(...args);
+    // });
   }
 
   /**
    * Expose some internals to global
    */
   createGlobalApi() {
-    const globalBlacklist = this.core.config('providers.globalBlacklist', []);
-    const globalWhitelist = this.core.config('providers.globalWhitelist', []);
+    const globalBlacklist = this.core.config("providers.globalBlacklist", []);
+    const globalWhitelist = this.core.config("providers.globalWhitelist", []);
 
     const make = (name, ...args) => {
       if (this.core.has(name)) {
-        const blacklisted = globalBlacklist.length > 0 && globalBlacklist.indexOf(name) !== -1;
-        const notWhitelisted = globalWhitelist.length > 0 && globalWhitelist.indexOf(name) === -1;
+        const blacklisted =
+          globalBlacklist.length > 0 && globalBlacklist.indexOf(name) !== -1;
+        const notWhitelisted =
+          globalWhitelist.length > 0 && globalWhitelist.indexOf(name) === -1;
 
         if (blacklisted || notWhitelisted) {
-          throw new Error(`The provider '${name}' cannot be used via global scope`);
+          throw new Error(
+            `The provider '${name}' cannot be used via global scope`
+          );
         }
       }
 
@@ -340,11 +365,13 @@ export default class CoreServiceProvider extends ServiceProvider {
     return Object.freeze({
       make,
       register: (name, callback) => this.pm.register(name, callback),
-      url: (endpoint, options, metadata) => this.core.url(endpoint, options, metadata),
-      run: (name, args = {}, options = {}) => this.core.run(name, args, options),
+      url: (endpoint, options, metadata) =>
+        this.core.url(endpoint, options, metadata),
+      run: (name, args = {}, options = {}) =>
+        this.core.run(name, args, options),
       open: (file, options = {}) => this.core.open(file, options),
       request: (url, options, type) => this.core.request(url, options, type),
-      middleware: (group, callback) => this.middleware.add(group, callback)
+      middleware: (group, callback) => this.middleware.add(group, callback),
     });
   }
 
@@ -354,21 +381,23 @@ export default class CoreServiceProvider extends ServiceProvider {
    * @param {string} filename The resource filename
    */
   _onDistChanged(filename) {
-    const url = this.core.url(filename).replace(/^\//, '');
-    const found = this.core.$resourceRoot.querySelectorAll('link[rel=stylesheet]');
+    const url = this.core.url(filename).replace(/^\//, "");
+    const found = this.core.$resourceRoot.querySelectorAll(
+      "link[rel=stylesheet]"
+    );
     const map = Array.from(found).reduce((result, item) => {
-      const src = item.getAttribute('href').split('?')[0].replace(/^\//, '');
+      const src = item.getAttribute("href").split("?")[0].replace(/^\//, "");
       return {
         [src]: item,
-        ...result
+        ...result,
       };
     }, {});
 
     if (map[url]) {
-      logger.debug('Hot-reloading', url);
+      logger.debug("Hot-reloading", url);
 
       setTimeout(() => {
-        map[url].setAttribute('href', url);
+        map[url].setAttribute("href", url);
       }, 100);
     }
   }
@@ -381,8 +410,8 @@ export default class CoreServiceProvider extends ServiceProvider {
   _onPackageChanged(name) {
     // TODO: Reload themes as well
     Application.getApplications()
-      .filter(proc => proc.metadata.name === name)
-      .forEach(proc => proc.relaunch());
+      .filter((proc) => proc.metadata.name === name)
+      .forEach((proc) => proc.relaunch());
   }
 
   /**
@@ -398,16 +427,18 @@ export default class CoreServiceProvider extends ServiceProvider {
       translate,
       translatable: translatable(this.core),
       translatableFlat: translatableFlat(this.core),
-      getLocale: (key = 'language') => {
+      getLocale: (key = "language") => {
         const ref = getLocale(this.core, key);
         return ref.userLocale || ref.defaultLocale;
       },
-      setLocale: name => name in strs
-        ? this.core.make('osjs/settings')
-          .set('osjs/locale', 'language', name)
-          .save()
-          .then(() => this.core.emit('osjs/locale:change', name))
-        : Promise.reject(translate('ERR_INVALID_LOCALE', name))
+      setLocale: (name) =>
+        name in strs
+          ? this.core
+              .make("osjs/settings")
+              .set("osjs/locale", "language", name)
+              .save()
+              .then(() => this.core.emit("osjs/locale:change", name))
+          : Promise.reject(translate("ERR_INVALID_LOCALE", name)),
     };
   }
 
@@ -419,7 +450,7 @@ export default class CoreServiceProvider extends ServiceProvider {
     return {
       create: (options = {}) => new Window(this.core, options),
       list: () => Window.getWindows(),
-      last: () => Window.lastWindow()
+      last: () => Window.lastWindow(),
     };
   }
 
@@ -438,7 +469,7 @@ export default class CoreServiceProvider extends ServiceProvider {
   createDOMContract() {
     return {
       script,
-      style
+      style,
     };
   }
 
@@ -447,11 +478,11 @@ export default class CoreServiceProvider extends ServiceProvider {
    * @return {CoreProviderThemeContract}
    */
   createThemeContract() {
-    const {themeResource, icon} = resourceResolver(this.core);
+    const { themeResource, icon } = resourceResolver(this.core);
 
     return {
       resource: themeResource,
-      icon
+      icon,
     };
   }
 
@@ -460,7 +491,7 @@ export default class CoreServiceProvider extends ServiceProvider {
    * @return {CoreProviderSoundContract}
    */
   createSoundsContract() {
-    const {soundResource, soundsEnabled} = resourceResolver(this.core);
+    const { soundResource, soundsEnabled } = resourceResolver(this.core);
 
     return {
       resource: soundResource,
@@ -476,7 +507,7 @@ export default class CoreServiceProvider extends ServiceProvider {
         }
 
         return false;
-      }
+      },
     };
   }
 
@@ -487,7 +518,7 @@ export default class CoreServiceProvider extends ServiceProvider {
   createSessionContract() {
     return {
       save: () => this.session.save(),
-      load: (fresh = false) => this.session.load(fresh)
+      load: (fresh = false) => this.session.load(fresh),
     };
   }
 
@@ -497,13 +528,15 @@ export default class CoreServiceProvider extends ServiceProvider {
    */
   createPackagesContract() {
     return {
-      launch: (name, args = {}, options = {}) => this.pm.launch(name, args, options),
+      launch: (name, args = {}, options = {}) =>
+        this.pm.launch(name, args, options),
       register: (name, callback) => this.pm.register(name, callback),
-      addPackages: list => this.pm.addPackages(list),
-      getPackages: filter => this.pm.getPackages(filter),
-      getCompatiblePackages: mimeType => this.pm.getCompatiblePackages(mimeType),
+      addPackages: (list) => this.pm.addPackages(list),
+      getPackages: (filter) => this.pm.getPackages(filter),
+      getCompatiblePackages: (mimeType) =>
+        this.pm.getCompatiblePackages(mimeType),
       running: () => this.pm.running(),
-      getMetadataFromName: name => this.pm.getMetadataFromName(name)
+      getMetadataFromName: (name) => this.pm.getMetadataFromName(name),
     };
   }
 
@@ -515,8 +548,8 @@ export default class CoreServiceProvider extends ServiceProvider {
     return {
       clear: () => this.clipboard.clear(),
       set: (data, type) => this.clipboard.set(data, type),
-      has: type => this.clipboard.has(type),
-      get: (clear = false) => this.clipboard.get(clear)
+      has: (type) => this.clipboard.has(type),
+      get: (clear = false) => this.clipboard.get(clear),
     };
   }
 
@@ -527,7 +560,7 @@ export default class CoreServiceProvider extends ServiceProvider {
   createMiddlewareContract() {
     return {
       add: (group, callback) => this.middleware.add(group, callback),
-      get: group => this.middleware.get(group)
+      get: (group) => this.middleware.get(group),
     };
   }
 
@@ -538,9 +571,9 @@ export default class CoreServiceProvider extends ServiceProvider {
   createTrayContract() {
     return {
       create: (options, handler) => this.tray.create(options, handler),
-      remove: entry => this.tray.remove(entry),
+      remove: (entry) => this.tray.remove(entry),
       list: () => this.tray.list(),
-      has: key => this.tray.has(key)
+      has: (key) => this.tray.has(key),
     };
   }
 }
