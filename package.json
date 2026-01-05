@@ -42,7 +42,6 @@
     "@osjs/musicplayer-application": "^1.2.8",
     "@osjs/panels": "^3.0.31",
     "@osjs/preview-application": "^1.1.17",
-    "@osjs/standard-dark-theme": "^4.0.11",
     "@osjs/standard-theme": "^4.0.9",
     "@osjs/textpad-application": "^1.2.7",
     "adm-zip": "^0.5.16",

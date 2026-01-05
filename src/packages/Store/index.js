@@ -4,7 +4,7 @@ import { Box, Button, TextField, Toolbar, Statusbar } from "@osjs/gui";
 import "./index.scss";
 
 // Configuration - In a real app, this might be in a settings file
-const REPO_URL =
+const DEFAULT_REPO =
   "https://kaname-fundation.github.io/KanameStore/repository.json";
 
 const createView = (core, proc) => (state, actions) => {
@@ -26,6 +26,13 @@ const createView = (core, proc) => (state, actions) => {
       h(
         Button,
         {
+          onclick: () => actions.showRepoManager(),
+        },
+        "Repositories"
+      ),
+      h(
+        Button,
+        {
           onclick: () => actions.fetchApps(),
           disabled: state.loading,
         },
@@ -44,13 +51,50 @@ const createView = (core, proc) => (state, actions) => {
           { class: "store-grid" },
           filteredApps.map((pkg) => {
             const isInstalling = state.installing[pkg.name];
+            const installedVersion = state.installedPackages[pkg.name];
+            const isInstalled = !!installedVersion;
+            // Check for updates by comparing version numbers
+            const hasUpdate = isInstalled && installedVersion !== pkg.version;
+
+            console.log(`Store: Checking ${pkg.name}:`, {
+              repoName: pkg.name,
+              repoVersion: pkg.version,
+              installedVersion,
+              isInstalled,
+              hasUpdate,
+              allInstalled: Object.keys(state.installedPackages),
+            });
+
+            let iconUrl = proc.resource("icon.png");
+
+            if (pkg.icon) {
+              iconUrl = pkg.icon.match(/^https?:\/\//)
+                ? pkg.icon
+                : `${pkg._repoBase}/${pkg.icon}`;
+            } else if (pkg.iconName) {
+              iconUrl = core.make("osjs/theme").icon(pkg.iconName);
+            }
+
+            let buttonText = "Install";
+            let buttonDisabled = isInstalling;
+            let buttonType = "primary";
+
+            if (isInstalling) {
+              buttonText = "Downloading...";
+            } else if (hasUpdate) {
+              buttonText = "Update";
+              buttonType = "warning";
+            } else if (isInstalled) {
+              buttonText = "Installed";
+              buttonDisabled = true;
+            }
 
             return h("div", { class: "app-card" }, [
               h("img", {
                 class: "app-icon",
-                src: pkg.icon || proc.resource("icon.png"), // Fallback or remote icon
+                src: iconUrl,
               }),
-              h("div", { class: "app-name" }, pkg.name),
+              h("div", { class: "app-name" }, pkg.title || pkg.name),
               h(
                 "div",
                 { class: "app-meta" },
@@ -61,10 +105,10 @@ const createView = (core, proc) => (state, actions) => {
                 Button,
                 {
                   onclick: () => actions.installApp({ pkg, core }),
-                  disabled: isInstalling,
-                  type: "primary",
+                  disabled: buttonDisabled,
+                  type: buttonType,
                 },
-                isInstalling ? "Downloading..." : "Install"
+                buttonText
               ),
             ]);
           })
@@ -76,6 +120,7 @@ const createView = (core, proc) => (state, actions) => {
 
 const register = (core, args, options, metadata) => {
   const proc = core.make("osjs/application", { args, options, metadata });
+  const settings = core.make("osjs/settings");
 
   proc
     .createWindow({
@@ -86,29 +131,77 @@ const register = (core, args, options, metadata) => {
     })
     .on("destroy", () => proc.destroy())
     .render(($content, win) => {
+      // Load repositories from settings
+      const savedRepos = settings.get("Store.repositories", [DEFAULT_REPO]);
+
       const a = app(
         {
           apps: [],
           search: "",
           loading: false,
           installing: {},
+          installedPackages: {}, // Track installed packages in state
+          repositories: savedRepos, // Load from settings
         },
         {
           setSearch: (search) => (state) => ({ search }),
           setApps: (apps) => (state) => ({ apps }),
           setLoading: (loading) => (state) => ({ loading }),
+          setRepositories: (repositories) => (state) => {
+            settings.set("Store.repositories", repositories);
+            settings.save();
+            return { repositories };
+          },
           setInstalling:
             ({ name, value }) =>
             (state) => ({
               installing: { ...state.installing, [name]: value },
             }),
+          refreshInstalled: () => (state) => {
+            const installedPkgs = core.make("osjs/packages").getPackages();
+            const installedPackages = {};
+            installedPkgs.forEach((pkg) => {
+              // Use version from metadata
+              installedPackages[pkg.name] = pkg.version || "1.0.0";
+            });
+            console.log(
+              "Store: Installed packages detected:",
+              installedPackages
+            );
+            console.log("Store: First package structure:", installedPkgs[0]);
+            return { installedPackages };
+          },
 
           fetchApps: () => async (state, actions) => {
             actions.setLoading(true);
             try {
-              const response = await fetch(REPO_URL);
-              const data = await response.json();
-              actions.setApps(data.apps || []);
+              const allApps = [];
+
+              // Fetch from all repositories
+              for (const repoUrl of state.repositories) {
+                try {
+                  const response = await fetch(repoUrl);
+                  const data = await response.json();
+                  const repoBase = repoUrl.substring(
+                    0,
+                    repoUrl.lastIndexOf("/")
+                  );
+
+                  // Add repository info to each app
+                  const apps = (data.apps || []).map((app) => ({
+                    ...app,
+                    _repoUrl: repoUrl,
+                    _repoBase: repoBase,
+                  }));
+
+                  allApps.push(...apps);
+                } catch (e) {
+                  console.error(`Failed to fetch from ${repoUrl}:`, e);
+                }
+              }
+
+              actions.setApps(allApps);
+              actions.refreshInstalled(); // Refresh installed packages when fetching apps
             } catch (e) {
               console.error(e);
               core.make(
@@ -125,6 +218,35 @@ const register = (core, args, options, metadata) => {
             }
           },
 
+          showRepoManager: () => (state, actions) => {
+            core.make(
+              "osjs/dialog",
+              "prompt",
+              {
+                title: "Manage Repositories",
+                message: "Enter repository URLs (one per line):",
+                value: state.repositories.join("\n"),
+                attributes: {
+                  rows: 10,
+                  style: "width: 500px; font-family: monospace;",
+                },
+              },
+              (btn, value) => {
+                if (btn === "ok" && value) {
+                  const repos = value
+                    .split("\n")
+                    .map((url) => url.trim())
+                    .filter((url) => url.length > 0);
+
+                  if (repos.length > 0) {
+                    actions.setRepositories(repos);
+                    actions.fetchApps();
+                  }
+                }
+              }
+            );
+          },
+
           installApp:
             ({ pkg, core }) =>
             async (state, actions) => {
@@ -135,11 +257,7 @@ const register = (core, args, options, metadata) => {
                 // If download is relative, prepend the repo base URL
                 let downloadUrl = pkg.download;
                 if (!downloadUrl.match(/^https?:\/\//)) {
-                  const baseUrl = REPO_URL.substring(
-                    0,
-                    REPO_URL.lastIndexOf("/")
-                  );
-                  downloadUrl = `${baseUrl}/${pkg.download}`;
+                  downloadUrl = `${pkg._repoBase}/${pkg.download}`;
                 }
 
                 // 2. Download File
@@ -174,6 +292,11 @@ const register = (core, args, options, metadata) => {
                 core.run("AppManager", {
                   file: { path: destPath },
                 });
+
+                // Wait a bit for AppManager to complete, then refresh
+                setTimeout(() => {
+                  actions.refreshInstalled();
+                }, 2000);
               } catch (e) {
                 console.error(e);
                 core.make(
@@ -194,8 +317,9 @@ const register = (core, args, options, metadata) => {
         $content
       );
 
-      // Initial fetch
+      // Initial fetch and refresh installed packages
       a.fetchApps();
+      a.refreshInstalled();
     });
 
   return proc;

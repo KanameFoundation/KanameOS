@@ -28,15 +28,15 @@
  * @license Simplified BSD License
  */
 
-import Application from './application';
-import Preloader from './utils/preloader';
-import logger from './logger';
+import Application from "./application";
+import Preloader from "./utils/preloader";
+import logger from "./logger";
 import {
   createPackageAvailabilityCheck,
   createManifestFromArray,
   filterMetadataFilesByType,
-  metadataFilesToFilenames
-} from './utils/packages';
+  metadataFilesToFilenames,
+} from "./utils/packages";
 
 /**
  * A registered package reference
@@ -51,6 +51,7 @@ import {
  *
  * @typedef {Object} PackageMetadata
  * @property {string} name The package name
+ * @property {string} [version] Package version
  * @property {string} [category] Package category
  * @property {string} [icon] Package icon
  * @property {boolean} [singleton] If only one instance allowed
@@ -76,7 +77,6 @@ import {
  * Handles indexing, loading and launching of OS.js packages
  */
 export default class Packages {
-
   /**
    * Create package manage
    *
@@ -141,25 +141,27 @@ export default class Packages {
    * @return {Promise<boolean>}
    */
   init() {
-    logger.debug('Packages::init()');
+    logger.debug("Packages::init()");
 
     if (!this.inited) {
-      this.core.on('osjs/core:started', () => this._autostart());
+      this.core.on("osjs/core:started", () => this._autostart());
     }
 
-    this.metadata = this.core.config('packages.metadata', [])
-      .map(iter => ({type: 'application', ...iter}));
+    this.metadata = this.core
+      .config("packages.metadata", [])
+      .map((iter) => ({ type: "application", ...iter }));
 
     this.inited = true;
 
-    const manifest = this.core.config('packages.manifest');
+    const manifest = this.core.config("packages.manifest");
 
     return manifest
-      ? this.core.request(manifest, {}, 'json', true)
-        .then(metadata => this.addPackages(metadata))
-        .then(metadata => this._preloadBackgroundFiles(metadata))
-        .then(() => true)
-        .catch(error => logger.error(error))
+      ? this.core
+          .request(manifest, {}, "json", true)
+          .then((metadata) => this.addPackages(metadata))
+          .then((metadata) => this._preloadBackgroundFiles(metadata))
+          .then(() => true)
+          .catch((error) => logger.error(error))
       : Promise.resolve(true);
   }
 
@@ -174,15 +176,15 @@ export default class Packages {
    * @return {Promise<Application>}
    */
   launch(name, args = {}, options = {}) {
-    logger.debug('Packages::launch()', name, args, options);
+    logger.debug("Packages::launch()", name, args, options);
 
-    const _ = this.core.make('osjs/locale').translate;
-    const metadata = this.metadata.find(pkg => pkg.name === name);
+    const _ = this.core.make("osjs/locale").translate;
+    const metadata = this.metadata.find((pkg) => pkg.name === name);
     if (!metadata) {
-      throw new Error(_('ERR_PACKAGE_NOT_FOUND', name));
+      throw new Error(_("ERR_PACKAGE_NOT_FOUND", name));
     }
 
-    if (['theme', 'icons', 'sounds'].indexOf(metadata.type) !== -1) {
+    if (["theme", "icons", "sounds"].indexOf(metadata.type) !== -1) {
       return this._launchTheme(name, metadata);
     }
 
@@ -203,25 +205,26 @@ export default class Packages {
     let signaled = false;
 
     if (metadata.singleton) {
-      const foundApp = Application.getApplications()
-        .find(app => app.metadata.name === metadata.name);
+      const foundApp = Application.getApplications().find(
+        (app) => app.metadata.name === metadata.name
+      );
 
       if (foundApp) {
-        foundApp.emit('attention', args, options);
+        foundApp.emit("attention", args, options);
         signaled = true;
 
         return Promise.resolve(foundApp);
       }
 
-      const found = this._running.filter(n => n === name);
+      const found = this._running.filter((n) => n === name);
 
       if (found.length > 0) {
         return new Promise((resolve, reject) => {
-          this.core.once(`osjs/application:${name}:launched`, a => {
+          this.core.once(`osjs/application:${name}:launched`, (a) => {
             if (signaled) {
               resolve(a);
             } else {
-              a.emit('attention', args, options);
+              a.emit("attention", args, options);
               resolve(a);
             }
           });
@@ -229,7 +232,7 @@ export default class Packages {
       }
     }
 
-    this.core.emit('osjs/application:launch', name, args, options);
+    this.core.emit("osjs/application:launch", name, args, options);
 
     this._running.push(name);
 
@@ -246,16 +249,15 @@ export default class Packages {
    * @return {Promise<object>}
    */
   _launchTheme(name, metadata) {
-    const preloads = this._getPreloads(metadata, 'preload', 'theme');
+    const preloads = this._getPreloads(metadata, "preload", "theme");
 
-    return this.preloader.load(preloads)
-      .then(result => {
-        return {
-          elements: {},
-          ...result,
-          ...this.packages.find(pkg => pkg.metadata.name === name) || {}
-        };
-      });
+    return this.preloader.load(preloads).then((result) => {
+      return {
+        elements: {},
+        ...result,
+        ...(this.packages.find((pkg) => pkg.metadata.name === name) || {}),
+      };
+    });
   }
 
   /**
@@ -270,7 +272,7 @@ export default class Packages {
   _getPreloads(metadata, fileType, packageType) {
     return metadataFilesToFilenames(
       filterMetadataFilesByType(metadata.files, fileType)
-    ).map(f => this.core.url(f, {}, {type: packageType, ...metadata}));
+    ).map((f) => this.core.url(f, {}, { type: packageType, ...metadata }));
   }
 
   /**
@@ -283,24 +285,31 @@ export default class Packages {
    * @return {Promise<Application>}
    */
   _launch(name, metadata, args, options) {
-    const _ = this.core.make('osjs/locale').translate;
+    const _ = this.core.make("osjs/locale").translate;
     const canLaunch = createPackageAvailabilityCheck(this.core);
 
-    const dialog = e => {
-      if (this.core.has('osjs/dialog')) {
-        this.core.make('osjs/dialog', 'alert', {
-          type: 'error',
-          title: _('ERR_PACKAGE_EXCEPTION', name),
-          message: _('ERR_PACKAGE_EXCEPTION', name),
-          error: e
-        }, () => { /* noop */});
+    const dialog = (e) => {
+      if (this.core.has("osjs/dialog")) {
+        this.core.make(
+          "osjs/dialog",
+          "alert",
+          {
+            type: "error",
+            title: _("ERR_PACKAGE_EXCEPTION", name),
+            message: _("ERR_PACKAGE_EXCEPTION", name),
+            error: e,
+          },
+          () => {
+            /* noop */
+          }
+        );
       } else {
-        alert(`${_('ERR_PACKAGE_EXCEPTION', name)}: ${e.stack || e}`);
+        alert(`${_("ERR_PACKAGE_EXCEPTION", name)}: ${e.stack || e}`);
       }
     };
 
-    const fail = err => {
-      this.core.emit('osjs/application:launched', name, false);
+    const fail = (err) => {
+      this.core.emit("osjs/application:launched", name, false);
       this.core.emit(`osjs/application:${name}:launched`, false);
 
       dialog(err);
@@ -308,31 +317,35 @@ export default class Packages {
       throw new Error(err);
     };
 
-    const preloads = this._getPreloads(metadata, 'preload', 'apps');
+    const preloads = this._getPreloads(metadata, "preload", "apps");
 
-    const create = found => {
+    const create = (found) => {
       let app;
 
       try {
-        console.group('Packages::_launch()');
+        console.group("Packages::_launch()");
         app = found.callback(this.core, args, options, found.metadata);
 
         if (app instanceof Application) {
-          app.on('destroy', () => {
-            const foundIndex = this._running.findIndex(n => n === name);
+          app.on("destroy", () => {
+            const foundIndex = this._running.findIndex((n) => n === name);
             if (foundIndex !== -1) {
               this._running.splice(foundIndex, 1);
             }
           });
         } else {
-          logger.warn('The application', name, 'did not return an Application instance from registration');
+          logger.warn(
+            "The application",
+            name,
+            "did not return an Application instance from registration"
+          );
         }
       } catch (e) {
         dialog(e);
 
-        logger.warn('Exception when launching', name, e);
+        logger.warn("Exception when launching", name, e);
       } finally {
-        this.core.emit('osjs/application:launched', name, app);
+        this.core.emit("osjs/application:launched", name, app);
         this.core.emit(`osjs/application:${name}:launched`, app);
         console.groupEnd();
       }
@@ -341,18 +354,19 @@ export default class Packages {
     };
 
     if (!canLaunch(metadata)) {
-      fail(_('ERR_PACKAGE_PERMISSION_DENIED', name));
+      fail(_("ERR_PACKAGE_PERMISSION_DENIED", name));
     }
 
-    return this.preloader.load(preloads, options.forcePreload === true)
-      .then(({errors}) => {
+    return this.preloader
+      .load(preloads, options.forcePreload === true)
+      .then(({ errors }) => {
         if (errors.length) {
-          fail(_('ERR_PACKAGE_LOAD', name, errors.join(', ')));
+          fail(_("ERR_PACKAGE_LOAD", name, errors.join(", ")));
         }
 
-        const found = this.packages.find(pkg => pkg.metadata.name === name);
+        const found = this.packages.find((pkg) => pkg.metadata.name === name);
         if (!found) {
-          fail(_('ERR_PACKAGE_NO_RUNTIME', name));
+          fail(_("ERR_PACKAGE_NO_RUNTIME", name));
         }
 
         return create(found);
@@ -364,14 +378,15 @@ export default class Packages {
    * @private
    */
   _autostart() {
-    const meta = this.metadata
-      .filter(pkg => pkg.autostart === true);
+    const meta = this.metadata.filter((pkg) => pkg.autostart === true);
 
     const configured = this.core
-      .config('application.autostart', [])
-      .map(value => typeof value === 'string' ? {name: value} : value);
+      .config("application.autostart", [])
+      .map((value) => (typeof value === "string" ? { name: value } : value));
 
-    [...meta, ...configured].forEach(({name, args}) => this.launch(name, args || {}));
+    [...meta, ...configured].forEach(({ name, args }) =>
+      this.launch(name, args || {})
+    );
   }
 
   /**
@@ -382,22 +397,24 @@ export default class Packages {
    * @throws {Error}
    */
   register(name, callback) {
-    logger.debug('Packages::register()', name);
+    logger.debug("Packages::register()", name);
 
-    const _ = this.core.make('osjs/locale').translate;
-    const metadata = this.metadata.find(pkg => pkg.name === name);
+    const _ = this.core.make("osjs/locale").translate;
+    const metadata = this.metadata.find((pkg) => pkg.name === name);
     if (!metadata) {
-      throw new Error(_('ERR_PACKAGE_NO_METADATA', name));
+      throw new Error(_("ERR_PACKAGE_NO_METADATA", name));
     }
 
-    const foundIndex = this.packages.findIndex(pkg => pkg.metadata.name === name);
+    const foundIndex = this.packages.findIndex(
+      (pkg) => pkg.metadata.name === name
+    );
     if (foundIndex !== -1) {
       this.packages.splice(foundIndex, 1);
     }
 
     this.packages.push({
       metadata,
-      callback
+      callback,
     });
   }
 
@@ -408,14 +425,16 @@ export default class Packages {
    */
   addPackages(list) {
     if (list instanceof Array) {
-      const override = this.core.config('packages.overrideMetadata', {});
-      const {icon} = this.core.make('osjs/theme');
+      const override = this.core.config("packages.overrideMetadata", {});
+      const { icon } = this.core.make("osjs/theme");
 
       const append = createManifestFromArray(list)
-        .map(meta => override[meta.name] ? {...meta, ...override[meta.name]} : meta)
-        .map(meta => {
+        .map((meta) =>
+          override[meta.name] ? { ...meta, ...override[meta.name] } : meta
+        )
+        .map((meta) => {
           if (meta.icon && !meta.icon.match(/\.(png|svg|gif|jpg|jpeg)$/i)) {
-            return {...meta, icon: icon(meta.icon)};
+            return { ...meta, icon: icon(meta.icon) };
           }
           return meta;
         });
@@ -434,13 +453,12 @@ export default class Packages {
   getPackages(filter) {
     filter = filter || (() => true);
 
-    const metadata = this.metadata.map(m => ({...m}));
-    const hidden = this.core.config('packages.hidden', []);
+    const metadata = this.metadata.map((m) => ({ ...m }));
+    const hidden = this.core.config("packages.hidden", []);
     const filterAvailable = createPackageAvailabilityCheck(this.core);
 
-    const filterConfigHidden = iter => hidden instanceof Array
-      ? hidden.indexOf(iter.name) === -1
-      : true;
+    const filterConfigHidden = (iter) =>
+      hidden instanceof Array ? hidden.indexOf(iter.name) === -1 : true;
 
     return metadata
       .filter(filterAvailable)
@@ -455,14 +473,14 @@ export default class Packages {
    * @return {PackageMetadata[]}
    */
   getCompatiblePackages(mimeType) {
-    return this.getPackages(meta => {
+    return this.getPackages((meta) => {
       if (meta.mimes && !meta.hidden) {
-        return !!meta.mimes.find(mime => {
+        return !!meta.mimes.find((mime) => {
           try {
             const re = new RegExp(mime);
             return re.test(mimeType);
           } catch (e) {
-            logger.warn('Compability check failed', e);
+            logger.warn("Compability check failed", e);
           }
 
           return mime === mimeType;
@@ -478,15 +496,17 @@ export default class Packages {
    * @param {PackageMetadata[]} list Package list
    */
   _preloadBackgroundFiles(list) {
-    const backgroundFiles = list.reduce((filenames, iter) => [
-      ...filenames,
-      ...this._getPreloads(iter, 'background', 'apps')
-    ], []);
+    const backgroundFiles = list.reduce(
+      (filenames, iter) => [
+        ...filenames,
+        ...this._getPreloads(iter, "background", "apps"),
+      ],
+      []
+    );
 
-    return this.preloader.load(backgroundFiles)
-      .then(({errors = []}) => {
-        errors.forEach(error => logger.error(error));
-      });
+    return this.preloader.load(backgroundFiles).then(({ errors = [] }) => {
+      errors.forEach((error) => logger.error(error));
+    });
   }
 
   /**
@@ -503,7 +523,7 @@ export default class Packages {
    * @returns {PackageMetadata}
    */
   getMetadataFromName(name) {
-    const found = this.metadata.find(pkg => pkg.name === name);
-    return found ? {...found} : null;
+    const found = this.metadata.find((pkg) => pkg.name === name);
+    return found ? { ...found } : null;
   }
 }

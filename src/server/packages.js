@@ -28,18 +28,17 @@
  * @licence Simplified BSD License
  */
 
-const fs = require('fs-extra');
-const fg = require('fast-glob');
-const path = require('path');
-const Package = require('./package.js');
-const consola = require('consola');
-const logger = consola.withTag('Packages');
+const fs = require("fs-extra");
+const fg = require("fast-glob");
+const path = require("path");
+const Package = require("./package.js");
+const consola = require("consola");
+const logger = consola.withTag("Packages");
 
-const relative = filename => filename.replace(process.cwd(), '');
+const relative = (filename) => filename.replace(process.cwd(), "");
 
-const readOrDefault = filename => fs.existsSync(filename)
-  ? fs.readJsonSync(filename)
-  : [];
+const readOrDefault = (filename) =>
+  fs.existsSync(filename) ? fs.readJsonSync(filename) : [];
 
 /**
  * Package Service Options
@@ -52,7 +51,6 @@ const readOrDefault = filename => fs.existsSync(filename)
  * OS.js Package Management
  */
 class Packages {
-
   /**
    * Create new instance
    * @param {Core} core Core reference
@@ -77,7 +75,7 @@ class Packages {
     this.options = {
       manifestFile: null,
       discoveredFile: null,
-      ...options
+      ...options,
     };
   }
 
@@ -85,7 +83,7 @@ class Packages {
    * Initializes packages
    */
   init() {
-    this.core.on('osjs/application:socket:message', (ws, ...params) => {
+    this.core.on("osjs/application:socket:message", (ws, ...params) => {
       this.handleMessage(ws, params);
     });
 
@@ -97,21 +95,22 @@ class Packages {
    * @return {Promise<boolean>}
    */
   load() {
-    return this.createLoader()
-      .then(packages => {
-        packages.forEach(pkg => {
-          const foundIndex = this.packages.findIndex(p => p.metadata.name === pkg.metadata.name);
-          if (foundIndex !== -1) {
-            // If package already exists, we ignore the new one to prevent duplicates.
-            // TODO: Handle package updates (destroy old, add new)
-            // console.warn('Package already loaded:', pkg.metadata.name);
-          } else {
-            this.packages.push(pkg);
-          }
-        });
-
-        return true;
+    return this.createLoader().then((packages) => {
+      packages.forEach((pkg) => {
+        const foundIndex = this.packages.findIndex(
+          (p) => p.metadata.name === pkg.metadata.name
+        );
+        if (foundIndex !== -1) {
+          // If package already exists, we ignore the new one to prevent duplicates.
+          // TODO: Handle package updates (destroy old, add new)
+          // console.warn('Package already loaded:', pkg.metadata.name);
+        } else {
+          this.packages.push(pkg);
+        }
       });
+
+      return true;
+    });
   }
 
   /**
@@ -120,28 +119,29 @@ class Packages {
    */
   createLoader() {
     let result = [];
-    const {discoveredFile, manifestFile} = this.options;
+    const { discoveredFile, manifestFile } = this.options;
     const discovered = readOrDefault(discoveredFile);
     const manifest = readOrDefault(manifestFile);
-    const sources = discovered.map(d => path.join(d, 'metadata.json'));
+    const sources = discovered.map((d) => path.join(d, "metadata.json"));
 
     // Userland packages
-    const userPackagesDir = path.join(process.cwd(), 'vfs/apps');
+    const userPackagesDir = path.join(process.cwd(), "vfs/apps");
     if (fs.existsSync(userPackagesDir)) {
-      const userPackages = fs.readdirSync(userPackagesDir)
-        .map(dir => path.join(userPackagesDir, dir, 'metadata.json'))
-        .filter(file => fs.existsSync(file));
-      
+      const userPackages = fs
+        .readdirSync(userPackagesDir)
+        .map((dir) => path.join(userPackagesDir, dir, "metadata.json"))
+        .filter((file) => fs.existsSync(file));
+
       sources.push(...userPackages);
-      logger.info('Found user packages:', userPackages.length);
+      logger.info("Found user packages:", userPackages.length);
     }
 
-    logger.info('Using package discovery file', relative(discoveredFile));
-    logger.info('Using package manifest file', relative(manifestFile));
+    logger.info("Using package discovery file", relative(discoveredFile));
+    logger.info("Using package manifest file", relative(manifestFile));
 
     // Use simple file checking instead of fast-glob for absolute paths
-    const promises = sources.map(filename => {
-      return fs.pathExists(filename).then(exists => {
+    const promises = sources.map((filename) => {
+      return fs.pathExists(filename).then((exists) => {
         if (exists) {
           return this.loadPackage(filename, manifest);
         }
@@ -149,8 +149,9 @@ class Packages {
       });
     });
 
-    return Promise.all(promises)
-      .then(results => results.filter(p => p !== null));
+    return Promise.all(promises).then((results) =>
+      results.filter((p) => p !== null)
+    );
   }
 
   /**
@@ -161,8 +162,8 @@ class Packages {
     clearTimeout(this.hotReloading[pkg.metadata.name]);
 
     this.hotReloading[pkg.metadata.name] = setTimeout(() => {
-      logger.debug('Sending reload signal for', pkg.metadata.name);
-      this.core.broadcast('osjs/packages:package:changed', [pkg.metadata.name]);
+      logger.debug("Sending reload signal for", pkg.metadata.name);
+      this.core.broadcast("osjs/packages:package:changed", [pkg.metadata.name]);
     }, 500);
   }
 
@@ -181,15 +182,14 @@ class Packages {
       return Promise.resolve(pkg);
     };
 
-    return fs.readJson(filename)
-      .then(metadata => {
-        const pkg = new Package(this.core, {
-          filename,
-          metadata
-        });
-
-        return this.initializePackage(pkg, manifest, done);
+    return fs.readJson(filename).then((metadata) => {
+      const pkg = new Package(this.core, {
+        filename,
+        metadata,
       });
+
+      return this.initializePackage(pkg, manifest, done);
+    });
   }
 
   /**
@@ -211,9 +211,10 @@ class Packages {
           });
         }
 
-        return pkg.init()
+        return pkg
+          .init()
           .then(() => done(pkg))
-          .catch(e => done(pkg, e));
+          .catch((e) => done(pkg, e));
       } catch (e) {
         return done(pkg, e);
       }
@@ -226,7 +227,7 @@ class Packages {
    * Starts packages
    */
   start() {
-    this.packages.forEach(pkg => pkg.start());
+    this.packages.forEach((pkg) => pkg.start());
   }
 
   /**
@@ -234,7 +235,7 @@ class Packages {
    * @return {Promise<undefined>}
    */
   async destroy() {
-    await Promise.all(this.packages.map(pkg => pkg.destroy()));
+    await Promise.all(this.packages.map((pkg) => pkg.destroy()));
 
     this.packages = [];
   }
@@ -243,13 +244,13 @@ class Packages {
    * Removes a package
    * @param {string} name Package name
    */
-  removePackage(name) {
-    const index = this.packages.findIndex(pkg => pkg.metadata.name === name);
+  async removePackage(name) {
+    const index = this.packages.findIndex((pkg) => pkg.metadata.name === name);
     if (index !== -1) {
       const pkg = this.packages[index];
-      pkg.destroy();
+      await pkg.destroy();
       this.packages.splice(index, 1);
-      this.core.broadcast('osjs/packages:package:removed', name);
+      this.core.broadcast("osjs/packages:package:removed", name);
     }
   }
 
@@ -262,19 +263,26 @@ class Packages {
    * @param {Array} params A list of incoming parameters
    */
   handleMessage(ws, params) {
-    const {pid, name, args} = params[0];
-    const found = this.packages.findIndex(({metadata}) => metadata.name === name);
+    const { pid, name, args } = params[0];
+    const found = this.packages.findIndex(
+      ({ metadata }) => metadata.name === name
+    );
 
     if (found !== -1) {
-      const {handler} = this.packages[found];
-      if (handler && typeof handler.onmessage === 'function') {
-        const respond = (...respondParams) => ws.send(JSON.stringify({
-          name: 'osjs/application:socket:message',
-          params: [{
-            pid,
-            args: respondParams
-          }]
-        }));
+      const { handler } = this.packages[found];
+      if (handler && typeof handler.onmessage === "function") {
+        const respond = (...respondParams) =>
+          ws.send(
+            JSON.stringify({
+              name: "osjs/application:socket:message",
+              params: [
+                {
+                  pid,
+                  args: respondParams,
+                },
+              ],
+            })
+          );
 
         handler.onmessage(ws, respond, args);
       }

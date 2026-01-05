@@ -51,6 +51,13 @@ module.exports = (core, proc) => {
         throw new Error("Invalid package: missing name in metadata");
       }
 
+      // Fix: Unload package first to release file watchers (prevents EBUSY)
+      try {
+        await core.make("osjs/packages").removePackage(packageName);
+      } catch (e) {
+        console.warn("AppManager: Failed to unload package before install", e);
+      }
+
       const finalPath = path.join(extractPath, packageName);
 
       await fs.remove(finalPath);

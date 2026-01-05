@@ -34,18 +34,19 @@
 // OS.js defaults.
 //
 
+@use "sass:math";
+@use "./styles/variables" as *;
+@use "./styles/core";
+@use "./styles/window";
+@use "./styles/iconview";
+@use "./styles/login";
+@use "./styles/notifications";
+@use "./styles/search";
+
 @import "~typeface-roboto/index.css";
 @import "~@osjs/gui/dist/main.css";
 @import "~@osjs/dialogs/dist/main.css";
 @import "~@osjs/panels/dist/main.css";
-
-@import "./styles/variables";
-@import "./styles/core";
-@import "./styles/window";
-@import "./styles/iconview";
-@import "./styles/login";
-@import "./styles/notifications";
-@import "./styles/search";
 
 body,
 html {

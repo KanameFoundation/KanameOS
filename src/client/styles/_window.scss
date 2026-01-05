@@ -28,6 +28,9 @@
  * @license Simplified BSD License
  */
 
+@use "sass:math";
+@use "./variables" as *;
+
 $direction-list: "nw" "sw" "ne" "se" "n" "s" "w" "e";
 
 @mixin osjs-window-maximized {
@@ -138,14 +141,14 @@ $direction-list: "nw" "sw" "ne" "se" "n" "s" "w" "e";
   }
 
   &:not(:last-child) {
-    margin-right: $base-margin / 4;
+    margin-right: math.div($base-margin, 4);
   }
 }
 
 .osjs-root[data-dir="rtl"] {
   .osjs-window-button:not(:last-child) {
     margin-right: 0;
-    margin-left: $base-margin / 4;
+    margin-left: math.div($base-margin, 4);
   }
 }
 
@@ -158,12 +161,14 @@ $direction-list: "nw" "sw" "ne" "se" "n" "s" "w" "e";
   height: 100%;
   max-width: 100%;
   flex: 1 1;
+  -webkit-user-select: auto;
   user-select: auto;
 }
 
 .osjs-window {
   position: absolute;
   box-sizing: border-box;
+  -webkit-user-select: none;
   user-select: none;
   visibility: visible;
   touch-action: none;

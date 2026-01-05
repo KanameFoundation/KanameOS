@@ -28,6 +28,8 @@
  * @license Simplified BSD License
  */
 
+@use "./variables" as *;
+
 $search-image-size: 16px;
 
 .osjs-search {

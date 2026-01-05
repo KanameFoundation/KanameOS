@@ -70,6 +70,9 @@ module.exports = {
             loader: "sass-loader",
             options: {
               sourceMap: true,
+              sassOptions: {
+                silenceDeprecations: ["legacy-js-api"],
+              },
             },
           },
         ],

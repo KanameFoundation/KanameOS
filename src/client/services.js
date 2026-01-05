@@ -1,75 +1,78 @@
-import CoreServiceProvider from './provider/core.js';
-import VFSServiceProvider from './provider/vfs.js';
-import AuthServiceProvider from './provider/auth.js';
-import SettingsServiceProvider from './provider/settings.js';
-import DesktopServiceProvider from './provider/desktop.js';
-import NotificationServiceProvider  from './provider/notifications.js';
+import CoreServiceProvider from "./provider/core.js";
+import VFSServiceProvider from "./provider/vfs.js";
+import AuthServiceProvider from "./provider/auth.js";
+import SettingsServiceProvider from "./provider/settings.js";
+import DesktopServiceProvider from "./provider/desktop.js";
+import NotificationServiceProvider from "./provider/notifications.js";
 
-import {PanelServiceProvider} from '@osjs/panels';
-import {GUIServiceProvider} from '@osjs/gui';
-import {DialogServiceProvider} from '@osjs/dialogs';
+import { PanelServiceProvider } from "@osjs/panels";
+import { GUIServiceProvider } from "@osjs/gui";
+import { DialogServiceProvider } from "@osjs/dialogs";
 
 export const services = {
   CoreServiceProvider: {
     provider: CoreServiceProvider,
-    options: {}
+    options: {},
   },
   VFSServiceProvider: {
     provider: VFSServiceProvider,
     options: {
-      depends: ['osjs/core']
-    }
+      depends: ["osjs/core"],
+    },
   },
   AuthServiceProvider: {
     provider: AuthServiceProvider,
     options: {
       before: true,
-      depends: ['osjs/core']
-    }
+      depends: ["osjs/core"],
+    },
   },
   SettingsServiceProvider: {
     provider: SettingsServiceProvider,
     options: {
       before: true,
-      depends: ['osjs/core']
-    }
+      depends: ["osjs/core"],
+      args: {
+        adapter: "server",
+      },
+    },
   },
   NotificationServiceProvider: {
     provider: NotificationServiceProvider,
     options: {
-      depends: ['osjs/core']
-    }
+      depends: ["osjs/core"],
+    },
   },
   GUIServiceProvider: {
     provider: GUIServiceProvider,
     options: {
-      depends: ['osjs/core']
-    }
+      depends: ["osjs/core"],
+    },
   },
   DialogServiceProvider: {
     provider: DialogServiceProvider,
     options: {
-      depends: ['osjs/gui']
-    }
+      depends: ["osjs/gui"],
+    },
   },
   PanelServiceProvider: {
     provider: PanelServiceProvider,
     options: {
-      depends: ['osjs/core', 'osjs/gui']
-    }
+      depends: ["osjs/core", "osjs/gui"],
+    },
   },
   DesktopServiceProvider: {
     provider: DesktopServiceProvider,
     options: {
       depends: [
-        'osjs/core',
-        'osjs/auth',
-        'osjs/settings',
-        'osjs/vfs',
-        'osjs/gui',
-        'osjs/dialog',
-        'osjs/panels'
-      ]
-    }
-  }
+        "osjs/core",
+        "osjs/auth",
+        "osjs/settings",
+        "osjs/vfs",
+        "osjs/gui",
+        "osjs/dialog",
+        "osjs/panels",
+      ],
+    },
+  },
 };

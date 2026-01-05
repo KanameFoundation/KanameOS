@@ -36,7 +36,14 @@ module.exports = {
         use: [
           rspack.CssExtractRspackPlugin.loader,
           "css-loader",
-          "sass-loader",
+          {
+            loader: "sass-loader",
+            options: {
+              sassOptions: {
+                silenceDeprecations: ["legacy-js-api"],
+              },
+            },
+          },
         ],
       },
       {
