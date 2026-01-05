@@ -23,7 +23,7 @@ module.exports = {
   },
   plugins: [
     new rspack.DefinePlugin({
-      OSJS_VERSION: JSON.stringify(npm.version)
+      WEBOS_VERSION: JSON.stringify(npm.version)
     }),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'src/client/index.ejs'),

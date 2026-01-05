@@ -7,7 +7,7 @@
     "en_EN": "JavaScript Terminal"
   },
   "category": "utilities",
-  "icon": "logo.svg",
+  "icon": "utilities-terminal",
   "files": [
     "main.js",
     "main.css"

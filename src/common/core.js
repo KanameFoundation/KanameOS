@@ -134,7 +134,23 @@ class CoreBase extends EventEmitter {
    * @param {Object} [options.args] Arguments to send to the constructor
    */
   register(ref, options = {}) {
-    this.providers.register(ref, options);
+    return this.providers.register(ref, options);
+  }
+
+  /**
+   * Unregister a service provider
+   * @param {String} name Provider class name
+   */
+  unregister(name) {
+    return this.providers.remove(name);
+  }
+
+  /**
+   * List registered service providers
+   * @return {String[]}
+   */
+  listProviders() {
+    return this.providers.list();
   }
 
   /**

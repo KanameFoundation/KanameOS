@@ -14,15 +14,12 @@ module.exports = (core, proc) => {
       
       await fs.ensureDir(path.dirname(tempExtractPath));
 
-      // Extract to temp first to check metadata
       zip.extractAllTo(tempExtractPath, true);
 
-      // Check if metadata.json is in root or in a subdirectory
       let packageRoot = tempExtractPath;
       let metadataPath = path.join(tempExtractPath, 'metadata.json');
 
       if (!await fs.pathExists(metadataPath)) {
-        // Check if there is a single directory containing metadata.json
         const entries = await fs.readdir(tempExtractPath);
         if (entries.length === 1) {
           const subDir = path.join(tempExtractPath, entries[0]);
@@ -53,7 +50,6 @@ module.exports = (core, proc) => {
 
       const finalPath = path.join(extractPath, packageName);
       
-      // Remove existing package if it exists
       await fs.remove(finalPath);
       
       await fs.move(packageRoot, finalPath, {overwrite: true});
@@ -76,7 +72,6 @@ module.exports = (core, proc) => {
         const globalDist = path.resolve(core.configuration.public, targetDir, packageName);
         const localDist = path.join(finalPath, 'dist');
         
-        // If dist folder exists, link it. Otherwise link the root folder.
         const linkSource = (await fs.pathExists(localDist)) ? localDist : finalPath;
 
         if (await fs.pathExists(linkSource)) {
@@ -91,10 +86,8 @@ module.exports = (core, proc) => {
 
       if (cleanupCallback) await cleanupCallback();
 
-      // Reload packages on server
       await core.make('osjs/packages').load();
 
-      // Notify client to refresh
       core.broadcast('osjs/packages:metadata:changed');
 
       return {success: true, name: packageName};
@@ -112,20 +105,6 @@ module.exports = (core, proc) => {
         return res.status(400).json({error: 'Missing vfsPath'});
       }
 
-      // Convert VFS path to real path
-      // Assuming vfsPath is like 'home:/Downloads/app.wpk' or 'osjs:/...'
-      // We need to resolve this.
-      // Since we are on the server, we can use the VFS service to resolve it, or just manual mapping if we know the structure.
-      // The VFS service provider is registered.
-      // But resolving VFS paths to real paths on the server side might be tricky if we don't use the VFS adapter directly.
-      // However, for 'home:/', it maps to 'vfs/home/{username}'.
-      // Let's assume the client sends the real path or we can resolve it.
-      // Actually, the client can read the file as a Blob and upload it, which is easier and reuses the upload logic.
-      // BUT, the user asked to "open wpk", which implies the file is already on the server (in VFS).
-      // So uploading it again (downloading to client then uploading) is inefficient.
-      
-      // Let's try to resolve the path.
-      // req.session.user.username is available.
       const username = req.session.user.username;
       let realPath;
       
@@ -143,7 +122,6 @@ module.exports = (core, proc) => {
 
       try {
         const result = await processPackage(realPath, async () => {
-           // Do not delete the source file when installing from VFS!
         });
         res.json(result);
       } catch (e) {

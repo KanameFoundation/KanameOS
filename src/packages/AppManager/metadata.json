@@ -8,6 +8,7 @@
   },
   "category": "system",
   "mimes": ["application/webpackage"],
+  "icon": "system-software-install",
   "server": "server.js",
   "files": [
     "main.js",

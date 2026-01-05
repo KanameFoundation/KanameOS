@@ -2,57 +2,58 @@ const path = require('path');
 const rspack = require('@rspack/core');
 const mode = process.env.NODE_ENV || 'development';
 const minimize = mode === 'production';
-const npm = require('../../../package.json');
 
 module.exports = {
   mode,
   devtool: 'source-map',
-  entry: path.resolve(__dirname, 'index.js'),
+  entry: {
+    main: [
+      path.resolve(__dirname, 'index.js'),
+      path.resolve(__dirname, 'index.scss')
+    ]
+  },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'main.js',
-    library: {
-      type: 'window'
-    }
+    filename: '[name].js',
+    library: 'SystemControl',
+    libraryTarget: 'umd'
+  },
+  externals: {
+    osjs: 'OSjs'
   },
   optimization: {
     minimize
   },
   plugins: [
     new rspack.DefinePlugin({
-      WEBOS_VERSION: JSON.stringify(npm.version)
+      'process.env': {
+        NODE_ENV: JSON.stringify(mode)
+      }
     }),
     new rspack.CssExtractRspackPlugin({
-      filename: 'main.css'
+      filename: '[name].css'
+    }),
+    new rspack.CopyRspackPlugin({
+      patterns: [
+        { from: 'metadata.json' }
+      ]
     })
   ],
   module: {
     rules: [
       {
-        test: /\.(sa|sc|c)ss$/,
+        test: /\.scss$/,
         use: [
           rspack.CssExtractRspackPlugin.loader,
-          {
-            loader: 'css-loader',
-            options: {
-              sourceMap: true
-            }
-          },
-          {
-            loader: 'sass-loader',
-            options: {
-              sourceMap: true
-            }
-          }
+          'css-loader',
+          'sass-loader'
         ]
       },
       {
         test: /\.js$/,
-        exclude: /node_modules/,
         use: {
           loader: 'builtin:swc-loader',
           options: {
-            sourceMaps: true,
             jsc: {
               parser: {
                 syntax: 'ecmascript'

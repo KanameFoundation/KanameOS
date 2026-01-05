@@ -48,6 +48,14 @@ module.exports = {
     requireAllGroups: false,
     denyUsers: []
   },
+
+  enabledServices: [
+    'CoreServiceProvider',
+    'PackageServiceProvider',
+    'VFSServiceProvider',
+    'AuthServiceProvider',
+    'SettingsServiceProvider'
+  ],
   mime: {
     filenames: {
       'Makefile': 'text/x-makefile',

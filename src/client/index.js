@@ -23,32 +23,29 @@
 //
 
 import Core from './core.js';
-import CoreServiceProvider from './provider/core.js';
-import VFSServiceProvider from './provider/vfs.js';
-import AuthServiceProvider from './provider/auth.js';
-import SettingsServiceProvider from './provider/settings.js';
-import DesktopServiceProvider from './provider/desktop.js';
-import NotificationServiceProvider  from './provider/notifications.js';
-
-import {PanelServiceProvider} from '@osjs/panels';
-import {GUIServiceProvider} from '@osjs/gui';
-import {DialogServiceProvider} from '@osjs/dialogs';
 import config from './config.js';
+import {services} from './services.js';
+import HoshinoInit from './init/hoshino.js';
 import './index.scss';
 
-const init = () => {
+const init = async () => {
   const WebOS = new Core(config, {});
+  window.OSjs = WebOS;
 
-  // Register your service providers
-  WebOS.register(CoreServiceProvider);
-  WebOS.register(DesktopServiceProvider);
-  WebOS.register(VFSServiceProvider);
-  WebOS.register(NotificationServiceProvider);
-  WebOS.register(SettingsServiceProvider, {before: true});
-  WebOS.register(AuthServiceProvider, {before: true});
-  WebOS.register(PanelServiceProvider);
-  WebOS.register(DialogServiceProvider);
-  WebOS.register(GUIServiceProvider);
+  // Expose service classes for runtime management (systemctl)
+  // We map the services object back to just the provider classes for compatibility
+  WebOS.serviceClasses = Object.keys(services).reduce((acc, name) => {
+    acc[name] = services[name].provider;
+    return acc;
+  }, {});
+
+  // Expose full service definitions for dependency graph
+  WebOS.serviceDefinitions = services;
+
+  // Initialize the Hoshino INIT System
+  const initSystem = new HoshinoInit(WebOS, config);
+  
+  await initSystem.start(services);
 
   WebOS.boot();
 };

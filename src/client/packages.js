@@ -409,8 +409,16 @@ export default class Packages {
   addPackages(list) {
     if (list instanceof Array) {
       const override = this.core.config('packages.overrideMetadata', {});
+      const {icon} = this.core.make('osjs/theme');
+
       const append = createManifestFromArray(list)
-        .map(meta => override[meta.name] ? {...meta, ...override[meta.name]} : meta);
+        .map(meta => override[meta.name] ? {...meta, ...override[meta.name]} : meta)
+        .map(meta => {
+          if (meta.icon && !meta.icon.match(/\.(png|svg|gif|jpg|jpeg)$/i)) {
+            return {...meta, icon: icon(meta.icon)};
+          }
+          return meta;
+        });
 
       this.metadata = [...this.metadata, ...append];
     }

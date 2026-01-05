@@ -1,7 +1,7 @@
 {
-  "name": "@osjs/osjs",
-  "version": "3.1.12",
-  "description": "OS.js",
+  "name": "webos",
+  "version": "1.23.0",
+  "description": "WebOS - The JavaScript Operating System",
   "main": "index.js",
   "scripts": {
     "test": "npm run eslint && npm run stylelint",
@@ -10,14 +10,18 @@
     "serve": "node src/server/index.js",
     "build:manifest": "node src/scripts/discover.js",
     "package:discover": "node src/scripts/discover.js",
-    "build": "NODE_ENV=production rspack build && cd src/packages/AppManager && npm run build && cd ../Terminal && npm run build ",
+    "build": "NODE_ENV=production rspack build && node src/scripts/build-packages.js",
     "watch": "rspack build --watch",
     "prepare": "npm run build && npm run build:manifest"
   },
   "keywords": [
-    "osjs"
+    "webos",
+    "osjs",
+    "operating system",
+    "desktop",
+    "javascript"
   ],
-  "author": "Anders Evenrud <andersevenrud@gmail.com>",
+  "author": "Abdul Vaiz <cyberaioff@gmail.com>",
   "license": "BSD-2-Clause",
   "devDependencies": {
     "@osjs/dev-meta": "^2.1.0",
@@ -70,12 +74,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/osjs/OS.js.git"
+    "url": "git+https://github.com/DemuraAIdev/WebOS.git"
   },
   "bugs": {
-    "url": "https://github.com/osjs/OS.js/issues"
+    "url": "https://github.com/DemuraAIdev/WebOS/issues"
   },
-  "homepage": "https://www.os-js.org",
+  "homepage": "https://github.com/DemuraAIdev/WebOS",
   "engines": {
     "node": ">=10.0.0"
   },

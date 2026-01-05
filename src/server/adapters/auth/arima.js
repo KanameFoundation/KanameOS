@@ -26,7 +26,7 @@ const saveDb = async (db) => {
 
 module.exports = (core, options) => ({
   init: async () => {
-    console.log('Initializing JSON Auth Adapter...');
+    console.log('Initializing Arima Auth Adapter...');
     console.log('DB File:', DB_FILE);
     try {
       const db = await loadDb();
@@ -45,9 +45,9 @@ module.exports = (core, options) => ({
         });
         await saveDb(db);
       }
-      console.log('JSON Auth Adapter initialized.');
+      console.log('Arima Auth Adapter initialized.');
     } catch (e) {
-      console.error('Error initializing JSON Auth Adapter:', e);
+      console.error('Error initializing Arima Auth Adapter:', e);
     }
     return true;
   },

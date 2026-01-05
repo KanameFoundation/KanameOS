@@ -19,7 +19,7 @@ const logger = consola.withTag('Core');
 let _instance;
 
 /**
- * OS.js Server Core
+ * WebOS Server Core
  */
 class Core extends CoreBase {
 
@@ -64,6 +64,18 @@ class Core extends CoreBase {
       : http.createServer(this.app);
 
     /**
+     * @type {Set<net.Socket>}
+     */
+    this.sockets = new Set();
+
+    this.httpServer.on('connection', (socket) => {
+      this.sockets.add(socket);
+      socket.on('close', () => {
+        this.sockets.delete(socket);
+      });
+    });
+
+    /**
      * @type {object}
      */
     this.session = createSession(this.app, this.configuration);
@@ -97,6 +109,10 @@ class Core extends CoreBase {
 
     if (this.wss) {
       this.wss.close();
+    }
+
+    for (const socket of this.sockets) {
+      socket.destroy();
     }
 
     const finish = (error) => {

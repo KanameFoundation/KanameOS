@@ -6,6 +6,7 @@
   "description": {
     "en_EN": "System Settings and User Management"
   },
+  "icon": "preferences-system",
   "category": "system",
   "singleton": true,
   "server": "server.js",

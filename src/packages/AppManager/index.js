@@ -54,6 +54,8 @@ const createView = (core) => (state, actions) => {
 
 const register = (core, args, options, metadata) => {
   const proc = core.make('osjs/application', {args, options, metadata});
+  const {icon} = core.make('osjs/theme');
+  const winIcon = icon(metadata.icon);
   
   const installFromVfs = (vfsPath, reloadCallback) => {
     fetch(proc.resource('/inspect'), {

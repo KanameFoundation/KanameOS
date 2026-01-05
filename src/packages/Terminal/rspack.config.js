@@ -30,7 +30,6 @@ module.exports = {
     }),
     new rspack.CopyRspackPlugin({
       patterns: [
-        { from: 'logo.svg' },
         { from: 'metadata.json' }
       ]
     })

@@ -1,0 +1,11 @@
+{
+  "name": "system-control",
+  "version": "1.0.0",
+  "main": "index.js",
+  "osjs": {
+    "type": "application"
+  },
+  "scripts": {
+    "build": "rspack"
+  }
+}

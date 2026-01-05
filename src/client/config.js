@@ -286,5 +286,17 @@ export default {
       'osjs/gapi'
     ],
     globalWhitelist: []
-  }
+  },
+
+  enabledServices: [
+    'CoreServiceProvider',
+    'DesktopServiceProvider',
+    'VFSServiceProvider',
+    'NotificationServiceProvider',
+    'SettingsServiceProvider',
+    'AuthServiceProvider',
+    'PanelServiceProvider',
+    'DialogServiceProvider',
+    'GUIServiceProvider'
+  ]
 };

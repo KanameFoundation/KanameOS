@@ -22,29 +22,15 @@
 //
 
 const Core = require('./core.js')
-const CoreServiceProvider = require('./providers/core.js');
-const PackageServiceProvider = require('./providers/packages.js');
-const VFSServiceProvider = require('./providers/vfs.js');
-const AuthServiceProvider = require('./providers/auth.js');
-const SettingsServiceProvider = require('./providers/settings.js');
-const jsonAuth = require('./adapters/auth/json.js');
-
 const config = require('./config.js');
+const services = require('./services.js');
+const HoshinoInit = require('./init/hoshino.js');
+
 const WebOS = new Core(config, {});
 
-WebOS.register(CoreServiceProvider, {before: true});
-WebOS.register(PackageServiceProvider);
-WebOS.register(VFSServiceProvider);
-WebOS.register(AuthServiceProvider, {
-  args: {
-    adapter: jsonAuth
-  }
-});
-WebOS.register(SettingsServiceProvider, {
-  args: {
-    adapter: 'fs'
-  }
-});
+// Initialize the Hoshino INIT System (Server Side)
+const initSystem = new HoshinoInit(WebOS, config);
+initSystem.start(services);
 
 const shutdown = signal => (error) => {
   if (error instanceof Error) {

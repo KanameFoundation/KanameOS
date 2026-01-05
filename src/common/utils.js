@@ -115,14 +115,37 @@ const providerHandler = (core) => {
 
   const register = (ref, options) => {
     try {
+      const provider = new ref(core, options.args);
       providers.push({
-        provider: new ref(core, options.args),
+        provider,
         options
       });
+
+      if (core.booted) {
+        return Promise.resolve(provider.init())
+          .then(() => provider.start());
+      }
     } catch (e) {
       console.error('Provider register error', e);
+      return Promise.reject(e);
     }
+    return Promise.resolve();
   };
+
+  const remove = (name) => {
+    const index = providers.findIndex(p => (p.options.name || p.provider.constructor.name) === name);
+    if (index !== -1) {
+      const {provider} = providers[index];
+      return Promise.resolve(provider.destroy())
+        .then(() => {
+          providers.splice(index, 1);
+          return true;
+        });
+    }
+    return Promise.resolve(false);
+  };
+
+  const list = () => providers.map(p => p.options.name || p.provider.constructor.name);
 
   const bind = (name, singleton, callback) => {
     core.logger.info('Provider binding', name);
@@ -155,7 +178,7 @@ const providerHandler = (core) => {
     return instances[name];
   };
 
-  return {register, init, bind, has, make, destroy};
+  return {register, init, bind, has, make, destroy, remove, list};
 };
 
 module.exports = {

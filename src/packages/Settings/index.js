@@ -258,6 +258,23 @@ const renderUsersTab = (state, actions) => {
   ]);
 };
 
+const renderAboutTab = (state, actions) => {
+  return h(Box, {grow: 1, shrink: 1, style: {overflow: 'auto', padding: '1em'}}, [
+    h('h2', {}, 'About WebOS'),
+    h('p', {}, 'WebOS - Web Based Operating System'),
+    h('p', {}, `Version: ${WEBOS_VERSION}`),
+    h('p', {}, [
+      'Author: ',
+      h('a', {href: 'mailto:cyberaioff@gmail.com'}, 'Abdul Vaiz')
+    ]),
+    h('p', {}, 'License: BSD-2-Clause'),
+    h('p', {}, [
+      'Website: ',
+      h('a', {href: 'https://github.com/DemuraAIdev/webOS', target: '_blank'}, 'https://github.com/DemuraAIdev/webOS')
+    ])
+  ]);
+};
+
 // Renders our settings window
 const renderWindow = (core, proc) => ($content, win) => {
   const settingsService = core.make('osjs/settings');
@@ -306,10 +323,11 @@ const renderWindow = (core, proc) => ($content, win) => {
     h(Tabs, {
       grow: 1,
       shrink: 1,
-      labels: [...tabSections.map(s => s.title), 'Users']
+      labels: [...tabSections.map(s => s.title), 'Users', 'About']
     }, [
       ...renderSections(core, state, actions),
-      renderUsersTab(state, actions)
+      renderUsersTab(state, actions),
+      renderAboutTab(state, actions)
     ]),
 
     h(BoxContainer, {}, [
@@ -421,10 +439,15 @@ const renderWindow = (core, proc) => ($content, win) => {
 // Creates our application
 const register = (core, args, options, metadata) => {
   const proc = core.make('osjs/application', {args, options, metadata});
+  const {icon} = core.make('osjs/theme');
+  const winIcon = icon(metadata.icon);
+
+
 
   const win = proc.createWindow({
     id: 'SettingsMainWindow',
     title: metadata.title.en_EN,
+    icon: winIcon,
     dimension: {width: 500, height: 500},
     gravity: 'center'
   });
