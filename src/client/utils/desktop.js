@@ -28,88 +28,92 @@
  * @license Simplified BSD License
  */
 
-import logger from '../logger';
-import {supportedMedia} from './dom';
+import logger from "../logger";
+import { supportedMedia } from "./dom";
 
 const imageDropMimes = [
-  'image/png',
-  'image/jpe?g',
-  'image/webp',
-  'image/gif',
-  'image/svg(\\+xml)?'
+  "image/png",
+  "image/jpe?g",
+  "image/webp",
+  "image/gif",
+  "image/svg(\\+xml)?",
 ];
 
 /**
  * Check if droppable data is a VFS type
  * @return {boolean}
  */
-export const validVfsDrop = data => data && data.path;
+export const validVfsDrop = (data) => data && data.path;
 
 /**
  * Check if droppable data contains image
  * @return {boolean}
  */
-export const isDroppingImage = data => validVfsDrop(data) &&
-  imageDropMimes.some(re => !!data.mime.match(re));
+export const isDroppingImage = (data) =>
+  validVfsDrop(data) && imageDropMimes.some((re) => !!data.mime.match(re));
 
 /**
  * Creates a set of styles based on background settings
  */
 export const applyBackgroundStyles = (core, background) => {
-  const {$root} = core;
+  const { $root } = core;
 
   const styles = {
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: '50% 50%',
-    backgroundSize: 'auto',
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: "50% 50%",
+    backgroundSize: "auto",
     backgroundColor: background.color,
-    backgroundImage: 'none'
+    backgroundImage: "none",
   };
 
-  if (background.style === 'cover' || background.style === 'contain') {
+  if (background.style === "cover" || background.style === "contain") {
     styles.backgroundSize = background.style;
-  } else if (background.style === 'repeat') {
-    styles.backgroundRepeat = 'repeat';
+  } else if (background.style === "repeat") {
+    styles.backgroundRepeat = "repeat";
   }
 
-  if (background.style !== 'color') {
+  if (background.style !== "color") {
     if (background.src === undefined) {
       styles.backgroundImage = undefined;
-    } else if (typeof background.src === 'string') {
+    } else if (typeof background.src === "string") {
       styles.backgroundImage = `url(${background.src})`;
     } else if (background.src) {
-      core.make('osjs/vfs')
+      core
+        .make("osjs/vfs")
         .url(background.src)
-        .then(src => {
+        .then((src) => {
           setTimeout(() => ($root.style.backgroundImage = `url(${src})`), 1);
         })
-        .catch(error => logger.warn('Error while setting wallpaper from VFS', error));
+        .catch((error) =>
+          logger.warn("Error while setting wallpaper from VFS", error)
+        );
     }
   }
 
-  Object.keys(styles).forEach(k => ($root.style[k] = styles[k]));
+  Object.keys(styles).forEach((k) => ($root.style[k] = styles[k]));
 };
 
 /**
- * Creates a rectangle with the realestate panels takes up
+ * Dynamically calculates the space taken by panels in the DOM.
+ * Looks for elements with the 'osjs-panel' class and sums their sizes by position.
  */
-export const createPanelSubtraction = (panel, panels) => {
-  const subtraction = {top: 0, left: 0, right: 0, bottom: 0};
-  const set = p => (subtraction[p.options.position] = p.$element.offsetHeight);
-
-  if (panels.length > 0) {
-    panels.forEach(set);
-  } else {
-    // Backward compability
-    set(panel);
-  }
-
+export const createPanelSubtraction = () => {
+  const subtraction = { top: 0, left: 0, right: 0, bottom: 0 };
+  const panels = document.querySelectorAll(".osjs-panel");
+  panels.forEach((panel) => {
+    const pos =
+      panel.dataset.position || panel.getAttribute("data-position") || "top";
+    if (["top", "bottom"].includes(pos)) {
+      subtraction[pos] += panel.offsetHeight;
+    } else if (["left", "right"].includes(pos)) {
+      subtraction[pos] += panel.offsetWidth;
+    }
+  });
   return subtraction;
 };
 
-export const isVisible = w => w &&
-  !w.getState('minimized') &&
-  w.getState('focused');
+export const isVisible = (w) =>
+  w && !w.getState("minimized") && w.getState("focused");
 
 /*
  * Resolves various resources
@@ -119,26 +123,26 @@ export const resourceResolver = (core) => {
   const media = supportedMedia();
 
   const getThemeName = (type) => {
-    const defaultTheme = core.config('desktop.settings.' + type);
-    return core.make('osjs/settings').get('osjs/desktop', type, defaultTheme);
+    const defaultTheme = core.config("desktop.settings." + type);
+    return core.make("osjs/settings").get("osjs/desktop", type, defaultTheme);
   };
 
-  const themeResource = path => {
-    const theme = getThemeName('theme');
+  const themeResource = (path) => {
+    const theme = getThemeName("theme");
 
     return core.url(`themes/${theme}/${path}`); // FIXME: Use metadata ?
   };
 
-  const getSoundThemeName = () => getThemeName('sounds');
+  const getSoundThemeName = () => getThemeName("sounds");
 
-  const soundResource = path => {
+  const soundResource = (path) => {
     if (!path.match(/\.([a-z]+)$/)) {
-      const defaultExtension = 'mp3';
-      const checkExtensions = ['oga', 'mp3'];
-      const found = checkExtensions.find(str => media.audio[str] === true);
+      const defaultExtension = "mp3";
+      const checkExtensions = ["oga", "mp3"];
+      const found = checkExtensions.find((str) => media.audio[str] === true);
       const use = found || defaultExtension;
 
-      path += '.' + use;
+      path += "." + use;
     }
 
     const theme = getSoundThemeName();
@@ -153,16 +157,16 @@ export const resourceResolver = (core) => {
       return name;
     }
 
-    name = name.replace(/\.(png|svg|gif)$/, '');
-    const {getMetadataFromName} = core.make('osjs/packages');
-    const theme = getThemeName('icons');
+    name = name.replace(/\.(png|svg|gif)$/, "");
+    const { getMetadataFromName } = core.make("osjs/packages");
+    const theme = getThemeName("icons");
     const metadata = getMetadataFromName(theme) || {};
     const iconDefinitions = metadata.icons || {};
-    const extension = iconDefinitions[name] || 'png';
+    const extension = iconDefinitions[name] || "png";
 
     const path = core.url(`icons/${theme}/icons/${name}.${extension}`);
     return new URL(path, window.location.href).href;
   };
 
-  return {themeResource, soundResource, soundsEnabled, icon};
+  return { themeResource, soundResource, soundsEnabled, icon };
 };
