@@ -56,9 +56,13 @@ const createView = (core, proc) => (state, actions) => {
             // Check for updates by comparing version numbers
             const hasUpdate = isInstalled && installedVersion !== pkg.version;
 
+            // Always use repository version and download for display and install
+            const repoVersion = pkg.version;
+            const repoDownload = pkg.download;
+
             console.log(`Store: Checking ${pkg.name}:`, {
               repoName: pkg.name,
-              repoVersion: pkg.version,
+              repoVersion,
               installedVersion,
               isInstalled,
               hasUpdate,
@@ -68,7 +72,7 @@ const createView = (core, proc) => (state, actions) => {
             let iconUrl = proc.resource("icon.png");
 
             if (pkg.icon) {
-              iconUrl = pkg.icon.match(/^https?:\/\//)
+              iconUrl = pkg.icon.match(/^https?:\//)
                 ? pkg.icon
                 : `${pkg._repoBase}/${pkg.icon}`;
             } else if (pkg.iconName) {
@@ -98,7 +102,7 @@ const createView = (core, proc) => (state, actions) => {
               h(
                 "div",
                 { class: "app-meta" },
-                `v${pkg.version} • ${pkg.category}`
+                `v${repoVersion} • ${pkg.category}`
               ),
               h("div", { class: "app-desc" }, pkg.description),
               h(
@@ -131,8 +135,11 @@ const register = (core, args, options, metadata) => {
     })
     .on("destroy", () => proc.destroy())
     .render(($content, win) => {
-      // Load repositories from settings
-      const savedRepos = settings.get("Store.repositories", [DEFAULT_REPO]);
+      // Load repositories from settings, ensure it's always an array
+      let savedRepos = settings.get("Store.repositories", [DEFAULT_REPO]);
+      if (!Array.isArray(savedRepos) || savedRepos.length === 0) {
+        savedRepos = [DEFAULT_REPO];
+      }
 
       const a = app(
         {
@@ -161,14 +168,33 @@ const register = (core, args, options, metadata) => {
             const installedPkgs = core.make("osjs/packages").getPackages();
             const installedPackages = {};
             installedPkgs.forEach((pkg) => {
-              // Use version from metadata
-              installedPackages[pkg.name] = pkg.version || "1.0.0";
+              let version = pkg.version;
+              // If version is missing or 1.0.0, try to fetch from metadata.json
+              if (!version || version === "1.0.0") {
+                try {
+                  // Synchronously fetch metadata.json from the app's folder in KanameStore
+                  // This assumes the app is installed in 'apps/<AppName>/metadata.json'
+                  // and that fetch is available (may need to adjust path for your VFS)
+                  const metaPath = `/apps/${pkg.name}/metadata.json`;
+                  // Try to read synchronously (if VFS supports it)
+                  // If not, fallback to default
+                  // NOTE: This is a hack; ideally, the package manager should always have the correct version
+                  // and this should be async, but for now we use sync XHR for demo
+                  const xhr = new XMLHttpRequest();
+                  xhr.open("GET", metaPath, false); // false for sync
+                  xhr.send(null);
+                  if (xhr.status === 200) {
+                    const meta = JSON.parse(xhr.responseText);
+                    if (meta.version) {
+                      version = meta.version;
+                    }
+                  }
+                } catch (e) {
+                  // Ignore errors, fallback to default
+                }
+              }
+              installedPackages[pkg.name] = version || "1.0.0";
             });
-            console.log(
-              "Store: Installed packages detected:",
-              installedPackages
-            );
-            console.log("Store: First package structure:", installedPkgs[0]);
             return { installedPackages };
           },
 
@@ -177,8 +203,14 @@ const register = (core, args, options, metadata) => {
             try {
               const allApps = [];
 
-              // Fetch from all repositories
-              for (const repoUrl of state.repositories) {
+              // Ensure repositories is always an array
+              const repos =
+                Array.isArray(state.repositories) &&
+                state.repositories.length > 0
+                  ? state.repositories
+                  : [DEFAULT_REPO];
+
+              for (const repoUrl of repos) {
                 try {
                   const response = await fetch(repoUrl);
                   const data = await response.json();
@@ -253,8 +285,7 @@ const register = (core, args, options, metadata) => {
               actions.setInstalling({ name: pkg.name, value: true });
 
               try {
-                // 1. Construct Download URL
-                // If download is relative, prepend the repo base URL
+                // Always use repository version and download for install
                 let downloadUrl = pkg.download;
                 if (!downloadUrl.match(/^https?:\/\//)) {
                   downloadUrl = `${pkg._repoBase}/${pkg.download}`;

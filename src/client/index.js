@@ -25,7 +25,8 @@
 import Core from "./core.js";
 import config from "./config.js";
 import { services } from "./services.js";
-import HoshinoInit from "./init/hoshino.js";
+import HoshinoServiceProvider from "./init/hoshino.js";
+// import HoshinoInit from "./init/hoshino.js";
 import "./index.scss";
 
 const init = async () => {
@@ -41,10 +42,14 @@ const init = async () => {
   // Expose full service definitions for dependency graph
   KanameOS.serviceDefinitions = services;
 
-  // Initialize the Hoshino INIT System
-  const initSystem = new HoshinoInit(KanameOS, config);
+  // Initialize the Hoshino Service Provider (modular init system)
 
-  await initSystem.start(services);
+  const hoshinoInstance = new HoshinoServiceProvider(KanameOS, config);
+  // Register as singleton for global access
+
+  KanameOS.singleton("webos/service", () => hoshinoInstance);
+
+  await hoshinoInstance.start(services);
 
   KanameOS.boot();
 };
