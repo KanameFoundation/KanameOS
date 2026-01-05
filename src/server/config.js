@@ -108,12 +108,22 @@ module.exports = {
           root: "{vfs}/{username}",
         },
       },
+      {
+        name: "tmp",
+        attributes: {
+          root: "{vfs}/tmp",
+        },
+      },
     ],
     home: {
       template: [
         {
           path: ".desktop/.shortcuts.json",
           contents: JSON.stringify([]),
+        },
+        {
+          path: "Downloads/.keep",
+          contents: "",
         },
       ],
     },

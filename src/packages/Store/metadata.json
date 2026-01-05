@@ -1,0 +1,9 @@
+{
+  "name": "Store",
+  "title": {
+    "en_EN": "App Store"
+  },
+  "icon": "system-software-install",
+  "category": "system",
+  "files": ["main.js", "main.css"]
+}
