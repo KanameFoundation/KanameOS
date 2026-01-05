@@ -1,5 +1,5 @@
 /*
- * WebOS - Web Based Operating System
+ * KanameOS - Web Based Operating System
  *
  * Copyright (c) 2026 Abdul Vaiz Vahry Iskandar <cyberaioff@gmail.com>
  * All rights reserved.
@@ -22,32 +22,31 @@
 // https://manual.os-js.org/resource/official/
 //
 
-import Core from './core.js';
-import config from './config.js';
-import {services} from './services.js';
-import HoshinoInit from './init/hoshino.js';
-import './index.scss';
+import Core from "./core.js";
+import config from "./config.js";
+import { services } from "./services.js";
+import HoshinoInit from "./init/hoshino.js";
+import "./index.scss";
 
 const init = async () => {
-  const WebOS = new Core(config, {});
-  window.OSjs = WebOS;
+  const KanameOS = new Core(config, {});
 
   // Expose service classes for runtime management (systemctl)
   // We map the services object back to just the provider classes for compatibility
-  WebOS.serviceClasses = Object.keys(services).reduce((acc, name) => {
+  KanameOS.serviceClasses = Object.keys(services).reduce((acc, name) => {
     acc[name] = services[name].provider;
     return acc;
   }, {});
 
   // Expose full service definitions for dependency graph
-  WebOS.serviceDefinitions = services;
+  KanameOS.serviceDefinitions = services;
 
   // Initialize the Hoshino INIT System
-  const initSystem = new HoshinoInit(WebOS, config);
-  
+  const initSystem = new HoshinoInit(KanameOS, config);
+
   await initSystem.start(services);
 
-  WebOS.boot();
+  KanameOS.boot();
 };
 
-window.addEventListener('DOMContentLoaded', () => init());
+window.addEventListener("DOMContentLoaded", () => init());

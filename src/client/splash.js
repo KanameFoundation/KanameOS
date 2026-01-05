@@ -49,20 +49,25 @@ export default class Splash {
      * @type {Element}
      * @readonly
      */
-    this.$loading = document.createElement('div');
-    this.$loading.className = 'osjs-boot-splash';
+    this.$loading = document.createElement("div");
+    this.$loading.className = "osjs-boot-splash";
 
-    core.on('osjs/core:boot', () => this.show());
-    core.on('osjs/core:booted', () => this.destroy());
-    core.on('osjs/core:logged-in', () => this.show());
-    core.on('osjs/core:started', () => this.destroy());
+    core.on("osjs/core:boot", () => this.show());
+    core.on("osjs/core:booted", () => this.destroy());
+    core.on("osjs/core:logged-in", () => this.show());
+    core.on("osjs/core:started", () => this.destroy());
   }
 
   /**
    * Initializes splash
    */
   init() {
-    this.$loading.appendChild(document.createTextNode('Loading...'));
+    this.$loading.innerHTML = `
+      <div class="osjs-boot-splash-content">
+        <div class="osjs-boot-splash-logo"></div>
+        <div class="osjs-boot-splash-message">Loading KanameOS...</div>
+      </div>
+    `;
   }
 
   /**

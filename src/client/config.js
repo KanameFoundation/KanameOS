@@ -1,5 +1,5 @@
 /*
- * WebOS - Web Based Operating System
+ * KanameOS - Web Based Operating System
  *
  * Copyright (c) 2026 Abdul Vaiz Vahry Iskandar <cyberaioff@gmail.com>
  * All rights reserved.
@@ -12,56 +12,55 @@
  * Redistribution and use in source and binary forms...
  */
 
-import {clientLocale} from './utils/locale.js';
-import defaultWallpaper from './styles/wallpaper.png';
-import defaultIcon from './styles/logo-blue-32x32.png';
+import { clientLocale } from "./utils/locale.js";
+import defaultWallpaper from "./styles/wallpaper.png";
+import defaultIcon from "./styles/logo-blue-32x32.png";
 
-const createUri = str => str
-  .replace(/(index\.(html?|php))$/, '')
-  .replace(/\/?$/, '/');
+const createUri = (str) =>
+  str.replace(/(index\.(html?|php))$/, "").replace(/\/?$/, "/");
 
 const pathname = createUri(window.location.pathname);
 
 const href = createUri(window.location.href);
 
 const languages = {
-  en_EN: 'English',
-  nb_NO: 'Norwegian, Norsk (bokmål)',
-  vi_VN: 'Vietnamese, Vietnamese',
-  fr_FR: 'French',
-  de_DE: 'German',
-  sl_SI: 'Slovenian, Slovenščina',
-  zh_CN: 'Chinese (simplified)',
-  fa_FA: 'Persian',
-  pt_BR: 'Português (Brasil)',
-  ru_RU: 'Русский (Russian)',
-  tr_TR: 'Türkçe (Turkish)',
-  sv_SE: 'Svenska (Swedish)'
+  en_EN: "English",
+  nb_NO: "Norwegian, Norsk (bokmål)",
+  vi_VN: "Vietnamese, Vietnamese",
+  fr_FR: "French",
+  de_DE: "German",
+  sl_SI: "Slovenian, Slovenščina",
+  zh_CN: "Chinese (simplified)",
+  fa_FA: "Persian",
+  pt_BR: "Português (Brasil)",
+  ru_RU: "Русский (Russian)",
+  tr_TR: "Türkçe (Turkish)",
+  sv_SE: "Svenska (Swedish)",
 };
 
 export default {
-  development: !(process.env.NODE_ENV || '').match(/^prod/i),
+  development: !(process.env.NODE_ENV || "").match(/^prod/i),
   standalone: false,
   languages,
 
   http: {
     ping: true,
     public: pathname,
-    uri: href
+    uri: href,
   },
 
   ws: {
     connectInterval: 5000,
-    uri: href.replace(/^http/, 'ws'),
-    disabled: false
+    uri: href.replace(/^http/, "ws"),
+    disabled: false,
   },
 
   packages: {
-    manifest: '/packages',
+    manifest: "/packages",
     metadata: [],
     hidden: [],
     permissions: {},
-    overrideMetadata: {}
+    overrideMetadata: {},
   },
 
   // FIXME: Move into packages above ?!
@@ -70,45 +69,45 @@ export default {
     autostart: [],
     categories: {
       development: {
-        label: 'LBL_APP_CAT_DEVELOPMENT',
-        icon: 'applications-development'
+        label: "LBL_APP_CAT_DEVELOPMENT",
+        icon: "applications-development",
       },
       science: {
-        label: 'LBL_APP_CAT_SCIENCE',
-        icon: 'applications-science'
+        label: "LBL_APP_CAT_SCIENCE",
+        icon: "applications-science",
       },
       games: {
-        label: 'LBL_APP_CAT_GAMES',
-        icon: 'applications-games'
+        label: "LBL_APP_CAT_GAMES",
+        icon: "applications-games",
       },
       graphics: {
-        label: 'LBL_APP_CAT_GRAPHICS',
-        icon: 'applications-graphics'
+        label: "LBL_APP_CAT_GRAPHICS",
+        icon: "applications-graphics",
       },
       network: {
-        label: 'LBL_APP_CAT_NETWORK',
-        icon: 'applications-internet'
+        label: "LBL_APP_CAT_NETWORK",
+        icon: "applications-internet",
       },
       multimedia: {
-        label: 'LBL_APP_CAT_MULTIMEDIA',
-        icon: 'applications-multimedia'
+        label: "LBL_APP_CAT_MULTIMEDIA",
+        icon: "applications-multimedia",
       },
       office: {
-        label: 'LBL_APP_CAT_OFFICE',
-        icon: 'applications-office'
+        label: "LBL_APP_CAT_OFFICE",
+        icon: "applications-office",
       },
       system: {
-        label: 'LBL_APP_CAT_SYSTEM',
-        icon: 'applications-system'
+        label: "LBL_APP_CAT_SYSTEM",
+        icon: "applications-system",
       },
       utilities: {
-        label: 'LBL_APP_CAT_UTILITIES',
-        icon: 'applications-utilities'
+        label: "LBL_APP_CAT_UTILITIES",
+        icon: "applications-utilities",
       },
       other: {
-        label: 'LBL_APP_CAT_OTHER',
-        icon: 'applications-other'
-      }
+        label: "LBL_APP_CAT_OTHER",
+        icon: "applications-other",
+      },
     },
     windows: [
       /*
@@ -122,17 +121,17 @@ export default {
         }
       }
       */
-    ]
+    ],
   },
 
   auth: {
     ui: {},
 
     cookie: {
-      name: 'osjs.auth',
+      name: "osjs.auth",
       expires: 7,
       enabled: false,
-      secure: false
+      secure: false,
     },
 
     // login: {
@@ -143,86 +142,88 @@ export default {
     // NOTE: These are the fallback default values
     defaultUserData: {
       id: null,
-      username: 'osjs',
-      groups: []
-    }
+      username: "osjs",
+      groups: [],
+    },
   },
 
   settings: {
     lock: [],
-    prefix: 'osjs__', // localStorage settings adapter key prefix
+    prefix: "osjs__", // localStorage settings adapter key prefix
 
     defaults: {
-      'osjs/default-application': {},
-      'osjs/session': [],
-      'osjs/desktop': {},
-      'osjs/locale': {}
-    }
+      "osjs/default-application": {},
+      "osjs/session": [],
+      "osjs/desktop": {},
+      "osjs/locale": {},
+    },
   },
 
   search: {
-    enabled: true
+    enabled: true,
   },
 
   notifications: {
-    native: false
+    native: false,
   },
 
   desktop: {
     lock: false,
     contextmenu: {
       enabled: true,
-      defaults: true
+      defaults: true,
     },
 
     settings: {
-      font: 'Roboto',
-      theme: 'StandardTheme',
-      sounds: 'FreedesktopSounds',
-      icons: 'GnomeIcons',
+      font: "Roboto",
+      theme: "StandardTheme",
+      sounds: "FreedesktopSounds",
+      icons: "GnomeIcons",
       animations: false,
-      panels: [{
-        position: 'top',
-        items: [
-          {name: 'menu'},
-          {name: 'windows'},
-          {name: 'tray'},
-          {name: 'clock'}
-        ]
-      }],
+      panels: [
+        {
+          position: "top",
+          items: [
+            { name: "menu" },
+            { name: "windows" },
+            { name: "tray" },
+            { name: "clock" },
+          ],
+        },
+      ],
       widgets: [],
       keybindings: {
-        'open-application-menu': 'shift+alt+a',
-        'close-window': 'shift+alt+w'
+        "open-application-menu": "shift+alt+a",
+        "close-window": "shift+alt+w",
       },
       notifications: {
-        position: 'top-right'
+        position: "top-right",
       },
       background: {
         src: defaultWallpaper,
-        color: '#572a79',
-        style: 'cover'
+        color: "#572a79",
+        style: "cover",
       },
       iconview: {
         enabled: true,
-        path: 'home:/.desktop',
-        fontColorStyle: 'system',
-        fontColor: '#ffffff'
-      }
-    }
+        path: "home:/.desktop",
+        fontColorStyle: "system",
+        fontColor: "#ffffff",
+      },
+    },
   },
 
   locale: {
-    language: clientLocale('en_EN', Object.keys(languages)),
-    rtl: ['az', 'fa', 'he', 'uz', 'ar'],
+    language: clientLocale("en_EN", Object.keys(languages)),
+    rtl: ["az", "fa", "he", "uz", "ar"],
     format: {
-      shortDate: 'yyyy-mm-dd',
-      mediumDate: 'dS mmm yyyy',
-      longDate: 'dS mmmm yyyy',
-      fullDate: 'dddd dS mmmm yyyy',
-      shortTime: 'HH:MM',
-      longTime: 'HH:MM:ss'
-    }
+      shortDate: "yyyy-mm-dd",
+      mediumDate: "dS mmm yyyy",
+      longDate: "dS mmmm yyyy",
+      fullDate: "dddd dS mmmm yyyy",
+      shortTime: "HH:MM",
+      longTime: "HH:MM:ss",
+    },
   },
 
   windows: {
@@ -230,73 +231,73 @@ export default {
     mobile: false, // Trigger for setting mobile UI
     template: null, // A string. See 'window.js' for example
     clampToViewport: true, // Clamp windows to viewport on resize
-    moveKeybinding: 'ctrl'
+    moveKeybinding: "ctrl",
   },
 
   vfs: {
     watch: true,
-    defaultPath: 'home:/',
-    defaultAdapter: 'system',
+    defaultPath: "home:/",
+    defaultAdapter: "system",
     adapters: {},
-    mountpoints: [{
-      name: 'apps',
-      label: 'Applications',
-      adapter: 'apps',
-      icon: defaultIcon,
-      attributes: {
-        visibility: 'restricted',
-        readOnly: true
-      }
-    }, {
-      name: 'system',
-      label: 'System',
-      adapter: 'system',
-      icon: {name: 'folder-publicshare'}
-    }, {
-      name: 'home',
-      label: 'Home',
-      adapter: 'system',
-      icon: {name: 'user-home'}
-    }],
+    mountpoints: [
+      {
+        name: "apps",
+        label: "Applications",
+        adapter: "apps",
+        icon: defaultIcon,
+        attributes: {
+          visibility: "restricted",
+          readOnly: true,
+        },
+      },
+      {
+        name: "system",
+        label: "System",
+        adapter: "system",
+        icon: { name: "folder-publicshare" },
+      },
+      {
+        name: "home",
+        label: "Home",
+        adapter: "system",
+        icon: { name: "user-home" },
+      },
+    ],
     icons: {
-      '^application/zip': {name: 'package-x-generic'},
-      '^application/javascript': {name: 'text-x-script'},
-      '^application/json': {name: 'text-x-script'},
-      '^application/x-python': {name: 'text-x-script'},
-      '^application/php': {name: 'text-x-script'},
-      '^application/pdf': {name: 'x-office-document'},
-      '^application/rtf': {name: 'x-office-document'},
-      '^application/msword': {name: 'x-office-document'},
-      '^application/(xz|tar|gzip)': {name: 'package-x-generic'},
-      '^text/css': {name: 'text-x-script'},
-      '^text/html': {name: 'text-html'},
-      '^(application|text)/xml': {name: 'text-html'},
-      '^application': {name: 'application-x-executable'},
-      '^text': {name: 'text-x-generic'},
-      '^audio': {name: 'audio-x-generic'},
-      '^video': {name: 'video-x-generic'},
-      '^image': {name: 'image-x-generic'}
-    }
+      "^application/zip": { name: "package-x-generic" },
+      "^application/javascript": { name: "text-x-script" },
+      "^application/json": { name: "text-x-script" },
+      "^application/x-python": { name: "text-x-script" },
+      "^application/php": { name: "text-x-script" },
+      "^application/pdf": { name: "x-office-document" },
+      "^application/rtf": { name: "x-office-document" },
+      "^application/msword": { name: "x-office-document" },
+      "^application/(xz|tar|gzip)": { name: "package-x-generic" },
+      "^text/css": { name: "text-x-script" },
+      "^text/html": { name: "text-html" },
+      "^(application|text)/xml": { name: "text-html" },
+      "^application": { name: "application-x-executable" },
+      "^text": { name: "text-x-generic" },
+      "^audio": { name: "audio-x-generic" },
+      "^video": { name: "video-x-generic" },
+      "^image": { name: "image-x-generic" },
+    },
   },
 
   providers: {
-    globalBlacklist: [
-      'osjs/websocket',
-      'osjs/clipboard',
-      'osjs/gapi'
-    ],
-    globalWhitelist: []
+    globalBlacklist: ["osjs/websocket", "osjs/clipboard", "osjs/gapi"],
+    globalWhitelist: [],
   },
 
   enabledServices: [
-    'CoreServiceProvider',
-    'DesktopServiceProvider',
-    'VFSServiceProvider',
-    'NotificationServiceProvider',
-    'SettingsServiceProvider',
-    'AuthServiceProvider',
-    'PanelServiceProvider',
-    'DialogServiceProvider',
-    'GUIServiceProvider'
-  ]
+    "CoreServiceProvider",
+    "DesktopServiceProvider",
+    "VFSServiceProvider",
+    "NotificationServiceProvider",
+    "SettingsServiceProvider",
+    "AuthServiceProvider",
+    "PanelServiceProvider",
+    "DialogServiceProvider",
+    "GUIServiceProvider",
+  ],
 };

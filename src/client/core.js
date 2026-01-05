@@ -1,5 +1,5 @@
 /*
- * WebOS - Web Based Operating System
+ * KanameOS - Web Based Operating System
  *
  * Copyright (c) 2026 Abdul Vaiz Vahry Iskandar <cyberaioff@gmail.com>
  * All rights reserved.
@@ -12,13 +12,13 @@
  * Redistribution and use in source and binary forms...
  */
 
-import Application from './application';
-import Websocket from './websocket';
-import Splash from './splash';
-import {CoreBase} from '../common/core.js';
-import {fetch} from './utils/fetch';
-import {urlResolver} from './utils/url';
-import logger from './logger';
+import Application from "./application";
+import Websocket from "./websocket";
+import Splash from "./splash";
+import { CoreBase } from "../common/core.js";
+import { fetch } from "./utils/fetch";
+import { urlResolver } from "./utils/url";
+import logger from "./logger";
 
 /**
  * @callback SplashCallback
@@ -56,7 +56,6 @@ import logger from './logger';
  * Main Core class for OS.js service providers and bootstrapping.
  */
 export default class Core extends CoreBase {
-
   /**
    * Create core instance
    * @param {CoreConfig} [config={}] Configuration tree
@@ -64,15 +63,15 @@ export default class Core extends CoreBase {
    */
   constructor(config = {}, options = {}) {
     options = {
-      classNames: ['osjs-root'],
+      classNames: ["osjs-root"],
       root: document.body,
-      ...options || {}
+      ...(options || {}),
     };
 
     super({}, config, options);
 
-    const $contents = document.createElement('div');
-    $contents.className = 'osjs-contents';
+    const $contents = document.createElement("div");
+    $contents.className = "osjs-contents";
 
     this.logger = logger;
 
@@ -114,7 +113,7 @@ export default class Core extends CoreBase {
      * @type {Element}
      * @readonly
      */
-    this.$resourceRoot = options.resourceRoot || document.querySelector('head');
+    this.$resourceRoot = options.resourceRoot || document.querySelector("head");
 
     /**
      * Default fetch request options
@@ -135,15 +134,19 @@ export default class Core extends CoreBase {
      * @type {CoreUserData}
      * @readonly
      */
-    this.user = this.config('auth.defaultUserData');
+    this.user = this.config("auth.defaultUserData");
 
-    this.options.classNames.forEach(n => this.$root.classList.add(n));
+    this.options.classNames.forEach((n) => this.$root.classList.add(n));
 
-    const {uri} = this.configuration.ws;
+    const { uri } = this.configuration.ws;
     if (!uri.match(/^wss?:/)) {
-      const {protocol, host} = window.location;
+      const { protocol, host } = window.location;
 
-      this.configuration.ws.uri = protocol.replace(/^http/, 'ws') + '//' + host + uri.replace(/^\/+/, '/');
+      this.configuration.ws.uri =
+        protocol.replace(/^http/, "ws") +
+        "//" +
+        host +
+        uri.replace(/^\/+/, "/");
     }
 
     this.splash.init();
@@ -158,7 +161,7 @@ export default class Core extends CoreBase {
       return Promise.resolve();
     }
 
-    this.emit('osjs/core:destroy');
+    this.emit("osjs/core:destroy");
 
     this.ping = clearInterval(this.ping);
 
@@ -173,7 +176,7 @@ export default class Core extends CoreBase {
       this.$contents = undefined;
     }
 
-    this.user = this.config('auth.defaultUserData');
+    this.user = this.config("auth.defaultUserData");
     this.ws = null;
     this.ping = null;
 
@@ -185,9 +188,9 @@ export default class Core extends CoreBase {
    * @return {Promise<boolean>}
    */
   boot() {
-    const done = e => {
+    const done = (e) => {
       if (e) {
-        logger.error('Error while booting', e);
+        logger.error("Error while booting", e);
       }
 
       console.groupEnd();
@@ -199,26 +202,28 @@ export default class Core extends CoreBase {
       return Promise.resolve(false);
     }
 
-    console.group('Core::boot()');
+    console.group("Core::boot()");
 
     this.$root.appendChild(this.$contents);
     this._attachEvents();
-    this.emit('osjs/core:boot');
+    this.emit("osjs/core:boot");
 
-    return super.boot()
+    return super
+      .boot()
       .then(() => {
-        this.emit('osjs/core:booted');
+        this.emit("osjs/core:booted");
 
-        if (this.has('osjs/auth')) {
-          return this.make('osjs/auth').show(user => {
-            const defaultData = this.config('auth.defaultUserData');
+        if (this.has("osjs/auth")) {
+          return this.make("osjs/auth").show((user) => {
+            const defaultData = this.config("auth.defaultUserData");
             this.user = {
               ...defaultData,
-              ...user
+              ...user,
             };
 
-            if (this.has('osjs/settings')) {
-              this.make('osjs/settings').load()
+            if (this.has("osjs/settings")) {
+              this.make("osjs/settings")
+                .load()
                 .then(() => done())
                 .catch(() => done());
             } else {
@@ -226,11 +231,12 @@ export default class Core extends CoreBase {
             }
           });
         } else {
-          logger.debug('OS.js STARTED WITHOUT ANY AUTHENTICATION');
+          logger.debug("OS.js STARTED WITHOUT ANY AUTHENTICATION");
         }
 
         return done();
-      }).catch(done);
+      })
+      .catch(done);
   }
 
   /**
@@ -238,23 +244,26 @@ export default class Core extends CoreBase {
    * @return {Promise<boolean>}
    */
   start() {
-    const connect = () => new Promise((resolve, reject) => {
-      try {
-        const valid = this._createConnection(error => error ? reject(error) : resolve());
-        if (valid === false) {
-          // We can skip the connection
-          resolve();
+    const connect = () =>
+      new Promise((resolve, reject) => {
+        try {
+          const valid = this._createConnection((error) =>
+            error ? reject(error) : resolve()
+          );
+          if (valid === false) {
+            // We can skip the connection
+            resolve();
+          }
+        } catch (e) {
+          reject(e);
         }
-      } catch (e) {
-        reject(e);
-      }
-    });
+      });
 
     const done = (err) => {
-      this.emit('osjs/core:started');
+      this.emit("osjs/core:started");
 
       if (err) {
-        logger.warn('Error while starting', err);
+        logger.warn("Error while starting", err);
       }
 
       console.groupEnd();
@@ -266,24 +275,26 @@ export default class Core extends CoreBase {
       return Promise.resolve(false);
     }
 
-    console.group('Core::start()');
+    console.group("Core::start()");
 
-    this.emit('osjs/core:start');
+    this.emit("osjs/core:start");
 
     this._createListeners();
 
-    return super.start()
-      .then(result => {
+    return super
+      .start()
+      .then((result) => {
         console.groupEnd();
 
         if (result) {
           return connect()
             .then(() => done())
-            .catch(err => done(err));
+            .catch((err) => done(err));
         }
 
         return false;
-      }).catch(done);
+      })
+      .catch(done);
   }
 
   /**
@@ -292,41 +303,42 @@ export default class Core extends CoreBase {
    */
   _attachEvents() {
     // Attaches sounds for certain events
-    this.on('osjs/core:started', () => {
-      if (this.has('osjs/sounds')) {
-        this.make('osjs/sounds').play('service-login');
+    this.on("osjs/core:started", () => {
+      if (this.has("osjs/sounds")) {
+        this.make("osjs/sounds").play("service-login");
       }
     });
 
-    this.on('osjs/core:destroy', () => {
-      if (this.has('osjs/sounds')) {
-        this.make('osjs/sounds').play('service-logout');
+    this.on("osjs/core:destroy", () => {
+      if (this.has("osjs/sounds")) {
+        this.make("osjs/sounds").play("service-logout");
       }
     });
 
     // Forwards messages to an application from internal websocket
-    this.on('osjs/application:socket:message', ({pid, args}) => {
-      const found = Application.getApplications()
-        .find(proc => proc && proc.pid === pid);
+    this.on("osjs/application:socket:message", ({ pid, args }) => {
+      const found = Application.getApplications().find(
+        (proc) => proc && proc.pid === pid
+      );
 
       if (found) {
-        found.emit('ws:message', ...args);
+        found.emit("ws:message", ...args);
       }
     });
 
     // Sets up a server ping
-    this.on('osjs/core:connected', config => {
-      const enabled = this.config('http.ping');
+    this.on("osjs/core:connected", (config) => {
+      const enabled = this.config("http.ping");
 
       if (enabled) {
-        const pingTime = typeof enabled === 'number'
-          ? enabled
-          : (30 * 60 * 1000);
+        const pingTime = typeof enabled === "number" ? enabled : 30 * 60 * 1000;
 
         this.ping = setInterval(() => {
           if (this.ws) {
             if (this.ws.connected && !this.ws.reconnecting) {
-              this.request('/ping').catch(e => logger.warn('Error on ping', e));
+              this.request("/ping").catch((e) =>
+                logger.warn("Error on ping", e)
+              );
             }
           }
         }, pingTime);
@@ -335,17 +347,17 @@ export default class Core extends CoreBase {
 
     const updateRootLocale = () => {
       try {
-        const s = this.make('osjs/settings');
-        const l = s.get('osjs/locale', 'language');
-        this.$root.setAttribute('data-locale', l);
+        const s = this.make("osjs/settings");
+        const l = s.get("osjs/locale", "language");
+        this.$root.setAttribute("data-locale", l);
       } catch (e) {
         console.warn(e);
       }
     };
 
-    this.on('osjs/locale:change', updateRootLocale);
-    this.on('osjs/settings:load', updateRootLocale);
-    this.on('osjs/settings:save', updateRootLocale);
+    this.on("osjs/locale:change", updateRootLocale);
+    this.on("osjs/settings:load", updateRootLocale);
+    this.on("osjs/settings:save", updateRootLocale);
   }
 
   /**
@@ -360,16 +372,16 @@ export default class Core extends CoreBase {
       return false;
     }
 
-    const {uri} = this.config('ws');
+    const { uri } = this.config("ws");
     let wasConnected = false;
 
-    logger.debug('Creating websocket connection on', uri);
+    logger.debug("Creating websocket connection on", uri);
 
-    this.ws = new Websocket('CoreSocket', uri, {
-      interval: this.config('ws.connectInterval', 1000)
+    this.ws = new Websocket("CoreSocket", uri, {
+      interval: this.config("ws.connectInterval", 1000),
     });
 
-    this.ws.once('connected', () => {
+    this.ws.once("connected", () => {
       // Allow for some grace-time in case we close prematurely
       setTimeout(() => {
         wasConnected = true;
@@ -377,28 +389,28 @@ export default class Core extends CoreBase {
       }, 100);
     });
 
-    this.ws.on('connected', (ev, reconnected) => {
-      this.emit('osjs/core:connect', ev, reconnected);
+    this.ws.on("connected", (ev, reconnected) => {
+      this.emit("osjs/core:connect", ev, reconnected);
     });
 
-    this.ws.once('failed', ev => {
+    this.ws.once("failed", (ev) => {
       if (!wasConnected) {
-        cb(new Error('Connection closed'));
-        this.emit('osjs/core:connection-failed', ev);
+        cb(new Error("Connection closed"));
+        this.emit("osjs/core:connection-failed", ev);
       }
     });
 
-    this.ws.on('disconnected', ev => {
-      this.emit('osjs/core:disconnect', ev);
+    this.ws.on("disconnected", (ev) => {
+      this.emit("osjs/core:disconnect", ev);
     });
 
-    this.ws.on('message', ev => {
+    this.ws.on("message", (ev) => {
       try {
         const data = JSON.parse(ev.data);
         const params = data.params || [];
         this.emit(data.name, ...params);
       } catch (e) {
-        logger.warn('Exception on websocket message', e);
+        logger.warn("Exception on websocket message", e);
       }
     });
 
@@ -410,24 +422,21 @@ export default class Core extends CoreBase {
    * @private
    */
   _createListeners() {
-    const handle = data => {
-      const {pid, wid, args} = data;
+    const handle = (data) => {
+      const { pid, wid, args } = data;
 
-      const proc = Application.getApplications()
-        .find(p => p.pid === pid);
+      const proc = Application.getApplications().find((p) => p.pid === pid);
 
-      const win = proc
-        ? proc.windows.find(w => w.wid === wid)
-        : null;
+      const win = proc ? proc.windows.find((w) => w.wid === wid) : null;
 
       if (win) {
-        win.emit('iframe:get', ...(args || []));
+        win.emit("iframe:get", ...(args || []));
       }
     };
 
-    window.addEventListener('message', ev => {
+    window.addEventListener("message", (ev) => {
       const message = ev.data || {};
-      if (message && message.name === 'osjs/iframe:message') {
+      if (message && message.name === "osjs/iframe:message") {
         handle(...(message.params || []));
       }
     });
@@ -446,10 +455,9 @@ export default class Core extends CoreBase {
    * @param {PackageMetadata} [metadata] A package metadata
    * @return {string}
    */
-  url(endpoint = '/', options = {}, metadata = {}) {
+  url(endpoint = "/", options = {}, metadata = {}) {
     return this.urlResolver(endpoint, options, metadata);
   }
-
 
   /**
    * Make a HTTP request
@@ -464,29 +472,28 @@ export default class Core extends CoreBase {
    * @return {*}
    */
   request(url, options = {}, type = null, force = false) {
-    const _ = this.has('osjs/locale')
-      ? this.make('osjs/locale').translate
-      : t => t;
+    const _ = this.has("osjs/locale")
+      ? this.make("osjs/locale").translate
+      : (t) => t;
 
-    if (this.config('standalone') && !force) {
-      return Promise.reject(new Error(_('ERR_REQUEST_STANDALONE')));
+    if (this.config("standalone") && !force) {
+      return Promise.reject(new Error(_("ERR_REQUEST_STANDALONE")));
     }
 
     if (!url.match(/^((http|ws|ftp)s?:)/i)) {
       url = this.url(url);
       // FIXME: Deep merge
       options = {
-        ...options || {},
-        ...this.requestOptions || {}
+        ...(options || {}),
+        ...(this.requestOptions || {}),
       };
     }
 
-    return fetch(url, options, type)
-      .catch(error => {
-        logger.warn(error);
+    return fetch(url, options, type).catch((error) => {
+      logger.warn(error);
 
-        throw new Error(_('ERR_REQUEST_NOT_OK', error));
-      });
+      throw new Error(_("ERR_REQUEST_NOT_OK", error));
+    });
   }
 
   /**
@@ -499,9 +506,9 @@ export default class Core extends CoreBase {
    * @return {Promise<Application>}
    */
   run(name, args = {}, options = {}) {
-    logger.debug('Core::run()', name, args, options);
+    logger.debug("Core::run()", name, args, options);
 
-    return this.make('osjs/packages').launch(name, args, options);
+    return this.make("osjs/packages").launch(name, args, options);
   }
 
   /**
@@ -511,14 +518,15 @@ export default class Core extends CoreBase {
    * @return {Boolean|Application}
    */
   open(file, options = {}) {
-    if (file.mime === 'osjs/application') {
-      return this.run(file.path.split('/').pop());
+    if (file.mime === "osjs/application") {
+      return this.run(file.path.split("/").pop());
     }
 
-    const run = app => this.run(app, {file}, options);
+    const run = (app) => this.run(app, { file }, options);
 
-    const compatible = this.make('osjs/packages')
-      .getCompatiblePackages(file.mime);
+    const compatible = this.make("osjs/packages").getCompatiblePackages(
+      file.mime
+    );
 
     if (compatible.length > 0) {
       if (compatible.length > 1) {
@@ -527,7 +535,7 @@ export default class Core extends CoreBase {
 
           return true;
         } catch (e) {
-          logger.warn('Exception on compability check', e);
+          logger.warn("Exception on compability check", e);
         }
       }
 
@@ -544,33 +552,32 @@ export default class Core extends CoreBase {
    * @private
    */
   _openApplicationDialog(options, compatible, file, run) {
-    const _ = this.make('osjs/locale').translate;
-    const useDefault = options.useDefault && this.has('osjs/settings');
-    const setDefault = name => this.make('osjs/settings')
-      .set('osjs/default-application', file.mime, name)
-      .save();
+    const _ = this.make("osjs/locale").translate;
+    const useDefault = options.useDefault && this.has("osjs/settings");
+    const setDefault = (name) =>
+      this.make("osjs/settings")
+        .set("osjs/default-application", file.mime, name)
+        .save();
 
     const value = useDefault
-      ? this.make('osjs/settings').get('osjs/default-application', file.mime)
+      ? this.make("osjs/settings").get("osjs/default-application", file.mime)
       : null;
 
-    const type = useDefault
-      ? 'defaultApplication'
-      : 'choice';
+    const type = useDefault ? "defaultApplication" : "choice";
 
     const args = {
-      title: _('LBL_LAUNCH_SELECT'),
-      message: _('LBL_LAUNCH_SELECT_MESSAGE', file.path),
-      choices: compatible.reduce((o, i) => ({...o, [i.name]: i.name}), {}),
-      value
+      title: _("LBL_LAUNCH_SELECT"),
+      message: _("LBL_LAUNCH_SELECT_MESSAGE", file.path),
+      choices: compatible.reduce((o, i) => ({ ...o, [i.name]: i.name }), {}),
+      value,
     };
 
     if (value && !options.forceDialog) {
       run(value);
     } else {
-      this.make('osjs/dialog', type, args, (btn, choice) => {
-        if (btn === 'ok') {
-          if (type === 'defaultApplication') {
+      this.make("osjs/dialog", type, args, (btn, choice) => {
+        if (btn === "ok") {
+          if (type === "defaultApplication") {
             if (useDefault) {
               setDefault(choice.checked ? choice.value : null);
             }
@@ -592,8 +599,8 @@ export default class Core extends CoreBase {
    * @return {Core} this
    */
   off(name, callback = null, force = false) {
-    if (name.match(/^osjs\//) && typeof callback !== 'function') {
-      throw new TypeError('The callback must be a function');
+    if (name.match(/^osjs\//) && typeof callback !== "function") {
+      throw new TypeError("The callback must be a function");
     }
 
     return super.off(name, callback, force);
@@ -609,16 +616,12 @@ export default class Core extends CoreBase {
    * @return {string[]} List of application names emitted to
    */
   broadcast(pkg, name, ...args) {
-    const filter = typeof pkg === 'function'
-      ? pkg
-      : p => p.metadata.name === pkg;
+    const filter =
+      typeof pkg === "function" ? pkg : (p) => p.metadata.name === pkg;
 
+    const apps = Application.getApplications().filter(filter);
 
-    const apps = Application
-      .getApplications()
-      .filter(filter);
-
-    return apps.map(proc => {
+    return apps.map((proc) => {
       proc.emit(name, ...args);
 
       return proc.name;
@@ -632,10 +635,12 @@ export default class Core extends CoreBase {
    * @param {*} ...params Event callback parameters
    */
   send(name, ...params) {
-    return this.ws.send(JSON.stringify({
-      name,
-      params
-    }));
+    return this.ws.send(
+      JSON.stringify({
+        name,
+        params,
+      })
+    );
   }
 
   /**
@@ -643,7 +648,7 @@ export default class Core extends CoreBase {
    * @param {object} options Request options
    */
   setRequestOptions(options) {
-    this.requestOptions = {...options};
+    this.requestOptions = { ...options };
   }
 
   /**
@@ -651,7 +656,7 @@ export default class Core extends CoreBase {
    * @return {CoreUserData} User object
    */
   getUser() {
-    return {...this.user};
+    return { ...this.user };
   }
 
   /**
@@ -661,7 +666,7 @@ export default class Core extends CoreBase {
    * @param {Function} callback Middleware function to add
    */
   middleware(group, callback) {
-    return this.make('osjs/middleware').add(group, callback);
+    return this.make("osjs/middleware").add(group, callback);
   }
 
   /**
@@ -670,12 +675,12 @@ export default class Core extends CoreBase {
    */
   kill(match) {
     const apps = Application.getApplications();
-    const matcher = typeof match === 'number'
-      ? app => app.pid === match
-      : app => app.metadata.name === match;
+    const matcher =
+      typeof match === "number"
+        ? (app) => app.pid === match
+        : (app) => app.metadata.name === match;
 
     const found = apps.filter(matcher);
-    found.forEach(app => app.destroy());
+    found.forEach((app) => app.destroy());
   }
-
 }

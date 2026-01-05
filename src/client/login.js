@@ -1,5 +1,5 @@
 /*
- * WebOS - Web Based Operating System
+ * KanameOS - Web Based Operating System
  *
  * Copyright (c) 2026 Abdul Vaiz Vahry Iskandar <cyberaioff@gmail.com>
  * All rights reserved.
@@ -12,8 +12,8 @@
  * Redistribution and use in source and binary forms...
  */
 
-import {EventEmitter} from '../event/emitter.js';
-import createUI from './adapters/ui/login';
+import { EventEmitter } from "../event/emitter.js";
+import createUI from "./adapters/ui/login";
 
 /**
  * Login Options
@@ -27,7 +27,6 @@ import createUI from './adapters/ui/login';
  * OS.js Login UI
  */
 export default class Login extends EventEmitter {
-
   /**
    * Create authentication handler
    *
@@ -35,7 +34,7 @@ export default class Login extends EventEmitter {
    * @param {LoginOptions} [options] Options
    */
   constructor(core, options) {
-    super('Login');
+    super("Login");
 
     /**
      * Login root DOM element
@@ -57,35 +56,39 @@ export default class Login extends EventEmitter {
      * @readonly
      */
     this.options = {
-      id: 'osjs-login',
-      title: 'Welcome to WebOS',
-      stamp: core.config('version'),
+      id: "osjs-login",
+      title: "Welcome to KanameOS",
+      stamp: core.config("version"),
       logo: {
-        position: 'top',
-        src: null
+        position: "top",
+        src: null,
       },
-      fields: [{
-        tagName: 'input',
-        attributes: {
-          name: 'username',
-          type: 'text',
-          placeholder: 'Username'
-        }
-      }, {
-        tagName: 'input',
-        attributes: {
-          name: 'password',
-          type: 'password',
-          placeholder: 'Password'
-        }
-      }, {
-        tagName: 'input',
-        attributes: {
-          type: 'submit',
-          value: 'Login'
-        }
-      }],
-      ...options
+      fields: [
+        {
+          tagName: "input",
+          attributes: {
+            name: "username",
+            type: "text",
+            placeholder: "Username",
+          },
+        },
+        {
+          tagName: "input",
+          attributes: {
+            name: "password",
+            type: "password",
+            placeholder: "Password",
+          },
+        },
+        {
+          tagName: "input",
+          attributes: {
+            type: "submit",
+            value: "Login",
+          },
+        },
+      ],
+      ...options,
     };
   }
 
@@ -93,9 +96,9 @@ export default class Login extends EventEmitter {
    * Initializes the UI
    */
   init(startHidden) {
-    this.$container = document.createElement('div');
-    this.$container.className = 'osjs-login-base';
-    this.core.$root.classList.add('login');
+    this.$container = document.createElement("div");
+    this.$container.className = "osjs-login-base";
+    this.core.$root.classList.add("login");
     this.core.$root.appendChild(this.$container);
 
     this.render(startHidden);
@@ -105,7 +108,7 @@ export default class Login extends EventEmitter {
    * Destroys the UI
    */
   destroy() {
-    this.core.$root.classList.remove('login');
+    this.core.$root.classList.remove("login");
 
     if (this.$container) {
       this.$container.remove();
@@ -119,14 +122,13 @@ export default class Login extends EventEmitter {
    * Renders the UI
    */
   render(startHidden) {
-    const login = this.core.config('auth.login', {});
+    const login = this.core.config("auth.login", {});
     const ui = createUI(this.options, login, startHidden, this.$container);
 
-    ui.on('register:post', values => this.emit('register:post', values));
-    ui.on('login:post', values => this.emit('login:post', values));
-    this.on('login:start', () => ui.emit('login:start'));
-    this.on('login:stop', () => ui.emit('login:stop'));
-    this.on('login:error', (msg, err) => ui.emit('login:error', msg, err));
+    ui.on("register:post", (values) => this.emit("register:post", values));
+    ui.on("login:post", (values) => this.emit("login:post", values));
+    this.on("login:start", () => ui.emit("login:start"));
+    this.on("login:stop", () => ui.emit("login:stop"));
+    this.on("login:error", (msg, err) => ui.emit("login:error", msg, err));
   }
-
 }

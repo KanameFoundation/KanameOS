@@ -1,7 +1,7 @@
 {
   "name": "app-manager",
   "version": "1.0.0",
-  "description": "Application Manager for WebOS",
+  "description": "Application Manager for KanameOS",
   "main": "index.js",
   "osjs": {
     "type": "application"

@@ -1,11 +1,10 @@
-# WebOS
+# KanameOS
 
-WebOS is an [open-source](https://raw.githubusercontent.com/DemuraAIdev/webos/master/LICENSE) web desktop platform with a window manager, application APIs, GUI toolkit, filesystem abstractions and much more based on [OS.js](https://www.os-js.org/)
+KanameOS is an [open-source](https://raw.githubusercontent.com/DemuraAIdev/KanameOS/master/LICENSE) web desktop platform with a window manager, application APIs, GUI toolkit, filesystem abstractions and much more based on [OS.js](https://www.os-js.org/)
 
 ## Introduction
 
-This is the WebOS base repository that you can use as a template to make your own distributions, installations and development environments.
-
+This is the KanameOS base repository that you can use as a template to make your own distributions, installations and development environments.
 
 ## Installation
 

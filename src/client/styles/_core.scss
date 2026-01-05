@@ -70,18 +70,86 @@
 }
 
 .osjs-boot-splash {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   z-index: 9999999999;
-  background-color: #000;
+  background-color: #1a1a1a;
+  background-image: linear-gradient(135deg, #1a1a1a 0%, #2c3e50 100%);
   color: #fff;
-  font-size: 120%;
-  font-family: sans-serif;
-  padding: $base-margin;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  .osjs-boot-splash-content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .osjs-boot-splash-logo {
+    width: 100px;
+    height: 100px;
+    background-image: url('./favicon.png'); /* Assuming favicon is available, or use a specific logo */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: drop-shadow(0 0 10px rgba(61, 174, 233, 0.5));
+    /* animation: pulse 2s infinite ease-in-out; */
+  }
+
+  .osjs-boot-splash-message {
+    font-size: 18px;
+    font-weight: 300;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  /*
+  .osjs-boot-splash-spinner {
+    display: flex;
+    gap: 8px;
+
+    > div {
+      width: 12px;
+      height: 12px;
+      background-color: #3daee9;
+      border-radius: 100%;
+      display: inline-block;
+      animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+    }
+
+    .bounce1 {
+      animation-delay: -0.32s;
+    }
+
+    .bounce2 {
+      animation-delay: -0.16s;
+    }
+  }
+  */
 }
+
+/*
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+@keyframes sk-bouncedelay {
+  0%, 80%, 100% { 
+    transform: scale(0);
+  } 40% { 
+    transform: scale(1.0);
+  }
+}
+*/
 
 .osjs-contents {
   position: absolute;

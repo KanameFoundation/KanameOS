@@ -1,20 +1,20 @@
-const fs = require('fs-extra');
-const path = require('path');
-const { spawn } = require('child_process');
+const fs = require("fs-extra");
+const path = require("path");
+const { spawn } = require("child_process");
 
-const root = path.resolve(__dirname, '../../');
-const packagesDir = path.resolve(root, 'src/packages');
+const root = path.resolve(__dirname, "../../");
+const packagesDir = path.resolve(root, "src/packages");
 
 const buildPackage = (pkgPath) => {
   return new Promise((resolve, reject) => {
     console.log(`Building package in ${pkgPath}...`);
-    const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-    const child = spawn(npmCmd, ['run', 'build'], {
+    const child = spawn("npm", ["run", "build"], {
       cwd: pkgPath,
-      stdio: 'inherit'
+      stdio: "inherit",
+      shell: true,
     });
 
-    child.on('close', (code) => {
+    child.on("close", (code) => {
       if (code === 0) {
         resolve();
       } else {
@@ -25,8 +25,8 @@ const buildPackage = (pkgPath) => {
 };
 
 const run = async () => {
-  if (!await fs.pathExists(packagesDir)) {
-    console.log('No local packages directory found.');
+  if (!(await fs.pathExists(packagesDir))) {
+    console.log("No local packages directory found.");
     return;
   }
 
@@ -34,8 +34,11 @@ const run = async () => {
   for (const entry of entries) {
     const entryPath = path.join(packagesDir, entry);
     const stat = await fs.stat(entryPath);
-    
-    if (stat.isDirectory() && await fs.pathExists(path.join(entryPath, 'package.json'))) {
+
+    if (
+      stat.isDirectory() &&
+      (await fs.pathExists(path.join(entryPath, "package.json")))
+    ) {
       try {
         await buildPackage(entryPath);
       } catch (e) {

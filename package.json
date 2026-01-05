@@ -1,7 +1,7 @@
 {
-  "name": "webos",
+  "name": "kanameos",
   "version": "1.23.0",
-  "description": "WebOS - The JavaScript Operating System",
+  "description": "KanameOS - Web Based Operating System",
   "main": "index.js",
   "scripts": {
     "test": "npm run eslint && npm run stylelint",
@@ -10,12 +10,12 @@
     "serve": "node src/server/index.js",
     "build:manifest": "node src/scripts/discover.js",
     "package:discover": "node src/scripts/discover.js",
-    "build": "NODE_ENV=production rspack build && node src/scripts/build-packages.js",
+    "build": "rspack build && node src/scripts/build-packages.js",
     "watch": "rspack build --watch",
     "prepare": "npm run build && npm run build:manifest"
   },
   "keywords": [
-    "webos",
+    "kanameos",
     "osjs",
     "operating system",
     "desktop",
@@ -42,6 +42,7 @@
     "@osjs/musicplayer-application": "^1.2.8",
     "@osjs/panels": "^3.0.31",
     "@osjs/preview-application": "^1.1.17",
+    "@osjs/standard-dark-theme": "^4.0.11",
     "@osjs/standard-theme": "^4.0.9",
     "@osjs/textpad-application": "^1.2.7",
     "adm-zip": "^0.5.16",
@@ -74,28 +75,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DemuraAIdev/WebOS.git"
+    "url": "git+https://github.com/Kaname-Fundation/KanameOS.git"
   },
   "bugs": {
-    "url": "https://github.com/DemuraAIdev/WebOS/issues"
+    "url": "https://github.com/Kaname-Fundation/KanameOS/issues"
   },
-  "homepage": "https://github.com/DemuraAIdev/WebOS",
+  "homepage": "https://github.com/Kaname-Fundation/KanameOS",
   "engines": {
     "node": ">=10.0.0"
-  },
-  "eslintConfig": {
-    "env": {
-      "browser": true,
-      "node": true
-    },
-    "parserOptions": {
-      "sourceType": "module",
-      "ecmaVersion": 8
-    },
-    "extends": "@osjs/eslint-config"
-  },
-  "stylelint": {
-    "extends": "@osjs/stylelint-config"
   },
   "babel": {
     "presets": [

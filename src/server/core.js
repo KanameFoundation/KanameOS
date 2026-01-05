@@ -1,28 +1,32 @@
 /*
- * WebOS - Copyright (c) 2026 Abdul Vaiz
+ * KanameOS - Copyright (c) 2026 Abdul Vaiz
  * Based on OS.js (c) Anders Evenrud. BSD-2-Clause License.
  */
 
-const fs = require('fs-extra');
-const http = require('http');
-const https = require('https');
-const path = require('path');
-const morgan = require('morgan');
-const express = require('express');
-const minimist = require('minimist');
-const deepmerge = require('deepmerge');
-const consola = require('consola');
-const {CoreBase} = require('../common/core.js');
-const {argvToConfig, createSession, createWebsocket, parseJson} = require('./utils/core.js');
-const logger = consola.withTag('Core');
+const fs = require("fs-extra");
+const http = require("http");
+const https = require("https");
+const path = require("path");
+const morgan = require("morgan");
+const express = require("express");
+const minimist = require("minimist");
+const deepmerge = require("deepmerge");
+const consola = require("consola");
+const { CoreBase } = require("../common/core.js");
+const {
+  argvToConfig,
+  createSession,
+  createWebsocket,
+  parseJson,
+} = require("./utils/core.js");
+const logger = consola.withTag("Core");
 
 let _instance;
 
 /**
- * WebOS Server Core
+ * KanameOS Server Core
  */
 class Core extends CoreBase {
-
   /**
    * Creates a new instance
    * @param {Object} cfg Configuration tree
@@ -32,20 +36,22 @@ class Core extends CoreBase {
     options = {
       argv: process.argv.splice(2),
       root: process.cwd(),
-      ...options
+      ...options,
     };
 
     const argv = minimist(options.argv);
-    const val = k => argvToConfig[k](parseJson(argv[k]));
-    const keys = Object.keys(argvToConfig).filter(k => Object.prototype.hasOwnProperty.call(argv, k));
+    const val = (k) => argvToConfig[k](parseJson(argv[k]));
+    const keys = Object.keys(argvToConfig).filter((k) =>
+      Object.prototype.hasOwnProperty.call(argv, k)
+    );
     const argvConfig = keys.reduce((o, k) => {
       logger.info(`CLI argument '--${k}' overrides`, val(k));
-      return {...o, ...deepmerge(o, val(k))};
+      return { ...o, ...deepmerge(o, val(k)) };
     }, {});
 
     super({}, deepmerge(cfg, argvConfig), options);
 
-    this.logger = consola.withTag('Internal');
+    this.logger = consola.withTag("Internal");
 
     /**
      * @type {Express}
@@ -53,14 +59,14 @@ class Core extends CoreBase {
     this.app = express();
 
     if (!this.configuration.public) {
-      throw new Error('The public option is required');
+      throw new Error("The public option is required");
     }
 
     /**
      * @type {http.Server|https.Server}
      */
-    this.httpServer = this.config('https.enabled')
-      ? https.createServer(this.config('https.options'), this.app)
+    this.httpServer = this.config("https.enabled")
+      ? https.createServer(this.config("https.options"), this.app)
       : http.createServer(this.app);
 
     /**
@@ -68,9 +74,9 @@ class Core extends CoreBase {
      */
     this.sockets = new Set();
 
-    this.httpServer.on('connection', (socket) => {
+    this.httpServer.on("connection", (socket) => {
       this.sockets.add(socket);
-      socket.on('close', () => {
+      socket.on("close", () => {
         this.sockets.delete(socket);
       });
     });
@@ -83,7 +89,12 @@ class Core extends CoreBase {
     /**
      * @type {object}
      */
-    this.ws = createWebsocket(this.app, this.configuration, this.session, this.httpServer);
+    this.ws = createWebsocket(
+      this.app,
+      this.configuration,
+      this.session,
+      this.httpServer
+    );
 
     /**
      * @type {object}
@@ -103,9 +114,9 @@ class Core extends CoreBase {
       return;
     }
 
-    this.emit('osjs/core:destroy');
+    this.emit("osjs/core:destroy");
 
-    logger.info('Shutting down...');
+    logger.info("Shutting down...");
 
     if (this.wss) {
       this.wss.close();
@@ -141,11 +152,11 @@ class Core extends CoreBase {
    */
   async start() {
     if (!this.started) {
-      logger.info('Starting services...');
+      logger.info("Starting services...");
 
       await super.start();
 
-      logger.success('Initialized!');
+      logger.success("Initialized!");
 
       await this.listen();
     }
@@ -162,12 +173,12 @@ class Core extends CoreBase {
       return true;
     }
 
-    this.emit('osjs/core:start');
+    this.emit("osjs/core:start");
 
     if (this.configuration.logging) {
-      this.wss.on('connection', (c) => {
-        logger.log('WebSocket connection opened');
-        c.on('close', () => logger.log('WebSocket connection closed'));
+      this.wss.on("connection", (c) => {
+        logger.log("WebSocket connection opened");
+        c.on("close", () => logger.log("WebSocket connection closed"));
       });
 
       if (this.configuration.morgan) {
@@ -175,13 +186,12 @@ class Core extends CoreBase {
       }
     }
 
-
-    logger.info('Initializing services...');
+    logger.info("Initializing services...");
 
     await super.boot();
-    this.emit('init');
+    this.emit("init");
     await this.start();
-    this.emit('osjs/core:started');
+    this.emit("osjs/core:started");
 
     return true;
   }
@@ -190,21 +200,25 @@ class Core extends CoreBase {
    * Opens HTTP server
    */
   async listen() {
-    const httpPort = this.config('port');
-    const httpHost = this.config('bind');
-    const wsPort = this.config('ws.port') || httpPort;
-    const pub = this.config('public');
-    const session = path.basename(path.dirname(this.config('session.store.module')));
-    const dist = pub.replace(process.cwd(), '');
-    const secure = this.config('https.enabled', false);
-    const proto = prefix => `${prefix}${secure ? 's' : ''}://`;
-    const host = port => `${httpHost}:${port}`;
+    const httpPort = this.config("port");
+    const httpHost = this.config("bind");
+    const wsPort = this.config("ws.port") || httpPort;
+    const pub = this.config("public");
+    const session = path.basename(
+      path.dirname(this.config("session.store.module"))
+    );
+    const dist = pub.replace(process.cwd(), "");
+    const secure = this.config("https.enabled", false);
+    const proto = (prefix) => `${prefix}${secure ? "s" : ""}://`;
+    const host = (port) => `${httpHost}:${port}`;
 
-    logger.info('Opening server connection');
+    logger.info("Opening server connection");
 
     const checkFile = path.join(pub, this.configuration.index);
     if (!fs.existsSync(checkFile)) {
-      logger.warn('Missing files in "dist/" directory. Did you forget to run "npm run build" ?');
+      logger.warn(
+        'Missing files in "dist/" directory. Did you forget to run "npm run build" ?'
+      );
     }
 
     return new Promise((resolve, reject) => {
@@ -215,8 +229,12 @@ class Core extends CoreBase {
           } else {
             logger.success(`Using '${session}' sessions`);
             logger.success(`Serving '${dist}'`);
-            logger.success(`WebSocket listening on ${proto('ws')}${host(wsPort)}`);
-            logger.success(`Server listening on ${proto('http')}${host(httpPort)}`);
+            logger.success(
+              `WebSocket listening on ${proto("ws")}${host(wsPort)}`
+            );
+            logger.success(
+              `Server listening on ${proto("http")}${host(httpPort)}`
+            );
             resolve();
           }
         });
@@ -237,16 +255,18 @@ class Core extends CoreBase {
 
     if (this.ws) {
       this.wss.clients // This is a Set
-        .forEach(client => {
+        .forEach((client) => {
           if (!client._osjs_client) {
             return;
           }
 
           if (filter(client)) {
-            client.send(JSON.stringify({
-              params,
-              name
-            }));
+            client.send(
+              JSON.stringify({
+                params,
+                name,
+              })
+            );
           }
         });
     }
@@ -268,7 +288,7 @@ class Core extends CoreBase {
    * @param {Array} ...params A list of parameters to send to client
    */
   broadcastUser(username, name, ...params) {
-    return this.broadcast(name, params, client => {
+    return this.broadcast(name, params, (client) => {
       return client._osjs_client.username === username;
     });
   }

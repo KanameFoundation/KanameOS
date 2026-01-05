@@ -1,5 +1,5 @@
 /*
- * WebOS - Web Based Operating System
+ * KanameOS - Web Based Operating System
  *
  * Copyright (c) 2026 Abdul Vaiz Vahry Iskandar <cyberaioff@gmail.com>
  * All rights reserved.
@@ -11,7 +11,7 @@
  *
  * Redistribution and use in source and binary forms...
  */
-const path = require('path');
+const path = require("path");
 
 //
 // This is where you can place your custom CLI tasks
@@ -21,7 +21,7 @@ const path = require('path');
 
 module.exports = {
   discover: [
-    path.resolve(__dirname, '../packages') // OS.js/src/packages
+    path.resolve(__dirname, "../packages"), // OS.js/src/packages
   ],
-  tasks: []
+  tasks: [],
 };

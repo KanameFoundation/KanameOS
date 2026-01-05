@@ -1,5 +1,5 @@
 /*
- * WebOS - Web Based Operating System
+ * KanameOS - Web Based Operating System
  *
  * Copyright (c) 2026 Abdul Vaiz Vahry Iskandar <cyberaioff@gmail.com>
  * All rights reserved.
@@ -21,27 +21,27 @@
 // https://manual.os-js.org/resource/official/
 //
 
-const Core = require('./core.js')
-const config = require('./config.js');
-const services = require('./services.js');
-const HoshinoInit = require('./init/hoshino.js');
+const Core = require("./core.js");
+const config = require("./config.js");
+const services = require("./services.js");
+const HoshinoInit = require("./init/hoshino.js");
 
-const WebOS = new Core(config, {});
+const KanameOS = new Core(config, {});
 
 // Initialize the Hoshino INIT System (Server Side)
-const initSystem = new HoshinoInit(WebOS, config);
+const initSystem = new HoshinoInit(KanameOS, config);
 initSystem.start(services);
 
-const shutdown = signal => (error) => {
+const shutdown = (signal) => (error) => {
   if (error instanceof Error) {
     console.error(error);
   }
 
-  WebOS.destroy(() => process.exit(signal));
+  KanameOS.destroy(() => process.exit(signal));
 };
 
-process.on('SIGTERM', shutdown(0));
-process.on('SIGINT', shutdown(0));
-process.on('exit', shutdown(0));
+process.on("SIGTERM", shutdown(0));
+process.on("SIGINT", shutdown(0));
+process.on("exit", shutdown(0));
 
-WebOS.boot().catch(shutdown(1));
+KanameOS.boot().catch(shutdown(1));

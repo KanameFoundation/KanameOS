@@ -1,7 +1,7 @@
 {
   "name": "settings-application",
   "version": "1.0.0",
-  "description": "Settings Application for WebOS",
+  "description": "Settings Application for KanameOS",
   "main": "index.js",
   "osjs": {
     "type": "application"
