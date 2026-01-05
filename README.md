@@ -1,40 +1,11 @@
-<p align="center">
-  <img alt="OS.js Logo" src="https://raw.githubusercontent.com/os-js/gfx/master/logo-big.png" />
-</p>
+# WebOS
 
-# OS.js
-
-[WebOS](https://www.os-js.org/) is an [open-source](https://raw.githubusercontent.com/os-js/OS.js/master/LICENSE) web desktop platform with a window manager, application APIs, GUI toolkit, filesystem abstractions and much more.
-
-**Backing/Donations:**
-[Github sponsorship](https://github.com/sponsors/andersevenrud),
-[Patreon](https://www.patreon.com/user?u=2978551&ty=h&u=2978551),
-[OpenCollective](https://opencollective.com/osjs),
-[LibrePay](https://liberapay.com/os-js/),
-[PayPal](https://paypal.me/andersevenrud),
-[Bitcoin](https://manual.os-js.org/wallet.png)
-
-**Support:**
-[Chat](https://gitter.im/os-js/OS.js),
-[Forums](https://community.os-js.org/),
-[Twitter](https://twitter.com/osjsorg),
-[Facebook](https://www.facebook.com/os.js.org)
+WebOS is an [open-source](https://raw.githubusercontent.com/DemuraAIdev/webos/master/LICENSE) web desktop platform with a window manager, application APIs, GUI toolkit, filesystem abstractions and much more based on [OS.js](https://www.os-js.org/)
 
 ## Introduction
 
-This is the OS.js base repository that you can use as a template to make your own distributions, installations and development environments.
+This is the WebOS base repository that you can use as a template to make your own distributions, installations and development environments.
 
-## Try it yourself
-
-Visit the [official demo](https://demo.os-js.org/) for a preview version. Please note that some features are disabled and might be outdated or unavailable at times.
-
-![ScreenShot](https://www.os-js.org/screenshot.png)
-
-## Documentation
-
-See the [official manuals](https://manual.os-js.org/) for articles, tutorials and guides.
-
-There's also a [contribution guide](https://github.com/os-js/OS.js/blob/master/CONTRIBUTING.md) if you want to contribute to this project.
 
 ## Installation
 
