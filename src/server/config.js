@@ -14,6 +14,7 @@ const path = require("path");
 const root = path.resolve(__dirname, "../../");
 const maxAge = 60 * 60 * 12;
 const mb = (m) => m * 1024 * 1024;
+const vfsRoot = process.env.KANAMEOS_VFS_PATH || path.join(process.cwd(), "vfs");
 
 module.exports = {
   root,
@@ -72,6 +73,7 @@ module.exports = {
     store: {
       module: require.resolve("connect-loki"),
       options: {
+        path: process.env.KANAMEOS_SESSION_PATH || "session-store.db",
         autosave: true,
       },
     },
@@ -89,11 +91,11 @@ module.exports = {
   },
   packages: {
     discovery: "packages.json",
-    metadata: "../vfs/metadata.json",
+    metadata: path.join(vfsRoot, "metadata.json"),
   },
   vfs: {
     watch: false,
-    root: path.join(process.cwd(), "vfs"),
+    root: vfsRoot,
     mountpoints: [
       {
         name: "system",
