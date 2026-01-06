@@ -13,6 +13,9 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
+# Add prepare step to ensure the project is ready
+RUN npm run prepare
+
 # Stage 2: Runner
 FROM node:20-alpine
 
