@@ -296,7 +296,6 @@ export default {
     "NotificationServiceProvider",
     "SettingsServiceProvider",
     "AuthServiceProvider",
-    "PanelServiceProvider",
     "DialogServiceProvider",
     "GUIServiceProvider",
   ],

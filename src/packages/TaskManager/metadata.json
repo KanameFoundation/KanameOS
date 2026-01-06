@@ -1,0 +1,13 @@
+{
+  "name": "osjs-taskmanager",
+  "category": "system",
+  "icon": "utilities-system-monitor",
+  "title": {
+    "en_EN": "Task Manager"
+  },
+  "description": "Manage running applications",
+  "files": [
+    "main.js",
+    "main.css"
+  ]
+}

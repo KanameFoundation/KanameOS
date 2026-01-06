@@ -1,0 +1,99 @@
+/* Flattened styles to ensure they apply regardless of window structure */
+.tm-window {
+    background-color: #2b2b2b;
+    color: #fff;
+    display: flex !important;
+    flex-direction: column;
+    height: 100%;
+    /* Ensure full height */
+}
+
+.tm-table-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    border: 1px solid #444;
+    background: #1e1e1e;
+    overflow: hidden;
+    margin: 5px;
+}
+
+.tm-table-header {
+    display: flex;
+    flex-direction: row;
+    /* Explicitly set row */
+    background: #333;
+    font-weight: bold;
+    border-bottom: 1px solid #444;
+    padding-right: 17px;
+
+    >div {
+        padding: 5px 10px;
+        border-right: 1px solid #444;
+
+        &:last-child {
+            border-right: none;
+        }
+    }
+}
+
+.tm-table-body {
+    flex: 1;
+    overflow-y: auto;
+    width: 100%;
+}
+
+.tm-table-row {
+    display: flex;
+    flex-direction: row;
+    /* Explicitly set row */
+    border-bottom: 1px solid #333;
+    cursor: default;
+    user-select: none;
+    height: 36px;
+    align-items: center;
+
+    &:hover {
+        background-color: #333;
+    }
+
+    &.selected {
+        background-color: #3f90e6;
+        color: white;
+    }
+
+    >div {
+        padding: 0 10px;
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
+}
+
+/* Explicit widths to force horizontal layout */
+.tm-col-name {
+    flex: 1;
+    gap: 8px;
+    overflow: hidden;
+    white-space: nowrap;
+
+    img {
+        width: 16px;
+        height: 16px;
+        min-width: 16px;
+    }
+}
+
+.tm-col-pid {
+    width: 60px;
+    justify-content: flex-end;
+}
+
+.tm-col-status {
+    width: 80px;
+}
+
+.tm-col-action {
+    width: 100px;
+    justify-content: center;
+}

@@ -547,8 +547,8 @@ export default class Desktop extends EventEmitter {
 
     applyCss(newSettings);
 
-    // TODO: Multiple panels
-    applyOverlays("osjs/panels", (newSettings.panels || []).slice(-1));
+    // Panels are self-managing (like Waybar) - desktop doesn't control them
+    // Only manage widgets which are still desktop-controlled
     applyOverlays("osjs/widgets", newSettings.widgets);
 
     this.applyTheme(newSettings.theme);

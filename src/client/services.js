@@ -5,7 +5,6 @@ import SettingsServiceProvider from "./provider/settings.js";
 import DesktopServiceProvider from "./provider/desktop.js";
 import NotificationServiceProvider from "./provider/notifications.js";
 
-import { PanelServiceProvider } from "@osjs/panels";
 import { GUIServiceProvider } from "@osjs/gui";
 import { DialogServiceProvider } from "@osjs/dialogs";
 
@@ -55,12 +54,6 @@ export const services = {
       depends: ["osjs/gui"],
     },
   },
-  PanelServiceProvider: {
-    provider: PanelServiceProvider,
-    options: {
-      depends: ["osjs/core", "osjs/gui"],
-    },
-  },
   DesktopServiceProvider: {
     provider: DesktopServiceProvider,
     options: {
@@ -71,7 +64,6 @@ export const services = {
         "osjs/vfs",
         "osjs/gui",
         "osjs/dialog",
-        "osjs/panels",
       ],
     },
   },
