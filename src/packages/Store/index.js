@@ -60,15 +60,6 @@ const createView = (core, proc) => (state, actions) => {
             const repoVersion = pkg.version;
             const repoDownload = pkg.download;
 
-            console.log(`Store: Checking ${pkg.name}:`, {
-              repoName: pkg.name,
-              repoVersion,
-              installedVersion,
-              isInstalled,
-              hasUpdate,
-              allInstalled: Object.keys(state.installedPackages),
-            });
-
             let iconUrl = proc.resource("icon.png");
 
             if (pkg.icon) {
@@ -114,7 +105,7 @@ const createView = (core, proc) => (state, actions) => {
                 },
                 buttonText
               ),
-            );
+            ]);
           })
         ),
 
@@ -123,7 +114,16 @@ const createView = (core, proc) => (state, actions) => {
 };
 
 const register = (core, args, options, metadata) => {
-  const proc = core.make("osjs/application", { args, options, metadata });
+  const proc = core.make("osjs/application", {
+    args,
+    options: {
+      ...options,
+      settings: {
+        repositories: [DEFAULT_REPO]
+      }
+    },
+    metadata
+  });
   const settings = core.make("osjs/settings");
 
   proc
@@ -136,7 +136,7 @@ const register = (core, args, options, metadata) => {
     .on("destroy", () => proc.destroy())
     .render(($content, win) => {
       // Load repositories from settings, ensure it's always an array
-      let savedRepos = settings.get("Store.repositories", [DEFAULT_REPO]);
+      let savedRepos = proc.settings.repositories;
       if (!Array.isArray(savedRepos) || savedRepos.length === 0) {
         savedRepos = [DEFAULT_REPO];
       }
@@ -164,8 +164,8 @@ const register = (core, args, options, metadata) => {
             if (validRepos.length === 0) {
               validRepos = [DEFAULT_REPO];
             }
-            settings.set("Store.repositories", validRepos);
-            settings.save();
+            proc.settings.repositories = validRepos;
+            proc.saveSettings();
             return { repositories: validRepos };
           },
           setInstalling:
@@ -289,8 +289,7 @@ const register = (core, args, options, metadata) => {
                     repos: initialRepos,
                   },
                   {
-                    setRepo: (idx, value) => (state) => {
-                      console.log("Updating repo at index", idx, "with value", value);
+                    setRepo: ({idx, value}) => (state) => {
                       const repos = [...state.repos];
                       repos[idx] = value;
                       return { repos };
@@ -334,27 +333,37 @@ const register = (core, args, options, metadata) => {
                         ),
                         ...state.repos.map((repo, idx) =>
                           h(
-                            Box,
-                            { horizontal: true, style: { marginBottom: 8 } },
+                            "div",
+                            {
+                              style: {
+                                display: "flex",
+                                alignItems: "center",
+                                padding: "5px",
+                                borderBottom: "1px solid #ddd",
+                                marginBottom: "5px"
+                              },
+                              key: idx
+                            },
                             [
                               h(TextField, {
-                                value: state.repos[idx], // Ensure value is bound to state
-                                placeholder: "https://...",
+                                value: state.repos[idx], 
+                                placeholder: "https://... (e.g. raw.githubusercontent.com/...)",
                                 oninput: (ev, value) => {
-                                  if (state.repos[idx] !== value) {
-                                    actions.setRepo(idx, value);
+                                  const safeValue = value !== undefined ? value : (ev.target ? ev.target.value : ev);
+                                  if (state.repos[idx] !== safeValue) {
+                                    actions.setRepo({idx, value: safeValue});
                                   }
                                 },
                                 box: { grow: 1 },
-                                style: { marginRight: 8 },
+                                style: { marginRight: "8px" } 
                               }),
                               h(
                                 Button,
                                 {
                                   onclick: () => actions.removeRepo(idx),
                                   disabled: state.repos.length === 1,
-                                  style: { minWidth: 32 },
                                   title: "Remove this repository",
+                                  style: { margin: 0, height: "auto", minWidth: "30px" } 
                                 },
                                 "✕"
                               ),

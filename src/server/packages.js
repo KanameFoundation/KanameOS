@@ -255,6 +255,17 @@ class Packages {
   }
 
   /**
+   * Save the current package metadata to disk
+   */
+  async save() {
+    if (this.options.manifestFile) {
+      const metadata = this.packages.map((pkg) => pkg.metadata);
+      await fs.outputJson(this.options.manifestFile, metadata, { spaces: 4 });
+      logger.info("Saved package database to", relative(this.options.manifestFile));
+    }
+  }
+
+  /**
    * Handles an incoming message and signals an application
    *
    * This will call the 'onmessage' event in your application server script

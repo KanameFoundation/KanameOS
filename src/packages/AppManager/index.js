@@ -124,6 +124,9 @@ const register = (core, args, options, metadata) => {
               resizable: false,
             },
           })
+          .on("destroy", () => {
+            if (args && args.file) proc.destroy();
+          })
           .render(($content, win) => {
             app(
               {},
@@ -228,7 +231,9 @@ const register = (core, args, options, metadata) => {
           "osjs/dialog",
           "alert",
           { title: "Error", message: err.message },
-          () => {}
+          () => {
+            if (args && args.file) proc.destroy();
+          }
         );
       });
   };

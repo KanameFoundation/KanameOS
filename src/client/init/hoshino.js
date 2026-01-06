@@ -90,7 +90,7 @@ export default class HoshinoInit extends BaseInitSystem {
       console.error("HoshinoServiceProvider: Dependency error:", e);
       bootOrder = enabledServices; // fallback to flat order
     }
-    console.group("hoshino:init()");
+    console.group("hoshino::init()");
 
     for (const name of bootOrder) {
       const serviceDef = availableServices[name];

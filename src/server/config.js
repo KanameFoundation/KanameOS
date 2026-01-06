@@ -89,7 +89,7 @@ module.exports = {
   },
   packages: {
     discovery: "packages.json",
-    metadata: "metadata.json",
+    metadata: "../vfs/metadata.json",
   },
   vfs: {
     watch: false,

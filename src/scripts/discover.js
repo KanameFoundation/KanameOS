@@ -4,7 +4,7 @@ const npm = require('../../package.json');
 
 const root = path.resolve(__dirname, '../../');
 const packagesFile = path.resolve(root, 'packages.json');
-const metadataFile = path.resolve(root, 'dist/metadata.json');
+const metadataFile = path.resolve(root, 'vfs/metadata.json');
 
 const getPackagePaths = async () => {
   const paths = [];

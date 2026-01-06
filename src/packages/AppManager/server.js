@@ -108,6 +108,8 @@ module.exports = (core, proc) => {
 
       core.broadcast("osjs/packages:metadata:changed");
 
+      await core.make("osjs/packages").save();
+
       return { success: true, name: packageName };
     } catch (e) {
       console.error(e);
@@ -216,10 +218,12 @@ module.exports = (core, proc) => {
       await fs.remove(packagePath);
 
       // Remove from memory
-      core.make("osjs/packages").removePackage(name);
+      await core.make("osjs/packages").removePackage(name);
 
       // Notify client to refresh
       core.broadcast("osjs/packages:metadata:changed");
+
+      await core.make("osjs/packages").save();
 
       res.json({ success: true });
     } catch (e) {
