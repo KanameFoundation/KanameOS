@@ -44,7 +44,20 @@ const ensureMetadata = () => {
   }
 };
 
+const ensureVFSDirectories = () => {
+  try {
+    const tmpDir = path.join(config.vfs.root, 'tmp');
+    if (!fs.existsSync(tmpDir)) {
+      console.log(`[KanameOS] Creating tmp directory at ${tmpDir}`);
+      fs.ensureDirSync(tmpDir);
+    }
+  } catch (e) {
+    console.warn("[KanameOS] Failed to create VFS directories:", e);
+  }
+};
+
 ensureMetadata();
+ensureVFSDirectories();
 
 const KanameOS = new Core(config, {});
 

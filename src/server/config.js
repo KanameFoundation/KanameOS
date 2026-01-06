@@ -21,8 +21,8 @@ module.exports = {
   development: !(process.env.NODE_ENV || "").match(/^prod/i),
   logging: true,
   index: "index.html",
-  bind: "127.0.0.1",
-  port: 8000,
+  bind: process.env.KANAMEOS_BIND || "127.0.0.1",
+  port: process.env.KANAMEOS_PORT || 8000,
   public: path.resolve(root, "dist"),
   morgan: "tiny",
   express: {
