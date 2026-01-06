@@ -5,7 +5,7 @@ import "./index.scss";
 
 // Configuration - In a real app, this might be in a settings file
 const DEFAULT_REPO =
-  "https://kaname-fundation.github.io/KanameStore/repository.json";
+  "https://raw.githubusercontent.com/Kaname-Fundation/KanameStore/refs/heads/live/repository.json";
 
 const createView = (core, proc) => (state, actions) => {
   const filteredApps = state.apps.filter((pkg) => {
@@ -114,7 +114,7 @@ const createView = (core, proc) => (state, actions) => {
                 },
                 buttonText
               ),
-            ]);
+            );
           })
         ),
 
@@ -155,9 +155,18 @@ const register = (core, args, options, metadata) => {
           setApps: (apps) => (state) => ({ apps }),
           setLoading: (loading) => (state) => ({ loading }),
           setRepositories: (repositories) => (state) => {
-            settings.set("Store.repositories", repositories);
+            // Ensure repositories is always a non-empty array
+            let validRepos = Array.isArray(repositories)
+              ? repositories.filter(
+                  (url) => typeof url === "string" && url.length > 0
+                )
+              : [];
+            if (validRepos.length === 0) {
+              validRepos = [DEFAULT_REPO];
+            }
+            settings.set("Store.repositories", validRepos);
             settings.save();
-            return { repositories };
+            return { repositories: validRepos };
           },
           setInstalling:
             ({ name, value }) =>
@@ -251,32 +260,146 @@ const register = (core, args, options, metadata) => {
           },
 
           showRepoManager: () => (state, actions) => {
-            core.make(
-              "osjs/dialog",
-              "prompt",
-              {
-                title: "Manage Repositories",
-                message: "Enter repository URLs (one per line):",
-                value: state.repositories.join("\n"),
-                attributes: {
-                  rows: 10,
-                  style: "width: 500px; font-family: monospace;",
-                },
-              },
-              (btn, value) => {
-                if (btn === "ok" && value) {
-                  const repos = value
-                    .split("\n")
-                    .map((url) => url.trim())
-                    .filter((url) => url.length > 0);
+            // Custom dialog for better UX
+            let win = core.make("osjs/window", {
+              id: "RepoManagerWindow",
+              title: "Manage Repositories",
+              dimension: { width: 520, height: 400 },
+              position: "center",
+              attributes: { minHeight: 300, minWidth: 400 },
+            });
 
-                  if (repos.length > 0) {
-                    actions.setRepositories(repos);
-                    actions.fetchApps();
-                  }
-                }
-              }
-            );
+            // Only mount Hyperapp app ONCE after window is ready
+            win.render(($content, win) => {
+              // Create a container div for Hyperapp
+              $content.innerHTML = "";
+              const container = document.createElement("div");
+              container.style.height = "100%";
+              container.style.width = "100%";
+              $content.appendChild(container);
+
+              setTimeout(() => {
+                const initialRepos =
+                  Array.isArray(state.repositories) &&
+                  state.repositories.length > 0
+                    ? [...state.repositories]
+                    : [""];
+                app(
+                  {
+                    repos: initialRepos,
+                  },
+                  {
+                    setRepo: (idx, value) => (state) => {
+                      console.log("Updating repo at index", idx, "with value", value);
+                      const repos = [...state.repos];
+                      repos[idx] = value;
+                      return { repos };
+                    },
+                    addRepo: () => (state) => ({ repos: [...state.repos, ""] }),
+                    removeRepo: (idx) => (state) => {
+                      const repos = [...state.repos];
+                      repos.splice(idx, 1);
+                      return { repos };
+                    },
+                    save: () => (state) => {
+                      const repos = state.repos
+                        .map((url) => url.trim())
+                        .filter((url) => url.length > 0);
+                      if (repos.length === 0) {
+                        core.make("osjs/dialog", "alert", {
+                          title: "Validation Error",
+                          message: "Please enter at least one repository URL.",
+                        });
+                        return {};
+                      }
+                      actions.setRepositories(repos);
+                      actions.fetchApps();
+                      win.destroy();
+                      return {};
+                    },
+                    cancel: () => () => {
+                      win.destroy();
+                      return {};
+                    },
+                  },
+                  (state, actions) =>
+                    h(
+                      Box,
+                      { style: { padding: 16, height: "100%" }, grow: 1 },
+                      [
+                        h(
+                          "div",
+                          { style: { marginBottom: 12, fontWeight: "bold" } },
+                          "Repository URLs:"
+                        ),
+                        ...state.repos.map((repo, idx) =>
+                          h(
+                            Box,
+                            { horizontal: true, style: { marginBottom: 8 } },
+                            [
+                              h(TextField, {
+                                value: state.repos[idx], // Ensure value is bound to state
+                                placeholder: "https://...",
+                                oninput: (ev, value) => {
+                                  if (state.repos[idx] !== value) {
+                                    actions.setRepo(idx, value);
+                                  }
+                                },
+                                box: { grow: 1 },
+                                style: { marginRight: 8 },
+                              }),
+                              h(
+                                Button,
+                                {
+                                  onclick: () => actions.removeRepo(idx),
+                                  disabled: state.repos.length === 1,
+                                  style: { minWidth: 32 },
+                                  title: "Remove this repository",
+                                },
+                                "✕"
+                              ),
+                            ]
+                          )
+                        ),
+                        h(
+                          Button,
+                          {
+                            onclick: actions.addRepo,
+                            style: { marginBottom: 16 },
+                          },
+                          "+ Add Repository"
+                        ),
+                        h(
+                          Box,
+                          {
+                            horizontal: true,
+                            style: {
+                              marginTop: 16,
+                              justifyContent: "flex-end",
+                            },
+                          },
+                          [
+                            h(
+                              Button,
+                              {
+                                onclick: actions.cancel,
+                                style: { marginRight: 8 },
+                              },
+                              "Cancel"
+                            ),
+                            h(
+                              Button,
+                              { onclick: actions.save, type: "primary" },
+                              "Save"
+                            ),
+                          ]
+                        ),
+                      ]
+                    ),
+                  container
+                );
+              }, 0);
+            });
           },
 
           installApp:
