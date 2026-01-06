@@ -70,6 +70,8 @@ const createView = (core, proc) => (state, actions) => {
               iconUrl = core.make("osjs/theme").icon(pkg.iconName);
             }
 
+            const fallbackIcon = core.make("osjs/theme").icon("application-x-executable");
+
             let buttonText = "Install";
             let buttonDisabled = isInstalling;
             let buttonType = "primary";
@@ -88,6 +90,11 @@ const createView = (core, proc) => (state, actions) => {
               h("img", {
                 class: "app-icon",
                 src: iconUrl,
+                onerror: (ev) => {
+                  if (ev.target.src !== fallbackIcon) {
+                    ev.target.src = fallbackIcon;
+                  }
+                },
               }),
               h("div", { class: "app-name" }, pkg.title || pkg.name),
               h(
