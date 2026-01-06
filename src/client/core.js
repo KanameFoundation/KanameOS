@@ -204,39 +204,36 @@ export default class Core extends CoreBase {
 
     console.group("Core::boot()");
 
+    // Core just sets up DOM and events
+    // Hoshino will handle provider initialization
     this.$root.appendChild(this.$contents);
     this._attachEvents();
+    this.booted = true;
     this.emit("osjs/core:boot");
+    this.emit("osjs/core:booted");
 
-    return super
-      .boot()
-      .then(() => {
-        this.emit("osjs/core:booted");
+    // Handle authentication - WAIT for login before starting
+    if (this.has("osjs/auth")) {
+      return this.make("osjs/auth").show((user) => {
+        const defaultData = this.config("auth.defaultUserData");
+        this.user = {
+          ...defaultData,
+          ...user,
+        };
 
-        if (this.has("osjs/auth")) {
-          return this.make("osjs/auth").show((user) => {
-            const defaultData = this.config("auth.defaultUserData");
-            this.user = {
-              ...defaultData,
-              ...user,
-            };
-
-            if (this.has("osjs/settings")) {
-              this.make("osjs/settings")
-                .load()
-                .then(() => done())
-                .catch(() => done());
-            } else {
-              done();
-            }
-          });
+        if (this.has("osjs/settings")) {
+          this.make("osjs/settings")
+            .load()
+            .then(() => done())
+            .catch(() => done());
         } else {
-          logger.debug("OS.js STARTED WITHOUT ANY AUTHENTICATION");
+          done();
         }
-
-        return done();
-      })
-      .catch(done);
+      });
+    } else {
+      logger.debug("OS.js STARTED WITHOUT ANY AUTHENTICATION");
+      return done();
+    }
   }
 
   /**
@@ -259,14 +256,23 @@ export default class Core extends CoreBase {
         }
       });
 
-    const done = (err) => {
-      this.emit("osjs/core:started");
-
+    const done = async (err) => {
       if (err) {
         logger.warn("Error while starting", err);
       }
 
       console.groupEnd();
+
+      // Continue Hoshino boot (Phase 4-5) after login
+      if (this.has("webos/service")) {
+        const hoshino = this.make("webos/service");
+        if (hoshino.continueBootAfterLogin) {
+          await hoshino.continueBootAfterLogin();
+        }
+      }
+
+      // Emit started AFTER services are running
+      this.emit("osjs/core:started");
 
       return !err;
     };
@@ -277,24 +283,16 @@ export default class Core extends CoreBase {
 
     console.group("Core::start()");
 
+    // Core just sets up connections and listeners
+    // Hoshino will handle provider startup
     this.emit("osjs/core:start");
-
     this._createListeners();
+    this.started = true;
 
-    return super
-      .start()
-      .then((result) => {
-        console.groupEnd();
-
-        if (result) {
-          return connect()
-            .then(() => done())
-            .catch((err) => done(err));
-        }
-
-        return false;
-      })
-      .catch(done);
+    // Connect to server
+    return connect()
+      .then(() => done())
+      .catch((err) => done(err));
   }
 
   /**

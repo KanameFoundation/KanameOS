@@ -42,16 +42,28 @@ const init = async () => {
   // Expose full service definitions for dependency graph
   KanameOS.serviceDefinitions = services;
 
-  // Initialize the Hoshino Service Provider (modular init system)
-
+  // Initialize the Hoshino Init System (real init system, like systemd)
   const hoshinoInstance = new HoshinoServiceProvider(KanameOS, config);
+  
   // Register as singleton for global access
-
   KanameOS.singleton("webos/service", () => hoshinoInstance);
 
-  await hoshinoInstance.start(services);
+  // Expose Hoshino globally for debugging
+  window.hoshino = hoshinoInstance;
+  
+  // Expose systemctl-like commands
+  window.systemctl = {
+    start: (name) => hoshinoInstance.startService(name, services),
+    stop: (name) => hoshinoInstance.stopService(name),
+    restart: (name) => hoshinoInstance.restartService(name, services),
+    status: (name) => hoshinoInstance.getServiceStatus(name),
+    list: () => hoshinoInstance.listServices(),
+    enable: (name) => hoshinoInstance.enableService(name),
+    disable: (name) => hoshinoInstance.disableService(name)
+  };
 
-  KanameOS.boot();
+  // Hoshino controls the boot process (like systemd)
+  await hoshinoInstance.start(services);
 };
 
 window.addEventListener("DOMContentLoaded", () => init());

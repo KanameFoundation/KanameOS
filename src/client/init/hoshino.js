@@ -34,13 +34,21 @@ function topoSort(services, enabled) {
 }
 
 export default class HoshinoInit extends BaseInitSystem {
+  constructor(core, config) {
+    super(core, config);
+    
+    // Service tracking (like systemd)
+    this.services = new Map();
+    this.serviceStates = new Map();
+  }
+
   async start(availableServices) {
     console.log(
-      "%c Hoshino Service Manager %c v2.0 ",
+      "%c Hoshino Init System %c v3.0 ",
       "background: #ff0080; color: #fff; font-weight: bold; border-radius: 3px;",
       "color: #ff0080; font-weight: bold;"
     );
-    console.log("Initializing services with dependency order...");
+    console.log("Hoshino is now controlling the boot process...");
 
     const { core, config } = this;
     const storageKey = "webos/services";
@@ -59,20 +67,20 @@ export default class HoshinoInit extends BaseInitSystem {
             enabledServices = parsed;
           } else {
             console.warn(
-              "HoshinoServiceProvider: Saved services configuration appears invalid. Falling back to default."
+              "Hoshino: Saved services configuration appears invalid. Falling back to default."
             );
             localStorage.removeItem(storageKey);
           }
         }
       } else {
         console.info(
-          "HoshinoServiceProvider: First run detected. Initializing service configuration."
+          "Hoshino: First run detected. Initializing service configuration."
         );
         localStorage.setItem(storageKey, JSON.stringify(enabledServices));
       }
     } catch (e) {
       console.warn(
-        "HoshinoServiceProvider: Failed to load services from storage",
+        "Hoshino: Failed to load services from storage",
         e
       );
     }
@@ -87,32 +95,134 @@ export default class HoshinoInit extends BaseInitSystem {
     try {
       bootOrder = topoSort(availableServices, enabledServices);
     } catch (e) {
-      console.error("HoshinoServiceProvider: Dependency error:", e);
+      console.error("Hoshino: Dependency error:", e);
       bootOrder = enabledServices; // fallback to flat order
     }
-    console.group("hoshino::init()");
 
+    // Store for phase 2
+    this.bootOrder = bootOrder;
+    this.availableServices = availableServices;
+
+    console.group("Hoshino::init()");
+
+    // Phase 1: Init "before" providers (Auth, Settings, etc.)
+    console.log("%c Phase 1: Initializing early services", "color: #00ff00; font-weight: bold;");
     for (const name of bootOrder) {
       const serviceDef = availableServices[name];
-      if (serviceDef) {
-        console.log("Registering service:", name);
-        await core.register(serviceDef.provider, {
-          ...serviceDef.options,
-          name,
-        });
-      } else {
-        console.warn(
-          `HoshinoServiceProvider: Service '${name}' not found in available services.`
-        );
+      if (serviceDef && serviceDef.options.before) {
+        await this.initService(name, serviceDef);
       }
     }
+
+    // Phase 2: Boot Core (DOM setup, shows login)
+    console.log("%c Phase 2: Booting Core (waiting for login...)", "color: #00ff00; font-weight: bold;");
+    await core.boot();  // This will show login and WAIT for user to login
+
+    console.groupEnd();
+    
+    // Phase 3-5 will be called by Core.start() after login
+  }
+
+  // Called by Core.start() after authentication
+  async continueBootAfterLogin() {
+    console.group("Hoshino::continueBootAfterLogin()");
+
+    // Phase 3: Init remaining providers (AFTER login)
+    console.log("%c Phase 3: Initializing remaining services", "color: #00ff00; font-weight: bold;");
+    for (const name of this.bootOrder) {
+      const serviceDef = this.availableServices[name];
+      if (serviceDef && !serviceDef.options.before) {
+        await this.initService(name, serviceDef);
+      }
+    }
+
+    // Phase 4: Start Core (connections)
+    console.log("%c Phase 4: Starting Core", "color: #00ff00; font-weight: bold;");
+    // Core.start() is already running, just log
+
+    // Phase 5: Start all providers
+    console.log("%c Phase 5: Starting all services", "color: #00ff00; font-weight: bold;");
+    for (const [name, service] of this.services) {
+      await this.startServiceProvider(name, service);
+    }
+
     console.groupEnd();
 
     console.log(
-      `%c Hoshino Service Manager %c Boot sequence complete. ${bootOrder.length} services started.`,
+      `%c Hoshino Init System %c Boot sequence complete. ${this.bootOrder.length} services started.`,
       "color: #ff0080; font-weight: bold;",
       "color: inherit;"
     );
+  }
+
+  async initService(name, def) {
+    console.log(`[Hoshino] Initializing service: ${name}`);
+    
+    const instance = new def.provider(this.core, def.options.args || {});
+    
+    // Call provider's init()
+    if (instance.init) {
+      await instance.init();
+    }
+    
+    // Track the service
+    this.services.set(name, { instance, def });
+    this.serviceStates.set(name, 'initialized');
+  }
+
+  async startServiceProvider(name, service) {
+    console.log(`[Hoshino] Starting service: ${name}`);
+    
+    if (service.instance.start) {
+      await service.instance.start();
+    }
+    
+    this.serviceStates.set(name, 'running');
+  }
+
+  // Runtime service control (systemctl-like)
+  async startService(name, availableServices) {
+    const def = availableServices[name];
+    if (!def) throw new Error(`Service '${name}' not found`);
+    
+    await this.initService(name, def);
+    await this.startServiceProvider(name, this.services.get(name));
+    
+    this.enableService(name);
+  }
+
+  async stopService(name) {
+    const service = this.services.get(name);
+    if (!service) throw new Error(`Service '${name}' not running`);
+    
+    if (service.instance.destroy) {
+      await service.instance.destroy();
+    }
+    
+    this.services.delete(name);
+    this.serviceStates.set(name, 'stopped');
+    this.disableService(name);
+  }
+
+  async restartService(name, availableServices) {
+    await this.stopService(name);
+    await this.startService(name, availableServices);
+  }
+
+  getServiceStatus(name) {
+    return {
+      state: this.serviceStates.get(name) || 'unknown',
+      enabled: this.getEnabledServices().includes(name),
+      instance: this.services.get(name)?.instance
+    };
+  }
+
+  listServices() {
+    return Array.from(this.services.keys()).map(name => ({
+      name,
+      state: this.serviceStates.get(name),
+      enabled: this.getEnabledServices().includes(name)
+    }));
   }
 
   // API for runtime management
@@ -142,31 +252,5 @@ export default class HoshinoInit extends BaseInitSystem {
   getEnabledServices() {
     const storageKey = "webos/services";
     return JSON.parse(localStorage.getItem(storageKey)) || [];
-  }
-
-  /**
-   * Start a service at runtime
-   * @param {string} name Service name
-   * @param {Object} availableServices Service definitions
-   * @returns {Promise<void>}
-   */
-  async startService(name, availableServices) {
-    const { core } = this;
-    const serviceDef = availableServices[name];
-    if (!serviceDef) throw new Error(`Service '${name}' not found`);
-    await core.register(serviceDef.provider, {
-      ...serviceDef.options,
-      name,
-    });
-  }
-
-  /**
-   * Stop a service at runtime
-   * @param {string} name Service name
-   * @returns {Promise<void>}
-   */
-  async stopService(name) {
-    const { core } = this;
-    await core.unregister(name);
   }
 }
