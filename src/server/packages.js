@@ -125,7 +125,7 @@ class Packages {
     const sources = discovered.map((d) => path.join(d, "metadata.json"));
 
     // Userland packages
-    const userPackagesDir = path.join(process.cwd(), "vfs/apps");
+    const userPackagesDir = path.join(this.core.configuration.vfs.root, "apps");
     if (fs.existsSync(userPackagesDir)) {
       const userPackages = fs
         .readdirSync(userPackagesDir)
