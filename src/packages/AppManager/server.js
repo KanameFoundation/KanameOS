@@ -9,9 +9,9 @@ module.exports = (core, proc) => {
   const processPackage = async (zipPath, cleanupCallback) => {
     try {
       const zip = new AdmZip(zipPath);
-      const extractPath = path.resolve(process.cwd(), "vfs/apps");
+      const extractPath = path.resolve(core.configuration.vfs.root, "apps");
       const tempExtractPath = path.join(
-        path.resolve(process.cwd(), "vfs/tmp"),
+        path.resolve(core.configuration.vfs.root, "tmp"),
         path.basename(zipPath, path.extname(zipPath))
       );
 
@@ -133,21 +133,19 @@ module.exports = (core, proc) => {
 
       if (vfsPath.startsWith("home:/")) {
         realPath = path.resolve(
-          process.cwd(),
-          "vfs",
+          core.configuration.vfs.root,
           username,
           vfsPath.replace("home:/", "")
         );
       } else if (vfsPath.startsWith("system:/")) {
         realPath = path.resolve(
-          process.cwd(),
-          "dist",
+          core.configuration.public,
           vfsPath.replace("system:/", "")
         );
       } else if (vfsPath.startsWith("tmp:/")) {
         realPath = path.resolve(
-          process.cwd(),
-          "vfs/tmp",
+          core.configuration.vfs.root,
+          "tmp",
           vfsPath.replace("tmp:/", "")
         );
       } else {
@@ -169,7 +167,7 @@ module.exports = (core, proc) => {
     }
 
     const form = formidable({
-      uploadDir: path.resolve(process.cwd(), "vfs/tmp"),
+      uploadDir: path.resolve(core.configuration.vfs.root, "tmp"),
       keepExtensions: true,
     });
 
@@ -203,10 +201,10 @@ module.exports = (core, proc) => {
       return res.status(400).json({ error: "Missing package name" });
     }
 
-    const packagePath = path.resolve(process.cwd(), "vfs/apps", name);
+    const packagePath = path.resolve(core.configuration.vfs.root, "apps", name);
 
     // Security check: ensure we are only deleting from vfs/apps
-    if (!packagePath.startsWith(path.resolve(process.cwd(), "vfs/apps"))) {
+    if (!packagePath.startsWith(path.resolve(core.configuration.vfs.root, "apps"))) {
       return res.status(403).json({ error: "Invalid package path" });
     }
 
@@ -243,21 +241,19 @@ module.exports = (core, proc) => {
 
     if (vfsPath.startsWith("home:/")) {
       realPath = path.resolve(
-        process.cwd(),
-        "vfs",
+        core.configuration.vfs.root,
         username,
         vfsPath.replace("home:/", "")
       );
     } else if (vfsPath.startsWith("system:/")) {
       realPath = path.resolve(
-        process.cwd(),
-        "dist",
+        core.configuration.public,
         vfsPath.replace("system:/", "")
       );
     } else if (vfsPath.startsWith("tmp:/")) {
       realPath = path.resolve(
-        process.cwd(),
-        "vfs/tmp",
+        core.configuration.vfs.root,
+        "tmp",
         vfsPath.replace("tmp:/", "")
       );
     } else {
@@ -271,7 +267,7 @@ module.exports = (core, proc) => {
     try {
       const zip = new AdmZip(realPath);
       const tempExtractPath = path.join(
-        path.resolve(process.cwd(), "vfs/tmp"),
+        path.resolve(core.configuration.vfs.root, "tmp"),
         "inspect-" + Date.now()
       );
 
