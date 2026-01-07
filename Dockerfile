@@ -1,7 +1,7 @@
 # Stage 1: Builder
 FROM node:20-alpine AS builder
 
-WORKDIR /usr/src/kaname
+WORKDIR /usr/src/osjs
 
 # Install build dependencies
 # (python3, make, g++ might be needed for some native modules)
@@ -10,8 +10,7 @@ RUN apk add --no-cache python3 make g++ git
 COPY package*.json ./
 COPY . .
 RUN npm ci
-RUN npm run prepare
-RUN npm prune --production
+RUN npm run bm
 
 # Stage 2: Runner
 FROM node:20-alpine
@@ -19,12 +18,18 @@ FROM node:20-alpine
 WORKDIR /usr/src/kaname
 
 # Copy built assets and server code
-COPY --from=builder /usr/src/kaname/dist ./dist
-COPY --from=builder /usr/src/kaname/src ./src
-COPY --from=builder /usr/src/kaname/packages.json ./
+COPY --from=builder /usr/src/osjs/dist ./dist
+COPY --from=builder /usr/src/osjs/src ./src
+COPY --from=builder /usr/src/osjs/package.json ./
+COPY --from=builder /usr/src/osjs/packages.json ./
 # Copy initial VFS template (optional, if you want to seed it)
-COPY --from=builder /usr/src/kaname/vfs ./vfs
-COPY --from=builder /usr/src/kaname/node_modules ./node_modules
+COPY --from=builder /usr/src/osjs/vfs ./vfs
+
+# Install only production dependencies
+RUN npm i --omit=dev
+
+# Regenerate packages.json with correct paths
+RUN node src/scripts/discover.js
 
 ## src is already copied from builder, no need to copy again
 

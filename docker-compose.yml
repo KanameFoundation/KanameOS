@@ -14,6 +14,7 @@ services:
       - NODE_ENV=production
       - KANAMEOS_VFS_PATH=/var/lib/kanameos/vfs
       - KANAMEOS_SESSION_PATH=/var/lib/kanameos/session.db
+      - KANAMEOS_BIND=0.0.0.0
     volumes:
       - ./vfs:/var/lib/kanameos/vfs
       - kanameos-data:/var/lib/kanameos
