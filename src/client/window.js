@@ -806,7 +806,7 @@ export default class Window extends EventEmitter {
       clearTimeout(this._loadingDebounce);
 
       if (value === true) {
-        this._loadingDebounce = setTimeout(() => set(), 250);
+        this._loadingDebounce = setTimeout(() => set(), 1000);
         return;
       }
     }

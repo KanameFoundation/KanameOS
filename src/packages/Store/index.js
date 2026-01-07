@@ -186,29 +186,8 @@ const register = (core, args, options, metadata) => {
             installedPkgs.forEach((pkg) => {
               let version = pkg.version;
               // If version is missing or 1.0.0, try to fetch from metadata.json
-              if (!version || version === "1.0.0") {
-                try {
-                  // Synchronously fetch metadata.json from the app's folder in KanameStore
-                  // This assumes the app is installed in 'apps/<AppName>/metadata.json'
-                  // and that fetch is available (may need to adjust path for your VFS)
-                  const metaPath = `/apps/${pkg.name}/metadata.json`;
-                  // Try to read synchronously (if VFS supports it)
-                  // If not, fallback to default
-                  // NOTE: This is a hack; ideally, the package manager should always have the correct version
-                  // and this should be async, but for now we use sync XHR for demo
-                  const xhr = new XMLHttpRequest();
-                  xhr.open("GET", metaPath, false); // false for sync
-                  xhr.send(null);
-                  if (xhr.status === 200) {
-                    const meta = JSON.parse(xhr.responseText);
-                    if (meta.version) {
-                      version = meta.version;
-                    }
-                  }
-                } catch (e) {
-                  // Ignore errors, fallback to default
-                }
-              }
+              // Version check removed: trusting core package metadata provided by the server
+              // This relies on the server-side fix in src/server/packages.js
               installedPackages[pkg.name] = version || "1.0.0";
             });
             return { installedPackages };
