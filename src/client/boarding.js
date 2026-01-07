@@ -1,5 +1,5 @@
 import { h, app } from "hyperapp";
-import { EventEmitter } from "@osjs/event-emitter";
+import { EventEmitter } from "../event/emitter";
 
 const DEFAULT_REPO = "https://raw.githubusercontent.com/Kaname-Fundation/KanameStore/refs/heads/live/repository.json";
 
@@ -178,7 +178,7 @@ export default class Boarding extends EventEmitter {
           
           const formData = new FormData(ev.target);
           const values = Object.fromEntries(formData);
-          const packagesToInstall = ["osjs-desktop", "osjs-panels", "osjs-notifications", "StandardTheme", "GnomeIcons", "settings-application", "store", "appmanager"];
+          const packagesToInstall = ["osjs-desktop", "osjs-panels", "osjs-notifications", "StandardTheme", "GnomeIcons", "settings-application", "store", "appmanager", "FreedesktopSounds"];
 
           try {
             // 1. Register Admin
