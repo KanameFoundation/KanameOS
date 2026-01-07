@@ -82,6 +82,29 @@ const createView = (core) => (state, actions) => {
                 },
                 "Uninstall"
               ),
+              h(
+                "label",
+                {
+                  style: {
+                    display: "flex",
+                    alignItems: "center",
+                    marginLeft: "10px",
+                    cursor: "pointer",
+                  },
+                },
+                [
+                  h("input", {
+                    type: "checkbox",
+                    checked: state.autostartList.includes(pkg.name),
+                    onchange: (ev) =>
+                      actions.toggleAutostart({
+                        name: pkg.name,
+                        enabled: ev.target.checked,
+                      }),
+                  }),
+                  h("span", { style: { marginLeft: "5px" } }, "Autostart"),
+                ]
+              ),
             ]
           );
         })
@@ -95,8 +118,11 @@ const register = (core, args, options, metadata) => {
   const { icon } = core.make("osjs/theme");
   const winIcon = icon(metadata.icon);
 
+
+
   const installFromVfs = (vfsPath, reloadCallback) => {
-    fetch(proc.resource("/inspect"), {
+    // 1. Inspect (Unprotected)
+    fetch("/packages/inspect", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ vfsPath }),
@@ -118,7 +144,9 @@ const register = (core, args, options, metadata) => {
           .createWindow({
             id: "AppInstallDialog",
             title: "Install Package",
+            icon: winIcon,
             dimension: { width: 400, height: 300 },
+            position: "center",
             attributes: {
               modal: true,
               resizable: false,
@@ -129,40 +157,69 @@ const register = (core, args, options, metadata) => {
           })
           .render(($content, win) => {
             app(
-              {},
               {
-                install: () => {
-                  win.destroy();
-                  const dialog = core.make(
-                    "osjs/dialog",
-                    "alert",
-                    {
-                      title: "Installing...",
-                      message:
-                        "Please wait while the package is being installed.",
-                      buttons: [], // Hide buttons
-                    },
-                    () => {}
-                  );
+                installing: false,
+                installed: false,
+              },
+              {
+                setInstalling: (installing) => (state) => ({ installing }),
+                setInstalled: (installed) => (state) => ({ installed }),
+                install: () => (state, actions) => {
+                  actions.setInstalling(true);
 
-                  fetch(proc.resource("/install"), {
+                  // 2. Install (Protected - Triggers Elevation if needed)
+                  core.request("/packages/install", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ vfsPath }),
                   })
                     .then((res) => res.json())
                     .then((result) => {
-                      dialog.destroy(); // Close installing dialog
+                      actions.setInstalling(false);
                       if (result.success) {
+                        actions.setInstalled(true);
                         core.make(
-                          "osjs/dialog",
-                          "alert",
+                          "osjs/notification",
                           {
                             title: "Success",
                             message: `Installed ${result.name}`,
-                          },
-                          () => {}
+                          }
                         );
+
+                        if (
+                          result.metadata &&
+                          result.metadata.autostart
+                        ) {
+                          core.make(
+                            "osjs/dialog",
+                            "confirm",
+                            {
+                              title: "Autostart",
+                              message: `Do you want to allow ${result.name} to start automatically?`,
+                            },
+                            (btn) => {
+                              if (btn === "yes") {
+                                const settings = core.make("osjs/settings");
+                                const whitelist = settings.get(
+                                  "osjs/packages",
+                                  "autostart",
+                                  [
+                                    "osjs-desktop",
+                                    "osjs-panels",
+                                    "osjs-notifications",
+                                  ]
+                                );
+                                whitelist.push(result.name);
+                                settings.set(
+                                  "osjs/packages",
+                                  "autostart",
+                                  whitelist
+                                );
+                                settings.save();
+                              }
+                            }
+                          );
+                        }
                         if (reloadCallback) reloadCallback();
                       } else {
                         core.make(
@@ -174,7 +231,7 @@ const register = (core, args, options, metadata) => {
                       }
                     })
                     .catch((err) => {
-                      dialog.destroy(); // Close installing dialog
+                      actions.setInstalling(false);
                       core.make(
                         "osjs/dialog",
                         "alert",
@@ -186,7 +243,22 @@ const register = (core, args, options, metadata) => {
                 close: () => win.destroy(),
               },
               (state, actions) => {
-                return h(Box, { grow: 1, padding: true }, [
+                if (state.installing) {
+                  return h(Box, { grow: 1, padding: true, align: "center", justify: "center" }, [
+                    h("div", { style: { fontWeight: "bold" } }, "Installing..."),
+                    h("div", {}, "Please wait while the package is being installed.")
+                  ]);
+                }
+
+                if (state.installed) {
+                  return h(Box, { grow: 1, padding: true, align: "center", justify: "center" }, [
+                    h("div", { style: { fontWeight: "bold", fontSize: "1.2em", marginBottom: "10px" } }, "Success!"),
+                    h("div", { style: { marginBottom: "20px" } }, `Package has been installed successfully.`),
+                    h(Button, { onclick: () => actions.close(), type: "primary" }, "Close")
+                  ]);
+                }
+
+                return h(Box, { grow: 1, style: { padding: '20px' } }, [
                   h(
                     "div",
                     { style: { textAlign: "center", marginBottom: "1em" } },
@@ -257,15 +329,42 @@ const register = (core, args, options, metadata) => {
         {
           packages: [],
           search: "",
+          autostartList: [],
         },
         {
           setPackages: (packages) => (state) => ({ packages }),
           setSearch: (search) => (state) => ({ search }),
+          setAutostartList: (list) => (state) => ({ autostartList: list }),
           loadPackages: () => (state, actions) => {
+            const settings = core.make("osjs/settings");
+            const whitelist = settings.get("osjs/packages", "autostart", [
+              "osjs-desktop",
+              "osjs-panels",
+              "osjs-notifications",
+            ]);
+            actions.setAutostartList(whitelist);
+
             fetch("/packages")
               .then((res) => res.json())
               .then((packages) => actions.setPackages(packages));
           },
+          toggleAutostart:
+            ({ name, enabled }) =>
+            (state, actions) => {
+              const settings = core.make("osjs/settings");
+              const whitelist = settings.get("osjs/packages", "autostart", [
+                "osjs-desktop",
+                "osjs-panels",
+                "osjs-notifications",
+              ]);
+              const newList = enabled
+                ? [...whitelist, name]
+                : whitelist.filter((n) => n !== name);
+
+              settings.set("osjs/packages", "autostart", newList);
+              settings.save();
+              actions.setAutostartList(newList);
+            },
           openInstallDialog: () => (state, actions) => {
             core.make(
               "osjs/dialog",
@@ -299,7 +398,7 @@ const register = (core, args, options, metadata) => {
               () => {}
             );
 
-            fetch(proc.resource("/install"), {
+            fetch("/packages/install", {
               method: "POST",
               body: formData,
             })
@@ -308,11 +407,41 @@ const register = (core, args, options, metadata) => {
                 dialog.destroy();
                 if (result.success) {
                   core.make(
-                    "osjs/dialog",
-                    "alert",
-                    { title: "Success", message: `Installed ${result.name}` },
-                    () => {}
+                    "osjs/notification",
+                    { title: "Success", message: `Installed ${result.name}` }
                   );
+
+                  if (result.metadata && result.metadata.autostart) {
+                    core.make(
+                      "osjs/dialog",
+                      "confirm",
+                      {
+                        title: "Autostart",
+                        message: `Do you want to allow ${result.name} to start automatically?`,
+                      },
+                      (btn) => {
+                        if (btn === "yes") {
+                          const settings = core.make("osjs/settings");
+                          const whitelist = settings.get(
+                            "osjs/packages",
+                            "autostart",
+                            [
+                              "osjs-desktop",
+                              "osjs-panels",
+                              "osjs-notifications",
+                            ]
+                          );
+                          whitelist.push(result.name);
+                          settings.set(
+                            "osjs/packages",
+                            "autostart",
+                            whitelist
+                          );
+                          settings.save();
+                        }
+                      }
+                    );
+                  }
                   actions.loadPackages();
                 } else {
                   core.make(
@@ -343,14 +472,13 @@ const register = (core, args, options, metadata) => {
               },
               (btn) => {
                 if (btn === "yes") {
-                  fetch(proc.resource("/uninstall"), {
+                  core.request("/packages/uninstall", {
                     method: "POST",
                     headers: {
                       "Content-Type": "application/json",
                     },
                     body: JSON.stringify({ name }),
                   })
-                    .then((res) => res.json())
                     .then((result) => {
                       if (result.success) {
                         core.make(

@@ -43,6 +43,7 @@ module.exports = {
   },
   proxy: [],
   auth: {
+    adapter: require("./adapters/auth/arima.js"),
     vfsGroups: [],
     defaultGroups: [],
     requiredGroups: [],

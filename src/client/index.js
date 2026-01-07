@@ -27,6 +27,8 @@ import config from "./config.js";
 import { services } from "./services.js";
 import HoshinoServiceProvider from "./init/hoshino.js";
 // import HoshinoInit from "./init/hoshino.js";
+import Window from "./window.js";
+import Application from "./application.js";
 import "./index.scss";
 
 const init = async () => {
@@ -41,6 +43,10 @@ const init = async () => {
 
   // Expose full service definitions for dependency graph
   KanameOS.serviceDefinitions = services;
+
+  // Expose Core Internals for external packages (Modular Desktop/Notifications)
+  KanameOS.Window = Window;
+  KanameOS.Application = Application;
 
   // Initialize the Hoshino Service Provider (modular init system)
 

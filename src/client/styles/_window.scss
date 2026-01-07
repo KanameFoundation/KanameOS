@@ -172,6 +172,7 @@ $direction-list: "nw" "sw" "ne" "se" "n" "s" "w" "e";
   user-select: none;
   visibility: visible;
   touch-action: none;
+  pointer-events: auto;
 
   /* This actually increases performance */
   -webkit-transform: translate3d(0, 0, 0);

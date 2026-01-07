@@ -11,6 +11,10 @@ module.exports = {
   entry: {
     osjs: path.resolve(__dirname, "src/client/index.js"),
   },
+  resolve: {
+    extensions: [".js", ".json"],
+    modules: ["node_modules"],
+  },
   performance: {
     maxEntrypointSize: 1024 * 1024,
     maxAssetSize: 1024 * 1024,
@@ -29,14 +33,6 @@ module.exports = {
       template: path.resolve(__dirname, "src/client/index.ejs"),
       favicon: path.resolve(__dirname, "src/client/favicon.png"),
       title: "KanameOS",
-    }),
-    new rspack.CopyRspackPlugin({
-      patterns: [
-        {
-          from: path.resolve(__dirname, "node_modules/@osjs/panels/dist/*.png"),
-          to: "[name][ext]",
-        },
-      ],
     }),
     new rspack.CssExtractRspackPlugin({
       filename: "[name].css",

@@ -162,16 +162,21 @@ export const createDOMStyles = (
  * Clamps position to viewport
  */
 export const clampPosition = (rect, {dimension, position}) => {
-  const maxLeft = rect.width - dimension.width;
-  const maxTop = rect.height - dimension.height + rect.top;
+  const width = rect.width || (typeof rect.right === 'number' ? rect.right - rect.left : 0);
+  const height = rect.height || (typeof rect.bottom === 'number' ? rect.bottom - rect.top : 0);
 
-  // TODO: Make these an argument ?!
+  const maxLeft = width - dimension.width;
+  const maxTop = height - dimension.height + (rect.top || 0);
+
   const minLeft = 0;
   const minTop = 0;
 
+  const left = Math.max(minLeft, Math.min(maxLeft, position.left));
+  const top = Math.max(minTop, Math.max(rect.top || 0, Math.min(maxTop, position.top)));
+
   return {
-    left: Math.max(minLeft, Math.min(maxLeft, position.left)),
-    top: Math.max(minTop, Math.max(rect.top, Math.min(maxTop, position.top)))
+    left: isNaN(left) ? 0 : left,
+    top: isNaN(top) ? 0 : top
   };
 };
 
@@ -204,11 +209,13 @@ export const renderCallback = (win, callback) => {
  * Gets new position based on "gravity"
  */
 export const positionFromGravity = (win, rect, gravity) => {
+  const width = rect.width || (rect.right - rect.left);
+  const height = rect.height || (rect.bottom - rect.top);
   let {left, top} = win.state.position;
 
   if (gravity === 'center') {
-    left = (rect.width / 2) - (win.state.dimension.width / 2);
-    top = (rect.height / 2) - (win.state.dimension.height / 2);
+    left = (width / 2) - (win.state.dimension.width / 2);
+    top = (height / 2) - (win.state.dimension.height / 2);
   } else if (gravity) {
     let hasVertical =  gravity.match(/top|bottom/);
     let hasHorizontal = gravity.match(/left|rigth/);
@@ -216,19 +223,19 @@ export const positionFromGravity = (win, rect, gravity) => {
     if (gravity.match(/top/)) {
       top = rect.top;
     } else if (gravity.match(/bottom/)) {
-      top = rect.height - (win.state.dimension.height) + rect.top;
+      top = height - (win.state.dimension.height) + rect.top;
     }
 
     if (gravity.match(/left/)) {
       left = rect.left;
     } else if (gravity.match(/right/)) {
-      left = rect.width - (win.state.dimension.width);
+      left = width - (win.state.dimension.width);
     }
 
     if (!hasVertical && gravity.match(/center/)) {
-      top = (rect.height / 2) - (win.state.dimension.height / 2);
+      top = (height / 2) - (win.state.dimension.height / 2);
     } else if (!hasHorizontal && gravity.match(/center/)) {
-      left = (rect.width / 2) - (win.state.dimension.width / 2);
+      left = (width / 2) - (win.state.dimension.width / 2);
     }
   }
 
@@ -278,14 +285,23 @@ export const dimensionFromElement = (win, rect, container) => {
  * Transforms vector values (ex float to integer)
  */
 export const transformVectors = (rect, {width, height}, {top, left}) => {
+  const rWidth = rect.width || (typeof rect.right === 'number' ? rect.right - rect.left : 0);
+  const rHeight = rect.height || (typeof rect.bottom === 'number' ? rect.bottom - rect.top : 0);
+  const safeRect = { ...rect, width: rWidth, height: rHeight };
+
   const transform = (val, attr) => {
-    if (!isNaN(val)) {
-      return val > 1 && Number.isInteger(val)
-        ? val
-        : Math.round(rect[attr] * parseFloat(val));
+    if (val === null || typeof val === 'undefined') {
+      return null;
     }
 
-    return val;
+    const num = parseFloat(val);
+    if (!isNaN(num)) {
+      return num > 1
+        ? num
+        : Math.round(safeRect[attr] * num);
+    }
+
+    return 0; // Fallback to 0 instead of NaN or string
   };
 
   return {
@@ -371,9 +387,12 @@ export const getCascadePosition = (win, rect, pos) => {
 
   const newX = startX + ((win.wid % wrap) * distance);
   const newY = startY + ((win.wid % wrap) * distance);
-  const position = (key, value) => typeof pos[key] === 'number' && Number.isInteger(pos[key])
-    ? Math.max(rect[key], pos[key])
-    : value;
+  const position = (key, value) => {
+    const val = parseFloat(pos[key]);
+    return !isNaN(val)
+      ? val
+      : value;
+  };
 
   return {top: position('top', newY), left: position('left', newX)};
 };

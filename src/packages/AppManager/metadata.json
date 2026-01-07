@@ -1,7 +1,8 @@
 {
-  "name": "AppManager",
+  "name": "appmanager",
+  "version": "1.0.0",
   "title": {
-    "en_EN": "App Manager"
+    "en_EN": "App Manager for KanameOS"
   },
   "description": {
     "en_EN": "Install and manage applications"

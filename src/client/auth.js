@@ -141,6 +141,12 @@ export default class Auth {
      * @readonly
      */
     this.core = core;
+
+    /**
+     * Shows the elevation dialog
+     */
+    this.showElevationPrompt = () => import('./dialogs/elevation.js')
+      .then(module => module.default(this.core));
   }
 
   /**
@@ -187,7 +193,20 @@ export default class Auth {
    * @param {AuthCallback} cb Authentication callback
    * @return {Promise<boolean>}
    */
-  show(cb) {
+  async show(cb) {
+    try {
+      const initialized = await this.core.request("/init").then((res) => res.json());
+      if (!initialized) {
+        if (this.ui) this.ui.destroy();
+        const { default: Boarding } = await import('./boarding');
+        this.ui = new Boarding(this.core);
+        this.ui.init();
+        return Promise.resolve(false);
+      }
+    } catch (e) {
+      console.warn("Failed to check init status", e);
+    }
+
     const login = this.core.config('auth.login', {});
     const autologin = login.username && login.password;
     const settings = this.core.config('auth.cookie');

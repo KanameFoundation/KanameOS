@@ -245,7 +245,7 @@ module.exports = (core) => {
       return promise
         .then(() => true)
         .catch(e => {
-          if (options.ensure && e.code === 'EEXIST') {
+          if (e.code === 'EEXIST') {
             return true;
           }
 

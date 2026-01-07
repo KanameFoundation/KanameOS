@@ -136,6 +136,8 @@ class Packages {
       logger.info("Found user packages:", userPackages.length);
     }
 
+    logger.info("Debug: Package Sources:", sources);
+
     logger.info("Using package discovery file", relative(discoveredFile));
     logger.info("Using package manifest file", relative(manifestFile));
 

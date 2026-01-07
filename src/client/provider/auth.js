@@ -104,7 +104,8 @@ export default class AuthServiceProvider extends ServiceProvider {
       show: (cb) => this.auth.show(cb),
       login: (values) => this.auth.login(values),
       logout: (reload) => this.auth.logout(reload),
-      user: () => this.core.getUser()
+      user: () => this.core.getUser(),
+      showElevationPrompt: () => this.auth.showElevationPrompt()
     };
   }
 }

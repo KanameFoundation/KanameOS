@@ -291,9 +291,7 @@ export default {
 
   enabledServices: [
     "CoreServiceProvider",
-    "DesktopServiceProvider",
     "VFSServiceProvider",
-    "NotificationServiceProvider",
     "SettingsServiceProvider",
     "AuthServiceProvider",
     "DialogServiceProvider",

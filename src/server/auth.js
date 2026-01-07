@@ -118,6 +118,18 @@ class Auth {
   }
 
   /**
+   * Checks if initialized
+   * @return {Promise<boolean>}
+   */
+  async checkInit() {
+    if (this.adapter.checkInit) {
+      return this.adapter.checkInit();
+    }
+
+    return true;
+  }
+
+  /**
    * Performs a login request
    * @param {Request} req HTTP request
    * @param {Response} res HTTP response
@@ -184,6 +196,36 @@ class Auth {
 
     return res.status(403)
       .json({error: 'Registration unavailable'});
+  }
+
+  /**
+   * Gets all users
+   */
+  async getUsers() {
+    if (this.adapter.getUsers) {
+      return this.adapter.getUsers();
+    }
+    return [];
+  }
+
+  /**
+   * Creates a user (Admin)
+   */
+  async createUser(user) {
+    if (this.adapter.createUser) {
+      return this.adapter.createUser(user);
+    }
+    return false;
+  }
+
+  /**
+   * Removes a user (Admin)
+   */
+  async removeUser(username) {
+    if (this.adapter.removeUser) {
+      return this.adapter.removeUser(username);
+    }
+    return false;
   }
 
   /**
