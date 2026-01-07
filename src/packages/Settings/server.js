@@ -3,29 +3,28 @@ const fs = require('fs-extra');
 const path = require('path');
 const crypto = require('crypto');
 
-const DB_FILE = path.resolve(process.cwd(), 'vfs/users.json');
-
 const hashPassword = (password, salt) => {
   return crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
 };
 
-const loadDb = async () => {
-  if (await fs.pathExists(DB_FILE)) {
-    try {
-      return await fs.readJson(DB_FILE);
-    } catch (e) {
-      return [];
-    }
-  }
-  return [];
-};
-
-const saveDb = async (db) => {
-  await fs.writeJson(DB_FILE, db, {spaces: 2});
-};
-
 module.exports = (core, proc) => {
   const {route} = core.make('osjs/express');
+  const DB_FILE = path.resolve(core.configuration.vfs.root, 'users.json');
+
+  const loadDb = async () => {
+    if (await fs.pathExists(DB_FILE)) {
+      try {
+        return await fs.readJson(DB_FILE);
+      } catch (e) {
+        return [];
+      }
+    }
+    return [];
+  };
+
+  const saveDb = async (db) => {
+    await fs.writeJson(DB_FILE, db, {spaces: 2});
+  };
 
   const getUsers = async (req, res) => {
     if (!req.session.user || !req.session.user.groups.includes('admin')) {
