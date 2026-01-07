@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kanameos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kanameos
+  template:
+    metadata:
+      labels:
+        app: kanameos
+    spec:
+      containers:
+        - name: kanameos
+          image: kanameos:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: KANAMEOS_VFS_PATH
+              value: "/var/lib/kanameos/vfs"
+            - name: KANAMEOS_SESSION_PATH
+              value: "/var/lib/kanameos/session.db"
+            - name: KANAMEOS_BIND
+              value: "0.0.0.0"
+          volumeMounts:
+            - mountPath: "/var/lib/kanameos"
+              name: kanameos-storage
+      volumes:
+        - name: kanameos-storage
+          persistentVolumeClaim:
+            claimName: kanameos-pvc
