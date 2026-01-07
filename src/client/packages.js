@@ -147,6 +147,10 @@ export default class Packages {
       this.core.on("osjs/core:started", () => this._autostart());
     }
 
+    if (this.loading) {
+      return this.loading;
+    }
+
     this.metadata = this.core
       .config("packages.metadata", [])
       .map((iter) => ({ type: "application", ...iter }));
@@ -155,14 +159,19 @@ export default class Packages {
 
     const manifest = this.core.config("packages.manifest");
 
-    return manifest
+    this.loading = (manifest
       ? this.core
           .request(manifest, {}, "json", true)
           .then((metadata) => this.addPackages(metadata))
           .then((metadata) => this._preloadBackgroundFiles(metadata))
           .then(() => true)
           .catch((error) => logger.error(error))
-      : Promise.resolve(true);
+      : Promise.resolve(true)
+    ).finally(() => {
+      this.loading = false;
+    });
+
+    return this.loading;
   }
 
   /**
@@ -378,7 +387,16 @@ export default class Packages {
    * @private
    */
   _autostart() {
-    const meta = this.metadata.filter((pkg) => pkg.autostart === true);
+    const settings = this.core.make("osjs/settings");
+    const whitelist = settings.get("osjs/packages", "autostart", [
+      "osjs-desktop",
+      "osjs-panels",
+      "osjs-notifications",
+    ]);
+
+    const meta = this.metadata.filter(
+      (pkg) => pkg.autostart === true && whitelist.indexOf(pkg.name) !== -1
+    );
 
     const configured = this.core
       .config("application.autostart", [])

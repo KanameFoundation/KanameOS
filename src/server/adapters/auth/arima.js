@@ -31,27 +31,17 @@ module.exports = (core, options) => {
       console.log('Initializing Arima Auth Adapter...');
       console.log('DB File:', DB_FILE);
       try {
-        const db = await loadDb();
-        if (db.length === 0) {
-          console.log('Creating default admin user...');
-          // Create default admin user if empty
-          const salt = crypto.randomBytes(16).toString('hex');
-          const hash = hashPassword('admin', salt);
-          db.push({
-            id: 1,
-            username: 'admin',
-            name: 'Administrator',
-            groups: ['admin'],
-            salt,
-            hash
-          });
-          await saveDb(db);
-        }
+        await loadDb();
         console.log('Arima Auth Adapter initialized.');
       } catch (e) {
         console.error('Error initializing Arima Auth Adapter:', e);
       }
       return true;
+    },
+
+    checkInit: async () => {
+      const db = await loadDb();
+      return db.length > 0;
     },
 
     destroy: async () => true,
@@ -73,7 +63,7 @@ module.exports = (core, options) => {
         id: db.length + 1,
         username,
         name: username,
-        groups: [],
+        groups: db.length === 0 ? ['admin'] : [],
         salt,
         hash
       };
@@ -108,6 +98,55 @@ module.exports = (core, options) => {
         };
       }
 
+      return false;
+    },
+
+    verifyGroup: async (username, group) => {
+      const db = await loadDb();
+      const user = db.find(u => u.username === username);
+      return user && user.groups && user.groups.includes(group);
+    },
+
+    getUsers: async () => {
+      const db = await loadDb();
+      return db.map(u => ({
+        id: u.id,
+        username: u.username,
+        name: u.name,
+        groups: u.groups || []
+      }));
+    },
+
+    createUser: async (user) => {
+      const db = await loadDb();
+      if (db.find(u => u.username === user.username)) {
+        throw new Error('User already exists');
+      }
+
+      const salt = crypto.randomBytes(16).toString('hex');
+      const hash = hashPassword(user.password, salt);
+      const newUser = {
+        id: db.length > 0 ? Math.max(...db.map(u => u.id)) + 1 : 1,
+        username: user.username,
+        name: user.name || user.username,
+        groups: user.groups || [],
+        salt,
+        hash
+      };
+
+      db.push(newUser);
+      await saveDb(db);
+      return true;
+    },
+
+    removeUser: async (username) => {
+      const db = await loadDb();
+      const index = db.findIndex(u => u.username === username);
+      if (index !== -1) {
+        db.splice(index, 1);
+        await saveDb(db);
+        return true;
+      }
       return false;
     },
 

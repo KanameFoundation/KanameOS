@@ -176,7 +176,7 @@ export default class WindowBehavior {
     }
 
     const target = ev.target;
-    const hitTitle = target.classList.contains('osjs-window-header');
+    const hitTitle = target.closest('.osjs-window-header');
 
     if (hitTitle) {
       if (win.state.maximized) {
@@ -196,7 +196,6 @@ export default class WindowBehavior {
    */
   mousedown(ev, win) {
     let attributeSet = false;
-
     const {moveable, resizable} = win.attributes;
     const {maximized} = win.state;
     const {lofi, moveKeybinding} = this.core.config('windows');
@@ -204,7 +203,7 @@ export default class WindowBehavior {
 
     const checkMove = matchKeyCombo(moveKeybinding, ev)
       ? win.$element.contains(target)
-      : target.classList.contains('osjs-window-header');
+      : target.closest('.osjs-window-header');
 
     const rect = this.core.has('osjs/desktop')
       ? this.core.make('osjs/desktop').getRect()

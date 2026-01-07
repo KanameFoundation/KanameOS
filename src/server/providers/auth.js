@@ -28,8 +28,11 @@
  * @licence Simplified BSD License
  */
 
+const fs = require('fs-extra');
+const path = require('path');
 const {ServiceProvider} = require('../../common/service-provider.js');
 const Auth = require('../auth.js');
+const checkPrivilege = require('../utils/privilege');
 
 /**
  * OS.js Auth Service Provider
@@ -48,13 +51,55 @@ class AuthServiceProvider extends ServiceProvider {
     super.destroy();
   }
 
+  provides() {
+    return [
+      'osjs/auth'
+    ];
+  }
+
   async init() {
+    this.core.singleton('osjs/auth', () => this.auth);
+
     const {route, routeAuthenticated} = this.core.make('osjs/express');
 
-    route('post', '/register', (req, res) => this.auth.register(req, res));
-    route('post', '/login', (req, res) => this.auth.login(req, res));
-    routeAuthenticated('post', '/logout', (req, res) => this.auth.logout(req, res));
+    route('post', '/register', async (req, res) => {
+      // Allow registration if it's the first user (init), otherwise require privilege
+      const init = await this.auth.checkInit();
+      if (init) {
+          if (!(await checkPrivilege(this.core, req, res))) return;
+      }
+      return this.auth.register(req, res);
+    });
 
+    route('get', '/api/auth/users', async (req, res) => {
+      if (!(await checkPrivilege(this.core, req, res))) return;
+      res.json(await this.auth.getUsers());
+    });
+
+    route('post', '/api/auth/users/create', async (req, res) => {
+      if (!(await checkPrivilege(this.core, req, res))) return;
+      try {
+        await this.auth.createUser(req.body);
+        res.json({success: true});
+      } catch (e) {
+        res.status(400).json({error: e.message});
+      }
+    });
+
+    route('post', '/api/auth/users/remove', async (req, res) => {
+      if (!(await checkPrivilege(this.core, req, res))) return;
+      try {
+        await this.auth.removeUser(req.body.username);
+        res.json({success: true});
+      } catch (e) {
+        res.status(400).json({error: e.message});
+      }
+    });
+
+    route('post', '/login', (req, res) => this.auth.login(req, res));
+    route('get', '/init', (req, res) => this.auth.checkInit().then(yes => res.json(yes)));
+    routeAuthenticated('post', '/logout', (req, res) => this.auth.logout(req, res));
+    
     await this.auth.init();
   }
 }

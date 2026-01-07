@@ -489,7 +489,31 @@ export default class Core extends CoreBase {
       };
     }
 
-    return fetch(url, options, type).catch((error) => {
+    return fetch(url, options, type).catch(async (error) => {
+      // Handle Elevation (Sudo) Requirement
+      // fetch utility throws new Error("ELEVATION_REQUIRED") on 403 JSON response
+      if (error.message === "ELEVATION_REQUIRED" && this.has("osjs/auth")) {
+          try {
+              const credentials = await this.make("osjs/auth").showElevationPrompt();
+              
+              const headers = options.headers || {};
+              // Send credentials via headers to support GET requests and avoid URL leakage
+              headers['X-Sudo-Username'] = credentials.username;
+              headers['X-Sudo-Password'] = credentials.password;
+
+              // Retry the request with sudo credentials
+              // pass force=true or same parameters
+              return this.request(url, {
+                  ...options,
+                  headers,
+                  // Do NOT modify body for sudo anymore
+              }, type, force);
+          } catch (e) {
+              console.warn("Elevation cancelled or failed", e);
+              // Fallthrough to throw original error if elevation fails
+          }
+      }
+
       logger.warn(error);
 
       throw new Error(_("ERR_REQUEST_NOT_OK", error));
