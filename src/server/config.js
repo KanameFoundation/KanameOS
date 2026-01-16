@@ -28,7 +28,7 @@ module.exports = {
   express: {
     maxFieldsSize: mb(20),
     maxFileSize: mb(200),
-    maxBodySize: "100kb",
+    maxBodySize: "200mb",
   },
   https: {
     enabled: false,
