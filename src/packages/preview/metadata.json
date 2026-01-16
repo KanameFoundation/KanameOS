@@ -1,0 +1,24 @@
+{
+  "name": "Preview",
+  "category": "graphics",
+  "icon": "image-x-generic",
+  "title": {
+    "en_EN": "Preview",
+    "nb_NO": "Forhåndsvisning",
+    "fr_FR": "Outil de prévisualisation",
+    "pt_BR": "Preview"
+  },
+  "description": {
+    "en_EN": "See images and videos",
+    "nb_NO": "Se bilder og videoer",
+    "fr_FR": "Outil de prévisualisation",
+    "pt_BR": "Visualize as imagens e/ou vídeos"
+  },
+  "mimes": [
+    "^image\/(.*)",
+    "^video\/(.*)"
+  ],
+  "files": [
+    "main.js"
+  ]
+}
