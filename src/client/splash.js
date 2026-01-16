@@ -64,7 +64,6 @@ export default class Splash {
   init() {
     this.$loading.innerHTML = `
       <div class="osjs-boot-splash-content">
-        <div class="osjs-boot-splash-logo"></div>
         <div class="osjs-boot-splash-message">Loading KanameOS...</div>
       </div>
     `;
