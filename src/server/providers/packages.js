@@ -33,9 +33,9 @@ const path = require('path');
 const chokidar = require('chokidar');
 const AdmZip = require('adm-zip');
 const { formidable } = require('formidable');
-const {ServiceProvider} = require('../../common/service-provider.js');
+const { ServiceProvider } = require('../../common/service-provider.js');
 const Packages = require('../packages');
-const {closeWatches} = require('../utils/core');
+const { closeWatches } = require('../utils/core');
 const checkPrivilege = require('../utils/privilege');
 
 /**
@@ -94,10 +94,10 @@ class PackageServiceProvider extends ServiceProvider {
       // Check if package exists and remove it first (clean update)
       const finalPath = path.join(extractPath, packageName);
       if (await fs.pathExists(finalPath)) {
-         await fs.remove(finalPath);
-         try {
-             await this.packages.removePackage(packageName);
-         } catch(e) {}
+        await fs.remove(finalPath);
+        try {
+          await this.packages.removePackage(packageName);
+        } catch (e) { }
       }
 
       await fs.move(packageRoot, finalPath, { overwrite: true });
@@ -106,7 +106,7 @@ class PackageServiceProvider extends ServiceProvider {
         await fs.remove(tempExtractPath);
       }
 
-       // Handle Global Dist Linking
+      // Handle Global Dist Linking
       try {
         const type = metadata.type || "application";
         const typeMap = {
@@ -152,78 +152,78 @@ class PackageServiceProvider extends ServiceProvider {
    * Helper to inspect a package file
    */
   async inspectPackage(vfsPath, username) {
-      const core = this.core;
-      let realPath;
+    const core = this.core;
+    let realPath;
 
-      if (vfsPath.startsWith("home:/")) {
-        realPath = path.resolve(
-          core.configuration.vfs.root,
-          username,
-          vfsPath.replace("home:/", "")
-        );
-      } else if (vfsPath.startsWith("system:/")) {
-        realPath = path.resolve(
-          core.configuration.public,
-          vfsPath.replace("system:/", "")
-        );
-      } else if (vfsPath.startsWith("tmp:/")) {
-        realPath = path.resolve(
-          core.configuration.vfs.root,
-          "tmp",
-          vfsPath.replace("tmp:/", "")
-        );
-      } else {
-        throw new Error("Unsupported VFS mountpoint");
-      }
+    if (vfsPath.startsWith("home:/")) {
+      realPath = path.resolve(
+        core.configuration.vfs.root,
+        username,
+        vfsPath.replace("home:/", "")
+      );
+    } else if (vfsPath.startsWith("system:/")) {
+      realPath = path.resolve(
+        core.configuration.public,
+        vfsPath.replace("system:/", "")
+      );
+    } else if (vfsPath.startsWith("tmp:/")) {
+      realPath = path.resolve(
+        core.configuration.vfs.root,
+        "tmp",
+        vfsPath.replace("tmp:/", "")
+      );
+    } else {
+      throw new Error("Unsupported VFS mountpoint");
+    }
 
-      if (!(await fs.pathExists(realPath))) {
-        throw new Error("File not found");
-      }
+    if (!(await fs.pathExists(realPath))) {
+      throw new Error("File not found");
+    }
 
-      try {
-        const zip = new AdmZip(realPath);
-        const tempExtractPath = path.join(
-          path.resolve(core.configuration.vfs.root, "tmp"),
-          "inspect-" + Date.now()
-        );
+    try {
+      const zip = new AdmZip(realPath);
+      const tempExtractPath = path.join(
+        path.resolve(core.configuration.vfs.root, "tmp"),
+        "inspect-" + Date.now()
+      );
 
-        await fs.ensureDir(tempExtractPath);
-        zip.extractAllTo(tempExtractPath, true);
+      await fs.ensureDir(tempExtractPath);
+      zip.extractAllTo(tempExtractPath, true);
 
-        let metadataPath = path.join(tempExtractPath, "metadata.json");
+      let metadataPath = path.join(tempExtractPath, "metadata.json");
 
-        if (!(await fs.pathExists(metadataPath))) {
-          const entries = await fs.readdir(tempExtractPath);
-          if (entries.length === 1) {
-            const subDir = path.join(tempExtractPath, entries[0]);
-            if ((await fs.stat(subDir)).isDirectory()) {
-              const subMetadataPath = path.join(subDir, "metadata.json");
-              if (await fs.pathExists(subMetadataPath)) {
-                metadataPath = subMetadataPath;
-              }
+      if (!(await fs.pathExists(metadataPath))) {
+        const entries = await fs.readdir(tempExtractPath);
+        if (entries.length === 1) {
+          const subDir = path.join(tempExtractPath, entries[0]);
+          if ((await fs.stat(subDir)).isDirectory()) {
+            const subMetadataPath = path.join(subDir, "metadata.json");
+            if (await fs.pathExists(subMetadataPath)) {
+              metadataPath = subMetadataPath;
             }
           }
         }
-
-        if (!(await fs.pathExists(metadataPath))) {
-          await fs.remove(tempExtractPath);
-          throw new Error("Invalid package: missing metadata.json");
-        }
-
-        const metadata = await fs.readJson(metadataPath);
-        await fs.remove(tempExtractPath);
-
-        return metadata;
-      } catch (e) {
-        console.error(e);
-        throw e;
       }
+
+      if (!(await fs.pathExists(metadataPath))) {
+        await fs.remove(tempExtractPath);
+        throw new Error("Invalid package: missing metadata.json");
+      }
+
+      const metadata = await fs.readJson(metadataPath);
+      await fs.remove(tempExtractPath);
+
+      return metadata;
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
   }
 
   constructor(core) {
     super(core);
 
-    const {configuration} = this.core;
+    const { configuration } = this.core;
     const pkgMetadata = configuration.packages.metadata;
     const manifestFile = path.isAbsolute(pkgMetadata)
       ? pkgMetadata
@@ -246,11 +246,11 @@ class PackageServiceProvider extends ServiceProvider {
   init() {
     this.core.singleton('osjs/packages', () => this.packages);
 
-    const {app} = this.core;
+    const { app } = this.core;
     const serve = (req, res) => {
-      const {name} = req.params;
+      const { name } = req.params;
       const pkg = this.packages.packages.find(p => p.metadata.name === name);
-      
+
       if (pkg) {
         const filename = req.params[0];
         const type = pkg.metadata.type || 'application';
@@ -261,13 +261,13 @@ class PackageServiceProvider extends ServiceProvider {
           sounds: 'sounds'
         };
         const targetDir = typeMap[type] || 'apps';
-        
+
         // Try serving from global dist first
         const globalDist = path.resolve(this.core.configuration.public, targetDir, name);
         const localDist = path.join(path.dirname(pkg.filename), 'dist');
 
         const tryServe = (root) => {
-          res.sendFile(filename, {root}, (err) => {
+          res.sendFile(filename, { root }, (err) => {
             if (err) {
               if (root === globalDist) {
                 // Fallback to local dist
@@ -296,61 +296,59 @@ class PackageServiceProvider extends ServiceProvider {
     });
 
     app.post('/packages/inspect', async (req, res) => {
-        const { vfsPath } = req.body;
-        if (!vfsPath) return res.status(400).json({ error: "Missing vfsPath" });
+      const { vfsPath } = req.body;
+      if (!vfsPath) return res.status(400).json({ error: "Missing vfsPath" });
 
-        try {
-            const metadata = await this.inspectPackage(vfsPath, req.session.user.username);
-            res.json(metadata);
-        } catch (e) {
-            res.status(500).json({ error: e.message });
-        }
+      try {
+        const metadata = await this.inspectPackage(vfsPath, req.session.user.username);
+        res.json(metadata);
+      } catch (e) {
+        res.status(500).json({ error: e.message });
+      }
     });
 
     app.post('/packages/install', async (req, res) => {
-       if (!(await checkPrivilege(this.core, req, res))) return;
+      if (!(await checkPrivilege(this.core, req, res))) return;
 
-       // 1. Handle JSON request (Install from VFS path)
-       if (req.headers['content-type'] && req.headers['content-type'].includes('application/json')) {
-           const { vfsPath } = req.body;
-           if (!vfsPath) return res.status(400).json({ error: "Missing vfsPath" });
+      // 1. Handle JSON request (Install from VFS path)
+      if (req.headers['content-type'] && req.headers['content-type'].includes('application/json')) {
+        const { vfsPath } = req.body;
+        if (!vfsPath) return res.status(400).json({ error: "Missing vfsPath" });
 
-           const username = req.session.user.username;
-           const core = this.core;
-           let realPath;
+        const username = req.session.user.username;
+        const core = this.core;
+        let realPath;
 
-            if (vfsPath.startsWith("home:/")) {
-                realPath = path.resolve(core.configuration.vfs.root, username, vfsPath.replace("home:/", ""));
-            } else if (vfsPath.startsWith("system:/")) {
-                realPath = path.resolve(core.configuration.public, vfsPath.replace("system:/", ""));
-            } else if (vfsPath.startsWith("tmp:/")) {
-                realPath = path.resolve(core.configuration.vfs.root, "tmp", vfsPath.replace("tmp:/", ""));
-            } else {
-                return res.status(400).json({ error: "Unsupported VFS mountpoint" });
-            }
+        if (vfsPath.startsWith("home:/")) {
+          realPath = path.resolve(core.configuration.vfs.root, username, vfsPath.replace("home:/", ""));
+        } else if (vfsPath.startsWith("system:/")) {
+          realPath = path.resolve(core.configuration.public, vfsPath.replace("system:/", ""));
+        } else if (vfsPath.startsWith("tmp:/")) {
+          realPath = path.resolve(core.configuration.vfs.root, "tmp", vfsPath.replace("tmp:/", ""));
+        } else {
+          return res.status(400).json({ error: "Unsupported VFS mountpoint" });
+        }
 
-            if (!(await fs.pathExists(realPath))) {
-                return res.status(404).json({ error: "File not found" });
-            }
+        if (!(await fs.pathExists(realPath))) {
+          return res.status(404).json({ error: "File not found" });
+        }
 
-            try {
-                // Determine if we should delete the file after install (only for tmp)
-                const shouldDelete = vfsPath.startsWith("tmp:/");
-                const result = await this.processPackage(realPath);
-                
-                if (shouldDelete) {
-                    await fs.remove(realPath);
-                }
-                
-                res.json(result);
-            } catch (e) {
-                res.status(500).json({ error: e.message });
-            }
-            return;
-       }
+        try {
+          // Determine if we should delete the file after install (only for tmp)
+          const shouldDelete = vfsPath.startsWith("tmp:/");
+          const result = await this.processPackage(realPath);
 
-       // 2. Handle File Upload (Multipart)
-       const form = formidable({
+          if (shouldDelete) {
+            await fs.remove(realPath);
+          }
+
+          res.json(result);
+        } catch (e) {
+          res.status(500).json({ error: e.message });
+        }
+        return;
+      }
+      const form = formidable({
         uploadDir: path.resolve(this.core.configuration.vfs.root, "tmp"),
         keepExtensions: true,
       });
@@ -375,36 +373,36 @@ class PackageServiceProvider extends ServiceProvider {
     });
 
     app.post('/packages/uninstall', async (req, res) => {
-        if (!(await checkPrivilege(this.core, req, res))) return;
+      if (!(await checkPrivilege(this.core, req, res))) return;
 
-        const { name } = req.body;
-        if (!name) return res.status(400).json({ error: "Missing package name" });
+      const { name } = req.body;
+      if (!name) return res.status(400).json({ error: "Missing package name" });
 
-        const rootApps = path.resolve(this.core.configuration.vfs.root, "apps");
-        const packagePath = path.resolve(rootApps, name);
+      const rootApps = path.resolve(this.core.configuration.vfs.root, "apps");
+      const packagePath = path.resolve(rootApps, name);
 
-         // Security Check
-        const rel = path.relative(rootApps, packagePath);
-        if (rel.startsWith('..') || path.isAbsolute(rel)) {
-            return res.status(403).json({ error: "Invalid package path" });
-        }
+      // Security Check
+      const rel = path.relative(rootApps, packagePath);
+      if (rel.startsWith('..') || path.isAbsolute(rel)) {
+        return res.status(403).json({ error: "Invalid package path" });
+      }
 
-        if (!(await fs.pathExists(packagePath))) {
-             return res.status(404).json({ error: "Package not found" });
-        }
+      if (!(await fs.pathExists(packagePath))) {
+        return res.status(404).json({ error: "Package not found" });
+      }
 
+      try {
+        await fs.remove(packagePath);
         try {
-            await fs.remove(packagePath);
-             try {
-                await this.packages.removePackage(name);
-            } catch (e) {}
-            
-            this.core.broadcast("osjs/packages:metadata:changed");
-            await this.packages.save();
-            res.json({ success: true });
-        } catch (e) {
-            res.status(500).json({ error: e.message });
-        }
+          await this.packages.removePackage(name);
+        } catch (e) { }
+
+        this.core.broadcast("osjs/packages:metadata:changed");
+        await this.packages.save();
+        res.json({ success: true });
+      } catch (e) {
+        res.status(500).json({ error: e.message });
+      }
     });
 
     return this.packages.init();
@@ -428,7 +426,7 @@ class PackageServiceProvider extends ServiceProvider {
    * Initializes some developer features
    */
   initDeveloperTools() {
-    const {manifestFile} = this.packages.options;
+    const { manifestFile } = this.packages.options;
 
     if (fs.existsSync(manifestFile)) {
       const watcher = chokidar.watch(manifestFile);
