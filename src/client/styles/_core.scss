@@ -104,11 +104,19 @@
     /* animation: pulse 2s infinite ease-in-out; */
   }
 
+  .osjs-boot-splash-branding {
+    font-size: 24px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 5px;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  }
+
   .osjs-boot-splash-message {
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 300;
     letter-spacing: 1px;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.6);
   }
 
   .osjs-boot-splash-progress {
