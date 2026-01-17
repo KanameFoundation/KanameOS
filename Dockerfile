@@ -21,8 +21,6 @@ WORKDIR /usr/src/kaname
 COPY --from=builder /usr/src/osjs/dist ./dist
 COPY --from=builder /usr/src/osjs/src ./src
 COPY --from=builder /usr/src/osjs/package.json ./
-# Copy initial VFS template (optional, if you want to seed it)
-COPY --from=builder /usr/src/osjs/vfs ./vfs
 
 # Install only production dependencies
 RUN npm i --omit=dev

@@ -1,0 +1,17 @@
+services:
+  kanameos:
+    build: .
+    user: root
+    ports:
+      - "8000:8000"
+    volumes:
+      - vfs_data:/usr/src/kaname/vfs
+    environment:
+      - KANAMEOS_BIND=0.0.0.0
+      - KANAMEOS_PORT=8000
+      - KANAMEOS_VFS_PATH=/usr/src/kaname/vfs
+      - NODE_ENV=production
+    restart: unless-stopped
+
+volumes:
+  vfs_data:
