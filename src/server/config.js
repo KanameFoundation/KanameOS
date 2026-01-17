@@ -74,7 +74,7 @@ module.exports = {
     store: {
       module: require.resolve("connect-loki"),
       options: {
-        path: process.env.KANAMEOS_SESSION_PATH || "session-store.db",
+        path: path.join(vfsRoot, "session-store.db"),
         autosave: true,
       },
     },
