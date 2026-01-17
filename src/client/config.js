@@ -251,10 +251,10 @@ export default {
         },
       },
       {
-        name: "system",
-        label: "System",
+        name: "os",
+        label: "Root",
         adapter: "system",
-        icon: { name: "folder-publicshare" },
+        icon: { name: "drive-harddisk" },
       },
       {
         name: "home",

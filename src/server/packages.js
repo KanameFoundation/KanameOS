@@ -118,13 +118,42 @@ class Packages {
    * @return {Promise<Package[]>}
    */
   createLoader() {
-    let result = [];
-    const { discoveredFile, manifestFile } = this.options;
-    const discovered = readOrDefault(discoveredFile);
+    const { manifestFile } = this.options;
     const manifest = readOrDefault(manifestFile);
-    const sources = discovered.map((d) => path.join(d, "metadata.json"));
+    const sources = [];
 
-    // Userland packages
+    // 1. System Packages (from config.js)
+    const systemPackages = this.core.configuration.packages.system || [];
+    systemPackages.forEach(pkgName => {
+      const pkgPath = path.resolve(this.core.configuration.root, "node_modules", pkgName);
+      const metaPath = path.join(pkgPath, "metadata.json");
+      // Check package.json as fallback if metadata.json doesn't exist (e.g. for gui)
+      const packageJsonPath = path.join(pkgPath, "package.json");
+
+      if (fs.existsSync(metaPath)) {
+        sources.push(metaPath);
+      } else if (fs.existsSync(packageJsonPath)) {
+        // Some packages might not have metadata.json but are valid OS.js modules
+        // We push package.json temporarily or handle it? 
+        // OS.js expects metadata.json or package.json with osjs key?
+        // Actually, let's assume if it's in config, we try metadata.json
+        // If missing, we might need to fake metadata or assume it's like @osjs/gui which is a client lib
+        // For now, let's respect the original logic: it tries to load metadata.json
+        sources.push(metaPath);
+      }
+    });
+
+    // 2. Local Packages (src/packages)
+    const localPackagesDir = path.resolve(this.core.configuration.root, 'src/packages');
+    if (fs.existsSync(localPackagesDir)) {
+      const localPackages = fs
+        .readdirSync(localPackagesDir)
+        .map((dir) => path.join(localPackagesDir, dir, "metadata.json"))
+        .filter((file) => fs.existsSync(file));
+      sources.push(...localPackages);
+    }
+
+    // 3. Userland packages (vfs/apps)
     const userPackagesDir = path.join(this.core.configuration.vfs.root, "apps");
     if (fs.existsSync(userPackagesDir)) {
       const userPackages = fs
@@ -137,12 +166,15 @@ class Packages {
     }
 
     logger.info("Debug: Package Sources:", sources);
-
-    logger.info("Using package discovery file", relative(discoveredFile));
     logger.info("Using package manifest file", relative(manifestFile));
 
     // Use simple file checking instead of fast-glob for absolute paths
     const promises = sources.map((filename) => {
+      // For @osjs/gui and others that might lack metadata.json in root but have it in dist or src?
+      // Actually @osjs/gui DOES NOT have metadata.json. It was in packages.json because of "osjs" keyword.
+      // But purely client-side packages don't need to be "loaded" by server unless they have server scripts.
+      // If we put it in sources but it doesn't exist, it will fail here.
+
       return fs.pathExists(filename).then((exists) => {
         if (exists) {
           return this.loadPackage(filename, manifest);

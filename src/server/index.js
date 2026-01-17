@@ -28,6 +28,7 @@ const HoshinoInit = require("./init/hoshino.js");
 const fs = require("fs-extra");
 const path = require("path");
 
+console.log("[KanameOS] Booting...");
 // Ensure metadata.json exists in the persistent VFS (important for Docker volumes)
 const ensureMetadata = () => {
   try {
@@ -47,14 +48,20 @@ const ensureMetadata = () => {
 const ensureVFSDirectories = () => {
   try {
     const tmpDir = path.join(config.vfs.root, 'tmp');
-    if (!fs.existsSync(tmpDir)) {
-      console.log(`[KanameOS] Creating tmp directory at ${tmpDir}`);
-      fs.ensureDirSync(tmpDir);
-    }
+    const appsDir = path.join(config.vfs.root, 'apps');
+    const usersDir = path.join(config.vfs.root, 'users');
+
+    [tmpDir, appsDir, usersDir].forEach(dir => {
+      if (!fs.existsSync(dir)) {
+        console.log(`[KanameOS] Creating directory at ${dir}`);
+        fs.ensureDirSync(dir);
+      }
+    });
   } catch (e) {
     console.warn("[KanameOS] Failed to create VFS directories:", e);
   }
 };
+
 
 ensureMetadata();
 ensureVFSDirectories();
@@ -73,8 +80,10 @@ const shutdown = (signal) => (error) => {
   KanameOS.destroy(() => process.exit(signal));
 };
 
+
 process.on("SIGTERM", shutdown(0));
 process.on("SIGINT", shutdown(0));
 process.on("exit", shutdown(0));
+
 
 KanameOS.boot().catch(shutdown(1));

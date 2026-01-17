@@ -106,35 +106,8 @@ class PackageServiceProvider extends ServiceProvider {
         await fs.remove(tempExtractPath);
       }
 
-      // Handle Global Dist Linking
-      try {
-        const type = metadata.type || "application";
-        const typeMap = {
-          application: "apps",
-          theme: "themes",
-          icons: "icons",
-          sounds: "sounds",
-        };
-        const targetDir = typeMap[type] || "apps";
-        const globalDist = path.resolve(
-          core.configuration.public,
-          targetDir,
-          packageName
-        );
-        const localDist = path.join(finalPath, "dist");
-
-        const linkSource = (await fs.pathExists(localDist))
-          ? localDist
-          : finalPath;
-
-        if (await fs.pathExists(linkSource)) {
-          await fs.remove(globalDist);
-          await fs.ensureDir(path.dirname(globalDist));
-          await fs.ensureSymlink(linkSource, globalDist);
-        }
-      } catch (e) {
-        console.warn("PackageService: Failed to copy to dist", e);
-      }
+      // Handle Global Dist Linking - REMOVED
+      // We rely on the server's ability to serve directly from vfs/apps via localDist lookup.
 
       // Reload packages
       await this.packages.load();
@@ -158,14 +131,11 @@ class PackageServiceProvider extends ServiceProvider {
     if (vfsPath.startsWith("home:/")) {
       realPath = path.resolve(
         core.configuration.vfs.root,
+        "users",
         username,
         vfsPath.replace("home:/", "")
       );
-    } else if (vfsPath.startsWith("system:/")) {
-      realPath = path.resolve(
-        core.configuration.public,
-        vfsPath.replace("system:/", "")
-      );
+
     } else if (vfsPath.startsWith("tmp:/")) {
       realPath = path.resolve(
         core.configuration.vfs.root,
@@ -228,12 +198,10 @@ class PackageServiceProvider extends ServiceProvider {
     const manifestFile = path.isAbsolute(pkgMetadata)
       ? pkgMetadata
       : path.join(configuration.public, pkgMetadata);
-    const discoveredFile = path.resolve(configuration.root, configuration.packages.discovery);
 
     this.watches = [];
     this.packages = new Packages(core, {
-      manifestFile,
-      discoveredFile
+      manifestFile
     });
   }
 
@@ -262,24 +230,14 @@ class PackageServiceProvider extends ServiceProvider {
         };
         const targetDir = typeMap[type] || 'apps';
 
-        // Try serving from global dist first
-        const globalDist = path.resolve(this.core.configuration.public, targetDir, name);
+        // Serve directly from the package's dist directory (localDist)
         const localDist = path.join(path.dirname(pkg.filename), 'dist');
 
-        const tryServe = (root) => {
-          res.sendFile(filename, { root }, (err) => {
-            if (err) {
-              if (root === globalDist) {
-                // Fallback to local dist
-                tryServe(localDist);
-              } else {
-                res.status(404).send('Not found');
-              }
-            }
-          });
-        };
-
-        tryServe(globalDist);
+        res.sendFile(filename, { root: localDist }, (err) => {
+          if (err) {
+            res.status(404).send('Not found');
+          }
+        });
       } else {
         res.status(404).send('Not found');
       }
@@ -320,9 +278,8 @@ class PackageServiceProvider extends ServiceProvider {
         let realPath;
 
         if (vfsPath.startsWith("home:/")) {
-          realPath = path.resolve(core.configuration.vfs.root, username, vfsPath.replace("home:/", ""));
-        } else if (vfsPath.startsWith("system:/")) {
-          realPath = path.resolve(core.configuration.public, vfsPath.replace("system:/", ""));
+          realPath = path.resolve(core.configuration.vfs.root, "users", username, vfsPath.replace("home:/", ""));
+
         } else if (vfsPath.startsWith("tmp:/")) {
           realPath = path.resolve(core.configuration.vfs.root, "tmp", vfsPath.replace("tmp:/", ""));
         } else {

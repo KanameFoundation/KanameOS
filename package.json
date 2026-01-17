@@ -8,11 +8,8 @@
     "eslint": "eslint 'src/client/**/*.js' 'src/server/**/*.js'",
     "stylelint": "stylelint 'src/client/*.scss'",
     "serve": "node src/server/index.js",
-    "build:manifest": "node src/scripts/discover.js",
-    "package:discover": "node src/scripts/discover.js",
     "build": "rspack build && node src/scripts/build-packages.js",
-    "watch": "rspack build --watch",
-    "bm": "npm run build && npm run build:manifest"
+    "watch": "rspack build --watch"
   },
   "keywords": [
     "kanameos",

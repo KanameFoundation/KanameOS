@@ -91,7 +91,12 @@ module.exports = {
     },
   },
   packages: {
-    discovery: "packages.json",
+    // List of system packages (node_modules) to load.
+    // We list them here to avoid scanning the entire node_modules directory.
+    system: [
+      "@osjs/gui",
+      "@osjs/dialogs"
+    ],
     metadata: path.join(vfsRoot, "metadata.json"),
   },
   vfs: {
@@ -99,16 +104,16 @@ module.exports = {
     root: vfsRoot,
     mountpoints: [
       {
-        name: "system",
+        name: "os",
         attributes: {
-          root: "{root}/dist",
-          readOnly: true,
+          root: "{vfs}",
+          groups: ["admin"],
         },
       },
       {
         name: "home",
         attributes: {
-          root: "{vfs}/{username}",
+          root: "{vfs}/users/{username}",
         },
       },
       {
