@@ -287,8 +287,12 @@ export default class Core extends CoreBase {
         console.groupEnd();
 
         if (result) {
+          this.emit("osjs/splash:update", 60, "Connecting to server...");
           return connect()
-            .then(() => done())
+            .then(() => {
+              this.emit("osjs/splash:update", 70, "Connection established...");
+              done();
+            })
             .catch((err) => done(err));
         }
 
@@ -493,25 +497,25 @@ export default class Core extends CoreBase {
       // Handle Elevation (Sudo) Requirement
       // fetch utility throws new Error("ELEVATION_REQUIRED") on 403 JSON response
       if (error.message === "ELEVATION_REQUIRED" && this.has("osjs/auth")) {
-          try {
-              const credentials = await this.make("osjs/auth").showElevationPrompt();
-              
-              const headers = options.headers || {};
-              // Send credentials via headers to support GET requests and avoid URL leakage
-              headers['X-Sudo-Username'] = credentials.username;
-              headers['X-Sudo-Password'] = credentials.password;
+        try {
+          const credentials = await this.make("osjs/auth").showElevationPrompt();
 
-              // Retry the request with sudo credentials
-              // pass force=true or same parameters
-              return this.request(url, {
-                  ...options,
-                  headers,
-                  // Do NOT modify body for sudo anymore
-              }, type, force);
-          } catch (e) {
-              console.warn("Elevation cancelled or failed", e);
-              // Fallthrough to throw original error if elevation fails
-          }
+          const headers = options.headers || {};
+          // Send credentials via headers to support GET requests and avoid URL leakage
+          headers['X-Sudo-Username'] = credentials.username;
+          headers['X-Sudo-Password'] = credentials.password;
+
+          // Retry the request with sudo credentials
+          // pass force=true or same parameters
+          return this.request(url, {
+            ...options,
+            headers,
+            // Do NOT modify body for sudo anymore
+          }, type, force);
+        } catch (e) {
+          console.warn("Elevation cancelled or failed", e);
+          // Fallthrough to throw original error if elevation fails
+        }
       }
 
       logger.warn(error);

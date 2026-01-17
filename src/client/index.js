@@ -55,8 +55,10 @@ const init = async () => {
 
   KanameOS.singleton("webos/service", () => hoshinoInstance);
 
+  KanameOS.emit("osjs/splash:update", 10, "Initializing services...");
   await hoshinoInstance.start(services);
 
+  KanameOS.emit("osjs/splash:update", 40, "Booting system...");
   KanameOS.boot();
 };
 

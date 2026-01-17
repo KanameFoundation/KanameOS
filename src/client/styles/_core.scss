@@ -95,7 +95,8 @@
   .osjs-boot-splash-logo {
     width: 100px;
     height: 100px;
-    background-image: url('./favicon.png'); /* Assuming favicon is available, or use a specific logo */
+    background-image: url('./favicon.png');
+    /* Assuming favicon is available, or use a specific logo */
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -108,6 +109,21 @@
     font-weight: 300;
     letter-spacing: 1px;
     color: rgba(255, 255, 255, 0.8);
+  }
+
+  .osjs-boot-splash-progress {
+    width: 300px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 10px;
+  }
+
+  .osjs-boot-splash-bar {
+    height: 100%;
+    background: #3daee9;
+    transition: width 0.3s ease;
   }
 
   /*

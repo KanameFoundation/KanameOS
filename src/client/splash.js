@@ -55,7 +55,8 @@ export default class Splash {
     core.on("osjs/core:boot", () => this.show());
     core.on("osjs/core:booted", () => this.destroy());
     core.on("osjs/core:logged-in", () => this.show());
-    core.on("osjs/core:started", () => this.destroy());
+    core.on("osjs/desktop:ready", () => this.destroy());
+    core.on("osjs/splash:update", (percent, message) => this.update(percent, message));
   }
 
   /**
@@ -65,8 +66,24 @@ export default class Splash {
     this.$loading.innerHTML = `
       <div class="osjs-boot-splash-content">
         <div class="osjs-boot-splash-message">Loading KanameOS...</div>
+        <div class="osjs-boot-splash-progress">
+          <div class="osjs-boot-splash-bar" style="width: 0%"></div>
+        </div>
       </div>
     `;
+  }
+
+  /**
+   * Updates splash progress
+   * @param {number} percent Progress percentage
+   * @param {string} [message] Status message
+   */
+  update(percent, message) {
+    const bar = this.$loading.querySelector(".osjs-boot-splash-bar");
+    const msg = this.$loading.querySelector(".osjs-boot-splash-message");
+
+    if (bar) bar.style.width = `${Math.min(100, Math.max(0, percent))}%`;
+    if (msg && message) msg.textContent = message;
   }
 
   /**
