@@ -4,7 +4,7 @@
 
 # KanameOS™
 
-KanameOS™ is a heavily modified web desktop platform based on [OS.js](https://www.os-js.org/). It provides a unique window manager, tailored application APIs, GUI toolkit, and filesystem abstractions giving you a full desktop experience in your browser.
+KanameOS™ operating system web desktop platform based on [OS.js](https://www.os-js.org/). It provides a unique window manager, tailored application APIs, GUI toolkit, and filesystem abstractions giving you a full desktop experience in your browser.
 
 ## Introduction
 
