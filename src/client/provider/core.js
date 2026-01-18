@@ -48,8 +48,10 @@ import { style, script, playSound } from "../utils/dom";
 import { resourceResolver } from "../utils/desktop";
 import * as dnd from "../utils/dnd";
 import { BasicApplication } from "../basic-application.js";
-import { ServiceProvider } from "../../common/service-provider.js";
-import { EventEmitter } from "../../event/emitter.js";
+import ServiceProviderCommon from "../../common/service-provider.js";
+const { ServiceProvider } = ServiceProviderCommon;
+import EmitterPkg from "../../event/emitter.js";
+const { EventEmitter } = EmitterPkg;
 import logger from "../logger";
 import merge from "deepmerge";
 
@@ -434,10 +436,10 @@ export default class CoreServiceProvider extends ServiceProvider {
       setLocale: (name) =>
         name in strs
           ? this.core
-              .make("osjs/settings")
-              .set("osjs/locale", "language", name)
-              .save()
-              .then(() => this.core.emit("osjs/locale:change", name))
+            .make("osjs/settings")
+            .set("osjs/locale", "language", name)
+            .save()
+            .then(() => this.core.emit("osjs/locale:change", name))
           : Promise.reject(translate("ERR_INVALID_LOCALE", name)),
     };
   }

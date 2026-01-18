@@ -28,7 +28,8 @@
  * @license Simplified BSD License
  */
 
-import {ServiceProvider} from '../../common/service-provider.js';
+import ServiceProviderCommon from '../../common/service-provider.js';
+const { ServiceProvider } = ServiceProviderCommon;
 import Auth from '../auth';
 
 /**

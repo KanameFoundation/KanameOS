@@ -29,7 +29,8 @@
  */
 
 import { h, app } from "hyperapp";
-import { EventEmitter } from "../../../event/emitter";
+import EmitterPkg from "../../../event/emitter.js";
+const { EventEmitter } = EmitterPkg;
 
 const createAttributes = (props, field, disabled) => {
   disabled = disabled ? "disabled" : undefined;
@@ -76,15 +77,15 @@ const createFields = (props, fields, disabled) => {
     const label =
       !isSubmit && f.attributes.name
         ? h(
-            "label",
-            {
-              for: f.attributes.name,
-            },
-            f.label ||
-              f.attributes.name.charAt(0).toUpperCase() +
-                f.attributes.name.slice(1) +
-                ":"
-          )
+          "label",
+          {
+            for: f.attributes.name,
+          },
+          f.label ||
+          f.attributes.name.charAt(0).toUpperCase() +
+          f.attributes.name.slice(1) +
+          ":"
+        )
         : null;
 
     const input = h(

@@ -12,7 +12,8 @@
  * Redistribution and use in source and binary forms...
  */
 
-import { EventEmitter } from "../event/emitter.js";
+import EmitterPkg from "../event/emitter.js";
+const { EventEmitter } = EmitterPkg;
 import createUI from "./adapters/ui/login";
 
 /**

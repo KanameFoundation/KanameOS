@@ -28,7 +28,8 @@
  * @license Simplified BSD License
  */
 
-import {EventEmitter} from '../event/emitter.js';
+import EmitterPkg from '../event/emitter.js';
+const { EventEmitter } = EmitterPkg;
 import logger from './logger';
 
 const eventNames = ['open', 'close', 'message', 'error'];
@@ -133,7 +134,7 @@ export default class Websocket extends EventEmitter {
     }
 
     eventNames.forEach(name => {
-      this.connection[`on${name}`] = () => {};
+      this.connection[`on${name}`] = () => { };
     });
 
     this.reconnecting = clearInterval(this.reconnecting);

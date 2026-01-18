@@ -28,7 +28,8 @@
  * @license Simplified BSD License
  */
 
-import {ServiceProvider} from '../../common/index.js';
+import CommonIndex from '../../common/index.js';
+const { ServiceProvider } = CommonIndex;
 import Filesystem from '../filesystem.js';
 import * as utils from '../utils/vfs';
 

@@ -1,0 +1,40 @@
+
+> kanameos@1.23.0 build
+> vite build && node src/scripts/build-packages.js
+
+vite v7.3.1 building client environment for production...
+transforming...
+✓ 105 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                             0.66 kB │ gzip:  0.40 kB
+dist/assets/favicon.ico                     4.29 kB
+dist/assets/roboto-latin-900.woff2         15.71 kB
+dist/assets/roboto-latin-400.woff2         15.74 kB
+dist/assets/roboto-latin-300.woff2         15.78 kB
+dist/assets/roboto-latin-100.woff2         15.81 kB
+dist/assets/roboto-latin-700.woff2         15.82 kB
+dist/assets/roboto-latin-500.woff2         15.87 kB
+dist/assets/roboto-latin-100italic.woff2   17.01 kB
+dist/assets/roboto-latin-700italic.woff2   17.02 kB
+dist/assets/roboto-latin-500italic.woff2   17.32 kB
+dist/assets/roboto-latin-400italic.woff2   17.32 kB
+dist/assets/roboto-latin-300italic.woff2   17.45 kB
+dist/assets/roboto-latin-900italic.woff2   17.52 kB
+dist/assets/roboto-latin-400.woff          20.27 kB
+dist/assets/roboto-latin-300.woff          20.35 kB
+dist/assets/roboto-latin-700.woff          20.36 kB
+dist/assets/roboto-latin-100.woff          20.37 kB
+dist/assets/roboto-latin-900.woff          20.39 kB
+dist/assets/roboto-latin-500.woff          20.46 kB
+dist/assets/roboto-latin-700italic.woff    21.59 kB
+dist/assets/roboto-latin-100italic.woff    21.70 kB
+dist/assets/roboto-latin-400italic.woff    21.95 kB
+dist/assets/roboto-latin-500italic.woff    22.02 kB
+dist/assets/roboto-latin-300italic.woff    22.20 kB
+dist/assets/roboto-latin-900italic.woff    22.30 kB
+dist/assets/index.css                      27.29 kB │ gzip:  6.78 kB
+dist/assets/elevation.js                    2.37 kB │ gzip:  1.05 kB │ map:   7.23 kB
+dist/assets/boarding.js                     6.21 kB │ gzip:  2.52 kB │ map:  20.35 kB
+dist/assets/kaname.js                     258.69 kB │ gzip: 80.92 kB │ map: 867.41 kB
+✓ built in 1.26s

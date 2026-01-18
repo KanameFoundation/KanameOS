@@ -1,5 +1,6 @@
 import { h, app } from "hyperapp";
-import { EventEmitter } from "../event/emitter";
+import EmitterPkg from "../event/emitter.js";
+const { EventEmitter } = EmitterPkg;
 
 const DEFAULT_REPO = "https://raw.githubusercontent.com/Kaname-Fundation/KanameStore/refs/heads/live/repository.json";
 

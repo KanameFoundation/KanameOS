@@ -43,9 +43,9 @@
 @use "./styles/notifications";
 @use "./styles/search";
 
-@import "~typeface-roboto/index.css";
-@import "~@osjs/gui/dist/main.css";
-@import "~@osjs/dialogs/dist/main.css";
+@import "typeface-roboto/index.css";
+@import "@osjs/gui/dist/main.css";
+@import "@osjs/dialogs/dist/main.css";
 
 body,
 html {

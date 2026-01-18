@@ -28,8 +28,9 @@
  * @license Simplified BSD License
  */
 import merge from 'deepmerge';
-import {EventEmitter} from '../event/emitter.js';
-import {loadOptionsFromConfig} from './utils/windows';
+import EmitterPkg from '../event/emitter.js';
+const { EventEmitter } = EmitterPkg;
+import { loadOptionsFromConfig } from './utils/windows';
 import Websocket from './websocket';
 import Window from './window';
 import logger from './logger';
@@ -90,7 +91,7 @@ export default class Application extends EventEmitter {
     logger.debug('Application::constructor()', data);
 
     const defaultSettings = data.options.settings
-      ? {...data.options.settings}
+      ? { ...data.options.settings }
       : {};
 
     const name = data.metadata && data.metadata.name
@@ -231,10 +232,10 @@ export default class Application extends EventEmitter {
     this.destroy();
 
     setTimeout(() => {
-      this.core.run(this.metadata.name, {...this.args}, {
+      this.core.run(this.metadata.name, { ...this.args }, {
         ...this.options,
         forcePreload: this.core.config('development'),
-        restore: {windows}
+        restore: { windows }
       });
     }, 1);
   }
@@ -278,7 +279,7 @@ export default class Application extends EventEmitter {
       ...options
     };
 
-    const uri = this.resource(path, {type: 'websocket'});
+    const uri = this.resource(path, { type: 'websocket' });
     const ws = new Websocket(this.metadata.name, uri, options.socket);
 
     this.sockets.push(ws);
@@ -310,7 +311,7 @@ export default class Application extends EventEmitter {
    */
   worker(filename, options = {}) {
     const uri = this.resource(filename);
-    const worker =  new Worker(uri, {
+    const worker = new Worker(uri, {
       credentials: 'same-origin',
       ...options
     });
@@ -395,7 +396,7 @@ export default class Application extends EventEmitter {
    */
   getSession() {
     const session = {
-      args: {...this.args},
+      args: { ...this.args },
       name: this.metadata.name,
       windows: this.windows
         .map(w => w.getSession())

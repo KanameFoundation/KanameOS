@@ -28,8 +28,8 @@
  * @licence Simplified BSD License
  */
 
-const {resolveTreeByKey, providerHandler} = require('./utils.js');
-const {EventEmitter} = require('../common/index.js');
+const { resolveTreeByKey, providerHandler } = require('./utils.js');
+const { EventEmitter } = require('../event/emitter.js');
 const merge = require('deepmerge');
 const omitDeep = require('omit-deep');
 
@@ -194,4 +194,4 @@ class CoreBase extends EventEmitter {
   }
 }
 
-module.exports = {CoreBase};
+module.exports = { CoreBase };

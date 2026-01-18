@@ -15,7 +15,8 @@
 import Application from "./application";
 import Websocket from "./websocket";
 import Splash from "./splash";
-import { CoreBase } from "../common/core.js";
+import CoreCommon from "../common/core.js";
+const { CoreBase } = CoreCommon;
 import { fetch } from "./utils/fetch";
 import { urlResolver } from "./utils/url";
 import logger from "./logger";

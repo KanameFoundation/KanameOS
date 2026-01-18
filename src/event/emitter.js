@@ -41,7 +41,7 @@ const getEventNames = name => (name instanceof Array)
  *
  * @desc A standards compatible event handler (observer) with some sugar.
  */
-export class EventEmitter {
+class EventEmitter {
 
   /**
    * Create Event Handler
@@ -92,7 +92,7 @@ export class EventEmitter {
         this.events[n] = [];
       }
 
-      this.events[n].push({callback, options});
+      this.events[n].push({ callback, options });
     });
 
     return this;
@@ -103,7 +103,7 @@ export class EventEmitter {
    * @return {EventEmitter} Returns current instance
    */
   once(name, callback) {
-    return this.on(name, callback, {once: true});
+    return this.on(name, callback, { once: true });
   }
 
   /**
@@ -134,7 +134,7 @@ export class EventEmitter {
         } else {
           this.events[n] = force
             ? []
-            : this.events[n].filter(({options}) => options.persist === true);
+            : this.events[n].filter(({ options }) => options.persist === true);
         }
       });
 
@@ -155,7 +155,7 @@ export class EventEmitter {
       if (this.events[n]) {
         let i = this.events[n].length;
         while (i--) {
-          const {options, callback} = this.events[n][i];
+          const { options, callback } = this.events[n][i];
 
           try {
             callback(...args);
@@ -174,3 +174,5 @@ export class EventEmitter {
   }
 
 }
+
+module.exports = { EventEmitter };

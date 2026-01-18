@@ -8,8 +8,9 @@
     "eslint": "eslint 'src/client/**/*.js' 'src/server/**/*.js'",
     "stylelint": "stylelint 'src/client/*.scss'",
     "serve": "node src/server/index.js",
-    "build": "rspack build && node src/scripts/build-packages.js",
-    "watch": "rspack build --watch"
+    "build": "vite build && node src/scripts/build-packages.js",
+    "watch": "vite build --watch",
+    "dev": "vite"
   },
   "keywords": [
     "kanameos",
@@ -22,11 +23,10 @@
   "license": "BSD-2-Clause",
   "devDependencies": {
     "@osjs/dev-meta": "^2.3.2",
-    "@rspack/cli": "^1.7.1",
-    "@rspack/core": "^1.7.1",
-    "html-webpack-plugin": "^5.6.5",
     "hyperapp": "^1.2.10",
-    "source-map-loader": "^0.2.4"
+    "sass": "^1.97.2",
+    "vite": "^7.3.1",
+    "vite-plugin-commonjs": "^0.10.4"
   },
   "dependencies": {
     "@osjs/dialogs": "^3.1.0",

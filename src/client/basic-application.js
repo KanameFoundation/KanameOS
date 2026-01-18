@@ -28,8 +28,9 @@
  * @license Simplified BSD License
  */
 
-import {EventEmitter} from '../event/emitter.js';
-import {basename, pathname} from './utils/vfs';
+import EmitterPkg from '../event/emitter.js';
+const { EventEmitter } = EmitterPkg;
+import { basename, pathname } from './utils/vfs';
 
 /**
  * Basic Application Options
@@ -162,7 +163,7 @@ export class BasicApplication extends EventEmitter {
    */
   updateWindowTitle() {
     if (this.win) {
-      const {translatableFlat} = this.core.make('osjs/locale');
+      const { translatableFlat } = this.core.make('osjs/locale');
       const prefix = translatableFlat(this.proc.metadata.title);
       const title = this._createTitle(prefix);
 
@@ -255,7 +256,7 @@ export class BasicApplication extends EventEmitter {
    * @param {string} eventName Event to fire
    */
   _setFile(item, eventName) {
-    this.proc.args.file = {...item};
+    this.proc.args.file = { ...item };
     this.emit(eventName, item);
     this.updateWindowTitle();
   }

@@ -27,9 +27,10 @@
  * @author  Anders Evenrud <andersevenrud@gmail.com>
  * @license Simplified BSD License
  */
-import {EventEmitter} from '../event/emitter.js';
-import {droppable} from './utils/dnd';
-import {escapeHtml, createCssText, supportsTransition, getActiveElement} from './utils/dom';
+import EmitterPkg from '../event/emitter.js';
+const { EventEmitter } = EmitterPkg;
+import { droppable } from './utils/dnd';
+import { escapeHtml, createCssText, supportsTransition, getActiveElement } from './utils/dom';
 import {
   createAttributes,
   createState,
@@ -441,7 +442,7 @@ export default class Window extends EventEmitter {
     // Transform percentages in dimension to pixels etc
     if (this.core.has('osjs/desktop')) {
       const rect = this.core.make('osjs/desktop').getRect();
-      const {dimension, position} = transformVectors(rect, this.state.dimension, this.state.position);
+      const { dimension, position } = transformVectors(rect, this.state.dimension, this.state.position);
       this.state.dimension = dimension;
       this.state.position = position;
     }
@@ -454,7 +455,7 @@ export default class Window extends EventEmitter {
 
     // DnD functionality
     if (this.attributes.droppable) {
-      const {dataTransferProperty = 'files'} = this.attributes.droppable === true
+      const { dataTransferProperty = 'files' } = this.attributes.droppable === true
         ? {}
         : this.attributes.droppable;
 
@@ -505,7 +506,7 @@ export default class Window extends EventEmitter {
    * @param {Function} [callback] Callback when window DOM has been constructed
    * @return {Window} this instance
    */
-  render(callback = function() {}) {
+  render(callback = function () { }) {
     if (this.rendered) {
       return this;
     } else if (!this.inited) {
@@ -685,9 +686,9 @@ export default class Window extends EventEmitter {
         ? this.core.make('osjs/desktop').getRect()
         : null;
 
-      const {width, height} = dimensionFromElement(this, rect, container);
+      const { width, height } = dimensionFromElement(this, rect, container);
       if (!isNaN(width) && !isNaN(height)) {
-        this.setDimension({width, height});
+        this.setDimension({ width, height });
       }
     }
   }
@@ -740,7 +741,7 @@ export default class Window extends EventEmitter {
    * @param {WindowDimension} dimension The dimension
    */
   setDimension(dimension) {
-    const {width, height} = {...this.state.dimension, ...dimension || {}};
+    const { width, height } = { ...this.state.dimension, ...dimension || {} };
 
     this.state.dimension.width = width;
     this.state.dimension.height = height;
@@ -754,7 +755,7 @@ export default class Window extends EventEmitter {
    * @param {boolean} [preventDefault=false] Prevents any future position setting in init procedure
    */
   setPosition(position, preventDefault = false) {
-    const {left, top} = {...this.state.position, ...position || {}};
+    const { left, top } = { ...this.state.position, ...position || {} };
 
     this.state.position.top = top;
     this.state.position.left = left;
@@ -837,7 +838,7 @@ export default class Window extends EventEmitter {
     const value = this.state[n];
 
     return ['position', 'dimension', 'styles'].indexOf(n) !== -1
-      ? {...value}
+      ? { ...value }
       : value;
   }
 
@@ -850,8 +851,8 @@ export default class Window extends EventEmitter {
       id: this.id,
       maximized: this.state.maximized,
       minimized: this.state.minimized,
-      position: {...this.state.position},
-      dimension: {...this.state.dimension}
+      position: { ...this.state.position },
+      dimension: { ...this.state.dimension }
     };
   }
 
@@ -926,8 +927,8 @@ export default class Window extends EventEmitter {
    * @return {boolean}
    */
   _checkNextZindex() {
-    const {ontop} = this.attributes;
-    const {zIndex} = this.state;
+    const { ontop } = this.attributes;
+    const { zIndex } = this.state;
 
     const windexes = windows
       .filter(w => w.attributes.ontop === ontop)

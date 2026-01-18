@@ -29,8 +29,9 @@
  */
 
 import * as VFS from './vfs';
-import { EventEmitter } from "../event/emitter";
-import {parseMountpointPrefix, filterMountByGroups, createWatchEvents} from './utils/vfs';
+import EmitterPkg from "../event/emitter.js";
+const { EventEmitter } = EmitterPkg;
+import { parseMountpointPrefix, filterMountByGroups, createWatchEvents } from './utils/vfs';
 import defaultAdapter from './adapters/vfs/null';
 import systemAdapter from './adapters/vfs/system';
 import appsAdapter from './adapters/vfs/apps';
@@ -345,7 +346,7 @@ export default class Filesystem extends EventEmitter {
    */
   createMountpoint(props) {
     const name = props.adapter || this.core.config('vfs.defaultAdapter');
-    const adapter = {...defaultAdapter, ...this.adapters[name](this.core)};
+    const adapter = { ...defaultAdapter, ...this.adapters[name](this.core) };
 
     const result = merge({
       enabled: true,
@@ -410,7 +411,7 @@ export default class Filesystem extends EventEmitter {
         return filterMountByGroups(user.groups)(mg, ms);
       })
       .map(m => ({
-        attributes: {...m.attributes},
+        attributes: { ...m.attributes },
         icon: icon(m.icon),
         name: m.name,
         label: m.label,
