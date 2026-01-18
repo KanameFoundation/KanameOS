@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/KanameFoundation/KanameOS/refs/heads/master/src/client/Logo.svg" alt="KanameOS Logo" width="200" height="200" />
+</p>
+
 # KanameOS
 
 KanameOS is a custom web desktop platform based on [OS.js](https://www.os-js.org/). It provides a window manager, application APIs, GUI toolkit, and filesystem abstractions giving you a full desktop experience in your browser.
