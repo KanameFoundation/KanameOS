@@ -9,7 +9,7 @@ module.exports = {
   mode,
   devtool: "source-map",
   entry: {
-    osjs: path.resolve(__dirname, "src/client/index.js"),
+    kaname: path.resolve(__dirname, "src/client/index.js"),
   },
   resolve: {
     extensions: [".js", ".json"],

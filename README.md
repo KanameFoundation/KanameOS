@@ -1,30 +1,18 @@
 # KanameOS
 
-KanameOS is an [open-source](https://raw.githubusercontent.com/DemuraAIdev/KanameOS/master/LICENSE) web desktop platform with a window manager, application APIs, GUI toolkit, filesystem abstractions and much more based on [OS.js](https://www.os-js.org/)
+KanameOS is a custom web desktop platform based on [OS.js](https://www.os-js.org/). It provides a window manager, application APIs, GUI toolkit, and filesystem abstractions giving you a full desktop experience in your browser.
 
 ## Introduction
 
-KanameOS is a web desktop platform that prioritizes modularity and ease of use.
+KanameOS is tailored to provide a modular and easy-to-use web desktop experience.
 
 ## Installation
 
 > KanameOS runs on `http://localhost:8000` by default.
 
-### Using a pre-made image
-
-You can use the official Docker base image to run KanameOS without downloading this repository.
-
-This image is based on this source code and comes with a minimal setup.
-
-```bash
-docker run -p 8000:8000 osjs/osjs:latest
-```
-
 ### Using this repository
 
 Clone the master branch:
-
-> You can also download an archived version (ex. zip file) instead of using git.
 
 ```bash
 git clone -b master --single-branch https://github.com/KanameFoundation/KanameOS.git
@@ -49,16 +37,6 @@ You can also install this directly onto your system by using the following set o
 ```bash
 # Install dependencies
 npm install
-
-# It's recommended that you update dependencies
-npm update
-
-# Optionally install extra packages:
-# For a list of packages, see https://manual.os-js.org/resource/official/
-npm install @osjs/example-application
-
-# Discover installed packages
-npm run package:discover
 
 # Build client
 npm run build
