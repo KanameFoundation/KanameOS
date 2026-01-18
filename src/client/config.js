@@ -13,7 +13,7 @@
  */
 
 import { clientLocale } from "./utils/locale.js";
-import defaultWallpaper from "./styles/wallpaper.png";
+import defaultWallpaper from "./styles/def.svg";
 import defaultIcon from "./styles/logo-blue-32x32.png";
 
 const createUri = (str) =>
@@ -201,7 +201,7 @@ export default {
       },
       background: {
         src: defaultWallpaper,
-        color: "#572a79",
+        color: "#2c3e50",
         style: "cover",
       },
       iconview: {

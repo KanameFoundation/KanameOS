@@ -4,15 +4,15 @@ KanameOS is an [open-source](https://raw.githubusercontent.com/DemuraAIdev/Kanam
 
 ## Introduction
 
-This is the KanameOS base repository that you can use as a template to make your own distributions, installations and development environments.
+KanameOS is a web desktop platform that prioritizes modularity and ease of use.
 
 ## Installation
 
-> OS.js runs on `http://localhost:8000` by default.
+> KanameOS runs on `http://localhost:8000` by default.
 
 ### Using a pre-made image
 
-You can use the official Docker base image to run OS.js without downloading this repository.
+You can use the official Docker base image to run KanameOS without downloading this repository.
 
 This image is based on this source code and comes with a minimal setup.
 
@@ -27,8 +27,8 @@ Clone the master branch:
 > You can also download an archived version (ex. zip file) instead of using git.
 
 ```bash
-git clone -b master --single-branch https://github.com/os-js/OS.js.git
-cd OS.js
+git clone -b master --single-branch https://github.com/KanameFoundation/KanameOS.git
+cd KanameOS
 ```
 
 #### Docker Compose installation
@@ -44,7 +44,7 @@ docker-compose up
 
 You can also install this directly onto your system by using the following set of commands.
 
-> **NOTE:** Requires Node v10 (or later. **[node 17 not currently supported without workaround](https://github.com/os-js/OS.js/issues/785)**).
+> **NOTE:** Requires Node v18 (or later).
 
 ```bash
 # Install dependencies

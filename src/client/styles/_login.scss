@@ -29,7 +29,7 @@
  */
 
 .osjs-root.login {
-  background-color: #efefef;
+  background-color: transparent;
 }
 
 .osjs-login {
@@ -77,7 +77,7 @@
     display: flex;
     align-items: center;
     margin-bottom: 12px;
-    
+
     &.osjs-login-field-submit {
       justify-content: flex-end;
       margin-top: 20px;

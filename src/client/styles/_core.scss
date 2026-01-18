@@ -40,10 +40,11 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  background-size: cover;
-  background-position: 50% 50%;
-  background-repeat: no-repeat;
-  background-image: url('./styles/wallpaper.png');
+
+  background-image: url('./styles/wallpaper.svg'), linear-gradient(to right, #1a1a1a, #2c3e50);
+  background-size: contain, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
   position: fixed;
   top: 0;
   left: 0;
@@ -76,8 +77,10 @@
   width: 100%;
   height: 100%;
   z-index: 9999999999;
-  background-color: #1a1a1a;
-  background-image: linear-gradient(135deg, #1a1a1a 0%, #2c3e50 100%);
+  background-image: url('./styles/wallpaper.svg'), linear-gradient(to right, #1a1a1a, #2c3e50);
+  background-size: contain, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
   color: #fff;
   display: flex;
   justify-content: center;
@@ -90,18 +93,6 @@
     flex-direction: column;
     align-items: center;
     gap: 20px;
-  }
-
-  .osjs-boot-splash-logo {
-    width: 100px;
-    height: 100px;
-    background-image: url('./favicon.png');
-    /* Assuming favicon is available, or use a specific logo */
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    filter: drop-shadow(0 0 10px rgba(61, 174, 233, 0.5));
-    /* animation: pulse 2s infinite ease-in-out; */
   }
 
   .osjs-boot-splash-branding {
