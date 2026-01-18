@@ -10,7 +10,7 @@ KanameOS™ operating system web desktop platform based on [OS.js](https://www.o
 
 KanameOS™ is tailored to provide a modular and easy-to-use web desktop experience.
 
-## Installation
+## Running
 
 > KanameOS™ runs on `http://localhost:8000` by default.
 
