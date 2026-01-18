@@ -1,7 +1,7 @@
 {
   "name": "kanameos",
   "version": "1.23.0",
-  "description": "KanameOS - Web Based Operating System",
+  "description": "KanameOS™ - Web Based Operating System",
   "main": "index.js",
   "scripts": {
     "test": "npm run eslint && npm run stylelint",

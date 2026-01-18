@@ -1,5 +1,5 @@
 /*
- * KanameOS - Web Based Operating System
+ * KanameOS™ - Web Based Operating System
  *
  * Copyright (c) 2026 Abdul Vaiz Vahry Iskandar <cyberaioff@gmail.com>
  * All rights reserved.
@@ -28,7 +28,7 @@ const HoshinoInit = require("./init/hoshino.js");
 const fs = require("fs-extra");
 const path = require("path");
 
-console.log("[KanameOS] Booting...");
+console.log("[KanameOS™] Booting...");
 // Ensure metadata.json exists in the persistent VFS (important for Docker volumes)
 const ensureMetadata = () => {
   try {
@@ -36,12 +36,12 @@ const ensureMetadata = () => {
     const defaultPath = path.resolve(config.root, "vfs/metadata.json");
 
     if (!fs.existsSync(targetPath) && fs.existsSync(defaultPath)) {
-      console.log(`[KanameOS] Seeding metadata.json to ${targetPath}`);
+      console.log(`[KanameOS™] Seeding metadata.json to ${targetPath}`);
       fs.ensureDirSync(path.dirname(targetPath));
       fs.copySync(defaultPath, targetPath);
     }
   } catch (e) {
-    console.warn("[KanameOS] Failed to seed metadata.json:", e);
+    console.warn("[KanameOS™] Failed to seed metadata.json:", e);
   }
 };
 
@@ -53,12 +53,12 @@ const ensureVFSDirectories = () => {
 
     [tmpDir, appsDir, usersDir].forEach(dir => {
       if (!fs.existsSync(dir)) {
-        console.log(`[KanameOS] Creating directory at ${dir}`);
+        console.log(`[KanameOS™] Creating directory at ${dir}`);
         fs.ensureDirSync(dir);
       }
     });
   } catch (e) {
-    console.warn("[KanameOS] Failed to create VFS directories:", e);
+    console.warn("[KanameOS™] Failed to create VFS directories:", e);
   }
 };
 

@@ -1,5 +1,5 @@
 /*
- * KanameOS - Web Based Operating System
+ * KanameOS™ - Web Based Operating System
  *
  * Copyright (c) 2026 Abdul Vaiz Vahry Iskandar <cyberaioff@gmail.com>
  * All rights reserved.
@@ -57,7 +57,7 @@ export default class Login extends EventEmitter {
      */
     this.options = {
       id: "osjs-login",
-      title: "Welcome to KanameOS",
+      title: "Welcome to KanameOS™",
       stamp: core.config("version"),
       logo: {
         position: "top",

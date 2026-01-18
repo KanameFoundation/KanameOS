@@ -48,7 +48,7 @@ export const en_EN = {
   ERR_INVALID_LOCALE: "Invalid locale '{0}'",
   LBL_CONNECTION_LOST: "Connection Lost",
   LBL_CONNECTION_LOST_MESSAGE:
-    "The connection to the KanameOS was lost. Reconnecting....",
+    "The connection to the KanameOS™ was lost. Reconnecting....",
   LBL_CONNECTION_RESTORED: "Connection Restored",
   LBL_CONNECTION_RESTORED_MESSAGE:
     "The connection to the OS.js server was restored.",

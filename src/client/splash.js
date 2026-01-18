@@ -65,7 +65,7 @@ export default class Splash {
   init() {
     this.$loading.innerHTML = `
       <div class="osjs-boot-splash-content">
-        <div class="osjs-boot-splash-branding">Loading KanameOS...</div>
+        <div class="osjs-boot-splash-branding">Loading KanameOS™...</div>
         <div class="osjs-boot-splash-message">Initializing...</div>
         <div class="osjs-boot-splash-progress">
           <div class="osjs-boot-splash-bar" style="width: 0%"></div>

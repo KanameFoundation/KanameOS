@@ -1,5 +1,5 @@
 /*
- * KanameOS - Web Based Operating System
+ * KanameOS™ - Web Based Operating System
  *
  * Copyright (c) 2026 Abdul Vaiz Vahry Iskandar <cyberaioff@gmail.com>
  * All rights reserved.

@@ -1,5 +1,5 @@
 /*
- * KanameOS - Copyright (c) 2026 Abdul Vaiz
+ * KanameOS™ - Copyright (c) 2026 Abdul Vaiz
  * Based on OS.js (c) Anders Evenrud. BSD-2-Clause License.
  */
 
@@ -109,7 +109,7 @@ class Core extends CoreBase {
    * @param {Function} [done] Callback when done
    * @return {Promise<undefined>}
    */
-  async destroy(done = () => {}) {
+  async destroy(done = () => { }) {
     if (this.destroyed) {
       return;
     }

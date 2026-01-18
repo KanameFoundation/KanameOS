@@ -41,7 +41,7 @@ export default class Boarding extends EventEmitter {
           },
         },
         [
-          h("h1", { style: { marginTop: "0", marginBottom: "10px" } }, "Welcome to KanameOS"),
+          h("h1", { style: { marginTop: "0", marginBottom: "10px" } }, "Welcome to KanameOS™"),
           h("p", { style: { marginBottom: "20px", color: "#ccc" } }, "Let's set up your system."),
 
           state.error ? h("div", {

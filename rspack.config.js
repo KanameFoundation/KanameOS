@@ -32,7 +32,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, "src/client/index.ejs"),
       favicon: path.resolve(__dirname, "src/client/favicon.ico"),
-      title: "KanameOS",
+      title: "KanameOS™",
     }),
     new rspack.CssExtractRspackPlugin({
       filename: "[name].css",

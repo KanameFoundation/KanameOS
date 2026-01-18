@@ -1,18 +1,18 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/KanameFoundation/KanameOS/refs/heads/master/src/client/Logo.svg" alt="KanameOS Logo" width="200" height="200" />
+  <img src="https://raw.githubusercontent.com/KanameFoundation/KanameOS/refs/heads/master/src/client/Logo.svg" alt="KanameOS™ Logo" width="200" height="200" />
 </p>
 
-# KanameOS
+# KanameOS™
 
-KanameOS is a custom web desktop platform based on [OS.js](https://www.os-js.org/). It provides a window manager, application APIs, GUI toolkit, and filesystem abstractions giving you a full desktop experience in your browser.
+KanameOS™ is a heavily modified web desktop platform based on [OS.js](https://www.os-js.org/). It provides a unique window manager, tailored application APIs, GUI toolkit, and filesystem abstractions giving you a full desktop experience in your browser.
 
 ## Introduction
 
-KanameOS is tailored to provide a modular and easy-to-use web desktop experience.
+KanameOS™ is tailored to provide a modular and easy-to-use web desktop experience.
 
 ## Installation
 
-> KanameOS runs on `http://localhost:8000` by default.
+> KanameOS™ runs on `http://localhost:8000` by default.
 
 ### Using this repository
 
