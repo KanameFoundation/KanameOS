@@ -32,7 +32,7 @@ const fs = require('fs-extra');
 const url = require('url');
 const sanitizeFilename = require('sanitize-filename');
 const formidable = require('formidable');
-const {Stream} = require('stream');
+const { Stream } = require('stream');
 
 /**
  * A map of error codes
@@ -120,9 +120,9 @@ const validateGroups = (userGroups, method, mountpoint, strict) => {
 const checkMountpointPermission = (req, res, method, readOnly, strict) => {
   const userGroups = req.session.user.groups;
 
-  return ({mount}) => {
+  return ({ mount }) => {
     if (readOnly) {
-      const {attributes, name} = mount;
+      const { attributes, name } = mount;
 
       if (attributes.readOnly) {
         const failed = typeof readOnly === 'function'
@@ -156,7 +156,7 @@ const createError = (code, message) => {
  * Resolves a mountpoint
  */
 const mountpointResolver = core => async (path) => {
-  const {adapters, mountpoints} = core.make('osjs/vfs');
+  const { adapters, mountpoints } = core.make('osjs/vfs');
   const prefix = getPrefix(path);
   const mount = mountpoints.find(m => m.name === prefix);
 
@@ -168,7 +168,7 @@ const mountpointResolver = core => async (path) => {
     ? adapters[mount.adapter]
     : adapters.system);
 
-  return Object.freeze({mount, adapter});
+  return Object.freeze({ mount, adapter });
 };
 
 /*
@@ -192,9 +192,9 @@ const assembleQueryData = (data) => {
  * Parses URL Body
  */
 const parseGet = req => {
-  const {query} = url.parse(req.url, true);
+  const { query } = url.parse(req.url, true);
   const assembledQuery = assembleQueryData(query);
-  return Promise.resolve({fields: assembledQuery, files: {}});
+  return Promise.resolve({ fields: assembledQuery, files: {} });
 };
 
 /*
@@ -205,7 +205,7 @@ const parseJson = req => {
     req.headers['content-type'].indexOf('application/json') !== -1;
 
   if (isJson) {
-    return {fields: req.body, files: {}};
+    return { fields: req.body, files: {} };
   }
 
   return false;
@@ -214,8 +214,10 @@ const parseJson = req => {
 /*
  * Parses Form Body
  */
-const parseFormData = (req, {maxFieldsSize, maxFileSize}) => {
+const parseFormData = (req, { maxFieldsSize, maxFileSize }) => {
   const form = new formidable.IncomingForm();
+  form.allowEmptyFiles = true;
+  form.minFileSize = 0;
   form.maxFieldsSize = maxFieldsSize;
   form.maxFileSize = maxFileSize;
 
@@ -241,7 +243,7 @@ const parseFormData = (req, {maxFieldsSize, maxFileSize}) => {
         return iter;
       }, {});
 
-      return resolve({fields: newFields, files: newFiles});
+      return resolve({ fields: newFields, files: newFiles });
     });
   });
 };
@@ -272,7 +274,7 @@ const methodArguments = {
   stat: ['path'],
   readdir: ['path'],
   readfile: ['path'],
-  writefile: ['path', upload => ({upload})],
+  writefile: ['path', upload => ({ upload })],
   mkdir: ['path'],
   unlink: ['path'],
   touch: ['path'],
